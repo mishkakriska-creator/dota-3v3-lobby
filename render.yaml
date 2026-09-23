@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: dota-3v3-lobby
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
