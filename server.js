@@ -41,7 +41,7 @@ const view=(id,r)=>({id,name:r.name,players:r.clients.size,maxPlayers:2,createdA
 
 function createRoom(name='Лобби',hostProfile=null){
   let id;do id=crypto.randomBytes(5).toString('hex');while(rooms.has(id));
-  const r={name:String(name||'Лобби').slice(0,64),hostProfile,clients:new Map(),createdAt:new Date().toISOString(),latestState:null,emptyAt:null};
+  const r={name:String(name||'Лобби').slice(0,64),hostProfile,clients:new Map(),createdAt:new Date().toISOString(),latestState:null,emptyAt:null,started:false};
   rooms.set(id,r);
   return view(id,r);
 }
@@ -143,6 +143,7 @@ wss.on('connection',(ws,ctx)=>{
   const player=room.clients.size;
   room.clients.set(ws,player);
   room.emptyAt=null;
+  if(room.clients.size>=2)room.started=true;
   ws.send(JSON.stringify({type:'hello',player,state:room.latestState}));
 
   for(const[c]of room.clients){
@@ -161,6 +162,14 @@ wss.on('connection',(ws,ctx)=>{
 
   ws.on('close',()=>{
     room.clients.delete(ws);
+
+    // If the host cancels matchmaking before anyone joins, remove the lobby immediately.
+    if(player===0 && !room.started){
+      rooms.delete(ctx.roomId);
+      console.log(`Lobby ${ctx.roomId} removed: host cancelled before match start`);
+      return;
+    }
+
     if(room.clients.size){
       for(const[c]of room.clients){
         if(c.readyState===1)c.send(JSON.stringify({type:'info',message:`Player ${player} disconnected`,playerCount:room.clients.size}));
