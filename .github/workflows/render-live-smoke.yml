@@ -1,0 +1,90 @@
+name: Live Render smoke test
+
+on:
+  push:
+    branches: [stats-backup]
+
+jobs:
+  live-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify live Render stats and multiplayer
+        shell: bash
+        run: |
+          cat > /tmp/live-test.mjs <<'EOF'
+          const HTTP='https://dota-3v3-lobby.onrender.com';
+          const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+          async function retry(fn,tries=36,wait=5000){
+            let last;
+            for(let i=0;i<tries;i++){
+              try{return await fn()}catch(e){last=e;console.log('retry',i+1,e.message);await sleep(wait)}
+            }
+            throw last;
+          }
+          const health=await retry(async()=>{
+            const r=await fetch(HTTP+'/health',{cache:'no-store'});
+            if(!r.ok)throw new Error('health '+r.status);
+            const j=await r.json();
+            if(Number(j.statsApiVersion||0)<2)throw new Error('stats API still old');
+            return j;
+          });
+          console.log('HEALTH_V2_PASS',health);
+
+          const before=await retry(async()=>{
+            const r=await fetch(HTTP+'/api/stats-export',{cache:'no-store'});
+            if(!r.ok)throw new Error('export '+r.status);
+            return r.json();
+          });
+          const beforeMatches=Object.keys(before.matches||{}).length;
+
+          const dry=await fetch(HTTP+'/api/match',{
+            method:'POST',
+            headers:{'content-type':'application/json'},
+            body:JSON.stringify({
+              testOnly:true,
+              matchId:'ci-safe-'+Date.now(),
+              winner:0,
+              players:[{id:'ci-safe-p1',nick:'CI SAFE P1',rating:100},{id:'ci-safe-p2',nick:'CI SAFE P2',rating:100}],
+              teams:[['mars','broodmother','axe'],['enigma','arcwarden','pudge']]
+            })
+          });
+          const d=await dry.json();
+          if(!dry.ok||!d.ok||d.testOnly!==true)throw new Error('testOnly failed '+JSON.stringify(d));
+          if(!d.changedPlayers?.some(p=>p.nick==='CI SAFE P1'&&p.rating===140))throw new Error('winner MMR wrong');
+          if(!d.changedPlayers?.some(p=>p.nick==='CI SAFE P2'&&p.rating===80))throw new Error('loser MMR wrong');
+          if(!d.heroes?.some(h=>h.heroId==='mars'&&h.winrate===100))throw new Error('winner hero winrate wrong');
+          if(!d.heroes?.some(h=>h.heroId==='enigma'&&h.winrate===0))throw new Error('loser hero winrate wrong');
+          console.log('GLOBAL_STATS_CALC_PASS');
+
+          const after=await fetch(HTTP+'/api/stats-export',{cache:'no-store'}).then(r=>r.json());
+          if(Object.keys(after.matches||{}).length!==beforeMatches)throw new Error('testOnly polluted live stats');
+          if(Object.values(after.players||{}).some(p=>String(p.nick||'').startsWith('CI SAFE')))throw new Error('test player leaked');
+          console.log('GLOBAL_STATS_NO_POLLUTION_PASS');
+
+          const room=await fetch(HTTP+'/api/lobbies',{
+            method:'POST',
+            headers:{'content-type':'application/json'},
+            body:JSON.stringify({name:'Live smoke '+Date.now(),hostProfile:{nick:'Smoke',rating:0}})
+          }).then(async r=>{if(!r.ok)throw new Error('room '+r.status);return r.json()});
+          const wsurl=HTTP.replace('https://','wss://')+'/ws?room='+encodeURIComponent(room.id);
+          const open=name=>new Promise((resolve,reject)=>{
+            const ws=new WebSocket(wsurl),t=setTimeout(()=>reject(new Error(name+' open timeout')),20000);
+            ws.addEventListener('open',()=>{clearTimeout(t);resolve(ws)},{once:true});
+            ws.addEventListener('error',()=>{clearTimeout(t);reject(new Error(name+' error'))},{once:true});
+          });
+          const a=await open('P1'); await sleep(300); const b=await open('P2'); await sleep(600);
+          const picks=['mars','enigma','broodmother','arcwarden','axe','pudge'];
+          for(let i=0;i<picks.length;i++){
+            (i%2?a:b).send(JSON.stringify({type:'state',G:null,chosen:picks.slice(0,i+1),phase:'draft'}));
+            await sleep(250);
+            if(a.readyState!==WebSocket.OPEN||b.readyState!==WebSocket.OPEN)throw new Error('socket dropped at pick '+(i+1));
+          }
+          a.close(1000,'done'); b.close(1000,'done');
+          console.log('MULTIPLAYER_DRAFT_PASS');
+          console.log('LIVE_RENDER_FULL_PASS');
+          EOF
+          node /tmp/live-test.mjs
