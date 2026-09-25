@@ -92,7 +92,7 @@ function safeWsSend(ws,payload,context=''){
 
 function createRoom(name='Лобби',hostProfile=null){
   let id;do id=crypto.randomBytes(5).toString('hex');while(rooms.has(id));
-  const r={name:String(name||'Лобби').slice(0,64),hostProfile,clients:new Map(),createdAt:new Date().toISOString(),latestState:null,emptyAt:null,started:false};
+  const r={name:String(name||'Лобби').slice(0,64),hostProfile,profiles:[hostProfile||null,null],clients:new Map(),createdAt:new Date().toISOString(),latestState:null,emptyAt:null,started:false};
   rooms.set(id,r);
   return view(id,r);
 }
@@ -230,11 +230,34 @@ wss.on('connection',(ws,ctx)=>{
       }
       if(!m||typeof m!=='object')return;
 
+      if(m.type==='profile'&&m.profile&&typeof m.profile==='object'){
+        room.profiles[player]=m.profile;
+        if(player===0)room.hostProfile=m.profile;
+      }
+
       if(m.type==='state'){
         room.latestState=m;
         room.lastStateAt=Date.now();
         const picks=Array.isArray(m.chosen)?m.chosen.length:0;
         console.log(`State room=${ctx.roomId} player=${player} phase=${String(m.phase||'')} picks=${picks} bytes=${raw.length}`);
+
+        const g=m.G;
+        if(g&&g.matchId!=null&&[0,1].includes(Number(g.winner))&&Array.isArray(g.teams)&&g.teams.length>=2){
+          const profiles=[0,1].map(i=>{
+            const p=room.profiles?.[i]||{};
+            return {
+              id:String(p.globalId||p.id||''),
+              nick:p.nick||(`Игрок ${i+1}`),
+              rating:Number(p.rating)||0
+            };
+          });
+          const teams=[0,1].map(i=>(Array.isArray(g.teams[i])?g.teams[i]:[])
+            .filter(h=>h&&h.id&&h.id!=='arcwarden_clone')
+            .map(h=>h.id)
+            .slice(0,3));
+          const recorded=applyMatch({matchId:String(g.matchId),winner:Number(g.winner),players:profiles,teams});
+          if(recorded.ok&&!recorded.duplicate)console.log('Global match recorded from WebSocket state',String(g.matchId));
+        }
       }
 
       if(['state','version','profile'].includes(m.type)){
