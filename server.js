@@ -39,6 +39,21 @@ const cors={
 const send=(res,code,obj)=>{res.writeHead(code,cors);res.end(JSON.stringify(obj));};
 const view=(id,r)=>({id,name:r.name,players:r.clients.size,maxPlayers:2,createdAt:r.createdAt,hostProfile:r.hostProfile});
 
+const wsOpen=ws=>!!ws&&ws.readyState===1;
+function safeWsSend(ws,payload,context=''){
+  if(!wsOpen(ws))return false;
+  try{
+    const data=typeof payload==='string'?payload:JSON.stringify(payload);
+    ws.send(data,err=>{
+      if(err)console.error('WS send failed',context,err?.message||err);
+    });
+    return true;
+  }catch(e){
+    console.error('WS send threw',context,e?.message||e);
+    return false;
+  }
+}
+
 function createRoom(name='Лобби',hostProfile=null){
   let id;do id=crypto.randomBytes(5).toString('hex');while(rooms.has(id));
   const r={name:String(name||'Лобби').slice(0,64),hostProfile,clients:new Map(),createdAt:new Date().toISOString(),latestState:null,emptyAt:null,started:false};
@@ -125,14 +140,16 @@ server.on('upgrade',(req,socket,head)=>{
 });
 
 wss.on('connection',(ws,ctx)=>{
+  ws.on('error',err=>console.error('WebSocket error',ctx?.control?'control':ctx?.roomId||'unknown',err?.message||err));
+
   if(ctx.control){
     ws.on('message',buf=>{
       let m;try{m=JSON.parse(String(buf))}catch{return}
-      if(m.type==='ping')ws.send(JSON.stringify({type:'pong'}));
-      if(m.type==='lobby_list')ws.send(JSON.stringify({type:'lobby_list',lobbies:[...rooms].map(([id,r])=>view(id,r))}));
-      if(m.type==='lobby_create')ws.send(JSON.stringify({type:'lobby_created',room:createRoom(m.name,m.hostProfile||null)}));
-      if(m.type==='leaderboard')ws.send(JSON.stringify({type:'leaderboard',players:leaderboard()}));
-      if(m.type==='hero_stats')ws.send(JSON.stringify({type:'hero_stats',heroes:heroStats()}));
+      if(m.type==='ping')safeWsSend(ws,{type:'pong'},'control:pong');
+      if(m.type==='lobby_list')safeWsSend(ws,{type:'lobby_list',lobbies:[...rooms].map(([id,r])=>view(id,r))},'control:lobby_list');
+      if(m.type==='lobby_create')safeWsSend(ws,{type:'lobby_created',room:createRoom(m.name,m.hostProfile||null)},'control:lobby_create');
+      if(m.type==='leaderboard')safeWsSend(ws,{type:'leaderboard',players:leaderboard()},'control:leaderboard');
+      if(m.type==='hero_stats')safeWsSend(ws,{type:'hero_stats',heroes:heroStats()},'control:hero_stats');
     });
     return;
   }
@@ -144,23 +161,56 @@ wss.on('connection',(ws,ctx)=>{
   room.clients.set(ws,player);
   room.emptyAt=null;
   if(room.clients.size>=2)room.started=true;
-  ws.send(JSON.stringify({type:'hello',player,state:room.latestState}));
+  safeWsSend(ws,{type:'hello',player,state:room.latestState},'hello');
 
   for(const[c]of room.clients){
-    if(c!==ws&&c.readyState===1)c.send(JSON.stringify({type:'info',message:`Player ${player} joined`,playerCount:room.clients.size}));
+    if(c!==ws)safeWsSend(c,{type:'info',message:`Player ${player} joined`,playerCount:room.clients.size},'player_joined');
   }
 
   ws.on('message',buf=>{
-    let m;try{m=JSON.parse(String(buf))}catch{return}
-    if(m.type==='state')room.latestState=m;
-    if(['state','version','profile'].includes(m.type)){
-      for(const[c]of room.clients){
-        if(c!==ws&&c.readyState===1)c.send(JSON.stringify((m.type==='version'||m.type==='profile')?{...m,player}:m));
+    try{
+      const raw=String(buf);
+      if(raw.length>2_000_000){
+        console.warn(`Ignored oversized WS message room=${ctx.roomId} player=${player} bytes=${raw.length}`);
+        return;
       }
+
+      let m;
+      try{m=JSON.parse(raw)}
+      catch(e){
+        console.warn(`Ignored invalid JSON room=${ctx.roomId} player=${player}`,e?.message||e);
+        return;
+      }
+      if(!m||typeof m!=='object')return;
+
+      if(m.type==='state'){
+        room.latestState=m;
+        room.lastStateAt=Date.now();
+        const picks=Array.isArray(m.chosen)?m.chosen.length:0;
+        console.log(`State room=${ctx.roomId} player=${player} phase=${String(m.phase||'')} picks=${picks} bytes=${raw.length}`);
+      }
+
+      if(['state','version','profile'].includes(m.type)){
+        const out=(m.type==='version'||m.type==='profile')?{...m,player}:m;
+        let encoded;
+        try{encoded=JSON.stringify(out)}
+        catch(e){
+          console.error(`State stringify failed room=${ctx.roomId} player=${player} type=${m.type}`,e?.message||e);
+          return;
+        }
+
+        for(const[c]of room.clients){
+          if(c!==ws)safeWsSend(c,encoded,`relay:${m.type}:room=${ctx.roomId}:from=${player}`);
+        }
+      }
+    }catch(e){
+      // A bad gameplay packet must never kill the player's WebSocket.
+      console.error(`Gameplay message handler failed room=${ctx.roomId} player=${player}`,e?.stack||e?.message||e);
     }
   });
 
-  ws.on('close',()=>{
+  ws.on('close',(code,reason)=>{
+    console.log(`Player ${player} socket closed room=${ctx.roomId} code=${code} reason=${String(reason||'')}`);
     room.clients.delete(ws);
 
     // If the host cancels matchmaking before anyone joins, remove the lobby immediately.
@@ -172,7 +222,7 @@ wss.on('connection',(ws,ctx)=>{
 
     if(room.clients.size){
       for(const[c]of room.clients){
-        if(c.readyState===1)c.send(JSON.stringify({type:'info',message:`Player ${player} disconnected`,playerCount:room.clients.size}));
+        safeWsSend(c,{type:'info',message:`Player ${player} disconnected`,playerCount:room.clients.size},'player_disconnected');
       }
     }else{
       room.emptyAt=Date.now();
@@ -187,7 +237,7 @@ wss.on('connection',(ws,ctx)=>{
 setInterval(()=>{
   for(const[,r]of rooms){
     for(const[ws]of r.clients){
-      if(ws.readyState===1)ws.ping();
+      if(wsOpen(ws)){try{ws.ping()}catch(e){console.error('WS ping failed',e?.message||e)}}
     }
   }
 },30000).unref();
