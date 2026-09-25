@@ -17,8 +17,138 @@ button{cursor:pointer;border:1px solid #41516b;background:#1b2637;color:#eef4ff;
 .center{display:flex;flex-direction:column;min-width:0}.battle-head{text-align:center;font-size:22px;font-weight:950;color:#ffd069;margin:14px 0}.battle-meta{text-align:center;color:#9fb0c7;margin-bottom:10px}.log{flex:1;min-height:310px;max-height:420px;overflow:auto;background:#080d15;border:1px solid #2a3850;border-radius:12px;padding:12px}.log p{margin:0 0 8px;line-height:1.35}.actions{display:flex;gap:8px;margin-top:12px}.actions button{flex:1}.attack{background:#7e3039;border-color:#a84955}.end{background:#27344a}
 .winner{padding:12px;text-align:center;border-radius:10px;background:#193824;color:#7ff0a5;margin-bottom:10px;font-weight:950}
 .modal-wrap{position:fixed;inset:0;background:#000a;display:grid;place-items:center;padding:18px;z-index:40}.modal{width:min(980px,96vw);max-height:82vh;overflow:auto;background:#0b111a;border:1px solid #34445c;border-radius:18px;padding:20px;box-shadow:0 24px 80px #000}.modal-head{display:flex;align-items:center;margin-bottom:14px}.modal-head h3{margin:0}.close{margin-left:auto}.stat-row{display:flex;align-items:center;gap:14px;padding:11px;border:1px solid #2f3d54;border-radius:11px;background:#111a27;margin:8px 0}.stat-row img{width:74px;height:44px;object-fit:cover;border-radius:7px}.stat-row b:last-child{margin-left:auto}.rank{font-size:22px;color:#78a7ff;width:44px}.note{color:#8998ae;font-size:13px;margin-top:10px}
-@media(max-width:1050px){.app{padding:8px}.draft-layout{grid-template-columns:190px 1fr 190px;gap:8px}.pool{grid-template-columns:repeat(4,1fr)}.game-layout{grid-template-columns:1fr}.center{order:-1}.team{min-height:330px}.card{width:150px}.card img{height:175px}}
-@media(max-width:720px){.topbar{flex-wrap:wrap}.brand{font-size:21px}.profile{width:100%}.profile input{flex:1}.draft-layout{display:block}.slots{display:flex;gap:6px;margin-bottom:10px}.slot-title{display:none}.slot{height:82px;flex:1;margin:0}.slot img{width:64px}.slot span{display:none}.pool{grid-template-columns:repeat(3,1fr)}.hero-pick img{height:95px}.game-layout{display:block}.team{min-height:auto;overflow-x:auto;justify-content:flex-start;margin:8px 0}.card{min-width:145px}.card img{height:165px}}
+/* Responsive sizing */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+.app{width:min(100%,1540px)}
+.menu-actions{flex-wrap:wrap}
+
+/* Tablets and narrow desktop */
+@media(max-width:1050px){
+  .app{padding:8px}
+  .topbar{padding:10px 12px;margin-bottom:8px}
+  .brand{font-size:clamp(18px,2.6vw,24px)}
+  .screen{padding:12px}
+  .menu-head{margin-bottom:10px;gap:10px}
+  .menu-head h2{font-size:clamp(18px,2.5vw,22px)}
+  button{padding:8px 10px;font-size:13px}
+
+  .draft-layout{grid-template-columns:clamp(125px,17vw,180px) minmax(0,1fr) clamp(125px,17vw,180px);gap:8px}
+  .slots{padding:7px}
+  .slot{height:clamp(72px,11vh,105px);margin:6px 0;font-size:22px}
+  .slot img{width:clamp(54px,7vw,78px)}
+  .slot span{padding:7px;font-size:11px}
+  .pool{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+  .hero-pick img{height:clamp(72px,11vw,105px)}
+  .hero-pick .nm{font-size:10px;padding:5px 6px}
+  .hero-pick .st{font-size:9px;padding:0 6px 5px}
+  .draft-foot{margin-top:8px}
+
+  .game-layout{grid-template-columns:minmax(0,1fr) clamp(220px,28vw,320px) minmax(0,1fr);gap:7px}
+  .team{gap:5px;min-height:clamp(290px,55vh,480px);padding:7px}
+  .card{width:clamp(82px,10.5vw,128px)}
+  .card img{height:clamp(108px,15vw,158px)}
+  .card .name{font-size:10px;padding:6px 7px}
+  .card .stats{font-size:10px;padding:0 7px 6px}
+  .hpbar{margin:0 7px 8px}
+  .battle-head{font-size:clamp(15px,2vw,20px);margin:8px 0}
+  .battle-meta{font-size:11px;margin-bottom:6px}
+  .log{min-height:220px;max-height:44vh;padding:8px;font-size:11px}
+  .log p{margin-bottom:5px}
+  .actions{gap:5px;margin-top:6px}
+}
+
+/* Phones held horizontally: keep the real 3-column game layout,
+   just make everything proportionally smaller. */
+@media(max-width:950px) and (orientation:landscape){
+  body{overflow-x:hidden}
+  .app{padding:5px;max-width:none}
+  .topbar{padding:6px 8px;border-radius:9px;gap:8px}
+  .topbar .status{font-size:10px}
+  .profile{gap:5px}
+  .profile input{width:120px;padding:5px 7px;font-size:11px}
+  .profile button{padding:5px 7px;font-size:10px}
+  .brand{font-size:16px}
+  .brand small{font-size:8px!important}
+
+  .screen{padding:7px;border-radius:10px}
+  .menu-head{align-items:center;margin-bottom:6px}
+  .menu-head h2{font-size:16px}
+  .note{font-size:9px;margin-top:3px}
+  .menu-actions{gap:4px}
+  .menu-actions button{padding:5px 7px;font-size:9px;border-radius:7px}
+
+  .lobby-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .lobby{padding:7px;border-radius:8px}
+  .lobby strong{font-size:11px}
+  .lobby small{font-size:9px}
+
+  .draft-layout{grid-template-columns:120px minmax(0,1fr) 120px;gap:5px}
+  .slots{padding:5px}
+  .slot-title{font-size:10px;margin-bottom:4px}
+  .slot{height:clamp(58px,17vh,78px);margin:4px 0;border-radius:7px}
+  .slot img{width:46px}
+  .slot span{font-size:9px;padding:5px}
+  .pool{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+  .hero-pick{border-radius:6px}
+  .hero-pick img{height:clamp(54px,14vh,74px)}
+  .hero-pick .nm{font-size:8px;padding:3px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hero-pick .st{font-size:7px;padding:0 4px 3px}
+  .draft-foot{margin-top:5px;gap:5px}
+  .turn-pill{padding:5px 7px;font-size:9px}
+  #startBtn{padding:5px 8px;font-size:9px}
+
+  .game-layout{grid-template-columns:minmax(0,1fr) clamp(185px,25vw,250px) minmax(0,1fr);gap:5px}
+  .team{gap:3px;min-height:calc(100dvh - 145px);padding:5px;border-radius:9px;align-items:center}
+  .card{width:clamp(72px,9.5vw,102px);border-radius:8px}
+  .card.front{transform:translateY(-4px)}
+  .card img{height:clamp(92px,13vw,126px)}
+  .card .name{font-size:8px;padding:4px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card .stats{font-size:8px;padding:0 5px 4px}
+  .hpbar{height:4px;margin:0 5px 5px}
+  .battle-head{font-size:13px;margin:4px 0}
+  .battle-meta{font-size:9px;margin-bottom:4px}
+  .log{min-height:0;height:calc(100dvh - 230px);max-height:none;padding:6px;font-size:9px;border-radius:7px}
+  .actions button{padding:6px 4px;font-size:9px}
+  .winner{padding:6px;font-size:10px;margin-bottom:4px}
+}
+
+/* Portrait phone UI: stack sections so nothing overflows horizontally. */
+@media(max-width:720px) and (orientation:portrait){
+  .topbar{flex-wrap:wrap}
+  .brand{font-size:19px}
+  .status{font-size:11px}
+  .profile{width:100%}
+  .profile input{flex:1;min-width:0}
+  .menu-head{display:block}
+  .menu-actions{margin:8px 0 0}
+  .menu-actions button{flex:1 1 45%}
+
+  .draft-layout{display:block}
+  .slots{display:flex;gap:5px;margin-bottom:7px}
+  .slot-title{display:none}
+  .slot{height:72px;flex:1;margin:0;min-width:0}
+  .slot img{width:52px}
+  .slot span{display:none}
+  .pool{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+  .hero-pick img{height:90px}
+
+  .game-layout{display:flex;flex-direction:column;gap:7px}
+  .center{order:-1}
+  .team{min-height:auto;overflow-x:auto;justify-content:flex-start;margin:0;padding:7px}
+  .card{min-width:105px;width:105px}
+  .card img{height:125px}
+  .log{height:210px;min-height:210px;max-height:210px}
+}
+
+/* Very short landscape screens (small iPhones, browser chrome visible). */
+@media(max-height:500px) and (orientation:landscape){
+  .topbar{margin-bottom:4px}
+  .screen{padding:5px}
+  .menu-head{margin-bottom:4px}
+  .team{min-height:calc(100dvh - 125px)}
+  .card img{height:clamp(76px,22vh,108px)}
+  .log{height:calc(100dvh - 200px)}
+}
 </style>
 </head>
 <body>
