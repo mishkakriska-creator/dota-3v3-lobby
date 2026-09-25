@@ -96,27 +96,29 @@ function createRoom(name='Лобби',hostProfile=null){
   rooms.set(id,r);
   return view(id,r);
 }
-function leaderboard(){
-  return Object.values(stats.players)
+function leaderboard(source=stats){
+  return Object.values(source.players)
     .sort((a,b)=>(b.rating||0)-(a.rating||0)||String(a.nick).localeCompare(String(b.nick)))
     .slice(0,100)
     .map((p,i)=>({place:i+1,nick:p.nick,rating:p.rating,...rankFor(p.rating)}));
 }
-function heroStats(){
-  return Object.entries(stats.heroes)
+function heroStats(source=stats){
+  return Object.entries(source.heroes)
     .map(([heroId,h])=>({heroId,winrate:h.games?Math.round((h.wins/h.games)*1000)/10:0}))
     .sort((a,b)=>b.winrate-a.winrate||a.heroId.localeCompare(b.heroId));
 }
 function applyMatch(body){
+  const testOnly=body?.testOnly===true;
+  const target=testOnly?structuredClone(stats):stats;
   const matchId=String(body?.matchId||'').trim().slice(0,120);
   const winner=Number(body?.winner);
   const players=Array.isArray(body?.players)?body.players:[];
   const teams=Array.isArray(body?.teams)?body.teams:[];
   if(!matchId||![0,1].includes(winner)||players.length<2||teams.length<2)return {ok:false,error:'invalid_match'};
   if(teams.some(x=>!Array.isArray(x)||x.length<1))return {ok:false,error:'invalid_teams'};
-  if(stats.matches[matchId]){
+  if(target.matches[matchId]){
     console.log('Global match duplicate',matchId);
-    return {ok:true,duplicate:true,matchId,players:leaderboard(),heroes:heroStats()};
+    return {ok:true,testOnly,duplicate:true,matchId,players:leaderboard(target),heroes:heroStats(target)};
   }
 
   const changedPlayers=[];
@@ -124,28 +126,28 @@ function applyMatch(body){
     const p=players[t]||{};
     const key=playerKey(p);
     if(!key)return {ok:false,error:'invalid_player'};
-    const existing=stats.players[key];
+    const existing=target.players[key];
     const base=Math.max(0,Math.floor(Number(existing?.rating ?? p.rating)||0));
     const rating=Math.max(0,base+(t===winner?40:-20));
-    stats.players[key]={nick:safeNick(p.nick),rating,updatedAt:Date.now()};
-    changedPlayers.push({key,nick:stats.players[key].nick,rating,team:t});
+    target.players[key]={nick:safeNick(p.nick),rating,updatedAt:Date.now()};
+    changedPlayers.push({key,nick:target.players[key].nick,rating,team:t});
     for(const heroId of cleanHeroes(teams[t])){
-      const h=stats.heroes[heroId]||{games:0,wins:0};
+      const h=target.heroes[heroId]||{games:0,wins:0};
       h.games++;
       if(t===winner)h.wins++;
-      stats.heroes[heroId]=h;
+      target.heroes[heroId]=h;
     }
   }
 
-  stats.matches[matchId]={winner,at:Date.now()};
-  const ids=Object.keys(stats.matches);
+  target.matches[matchId]={winner,at:Date.now()};
+  const ids=Object.keys(target.matches);
   if(ids.length>5000){
-    ids.sort((a,b)=>(stats.matches[a]?.at||0)-(stats.matches[b]?.at||0));
-    for(const id of ids.slice(0,ids.length-5000))delete stats.matches[id];
+    ids.sort((a,b)=>(target.matches[a]?.at||0)-(target.matches[b]?.at||0));
+    for(const id of ids.slice(0,ids.length-5000))delete target.matches[id];
   }
-  const saved=saveStats();
-  console.log('Global match recorded',matchId,'winner',winner,'players',changedPlayers.map(x=>x.nick+':'+x.rating).join(', '),'saved',saved);
-  return {ok:true,matchId,saved,changedPlayers,players:leaderboard(),heroes:heroStats()};
+  const saved=testOnly?true:saveStats();
+  if(!testOnly)console.log('Global match recorded',matchId,'winner',winner,'players',changedPlayers.map(x=>x.nick+':'+x.rating).join(', '),'saved',saved);
+  return {ok:true,testOnly,matchId,saved,changedPlayers,players:leaderboard(target),heroes:heroStats(target)};
 }
 
 const server=http.createServer(async(req,res)=>{
@@ -157,8 +159,8 @@ const server=http.createServer(async(req,res)=>{
     let body={};try{let s='';for await(const c of req)s+=c;body=JSON.parse(s||'{}')}catch{}
     return send(res,201,createRoom(body.name,body.hostProfile||null));
   }
-  if(u.pathname==='/api/leaderboard'&&req.method==='GET')return send(res,200,{players:leaderboard(),updatedAt:stats.updatedAt||0,matches:Object.keys(stats.matches).length});
-  if(u.pathname==='/api/heroes'&&req.method==='GET')return send(res,200,{heroes:heroStats(),updatedAt:stats.updatedAt||0,matches:Object.keys(stats.matches).length});
+  if(u.pathname==='/api/leaderboard'&&req.method==='GET')return send(res,200,{players:leaderboard(),updatedAt:stats.updatedAt||0,matches:Object.keys(target.matches).length});
+  if(u.pathname==='/api/heroes'&&req.method==='GET')return send(res,200,{heroes:heroStats(),updatedAt:stats.updatedAt||0,matches:Object.keys(target.matches).length});
   if(u.pathname==='/api/stats-export'&&req.method==='GET')return send(res,200,stats);
   if(u.pathname==='/api/match'&&req.method==='POST'){
     let body={};try{let s='';for await(const c of req)s+=c;body=JSON.parse(s||'{}')}catch{}
@@ -288,4 +290,4 @@ setInterval(()=>{
 },30000).unref();
 
 await restoreStatsBackup();
-server.listen(PORT,()=>console.log(`Dota 3v3 lobby listening on ${PORT}; global stats: ${Object.keys(stats.matches).length} matches, ${Object.keys(stats.players).length} players`));
+server.listen(PORT,()=>console.log(`Dota 3v3 lobby listening on ${PORT}; global stats: ${Object.keys(target.matches).length} matches, ${Object.keys(stats.players).length} players`));
