@@ -159,8 +159,8 @@ const server=http.createServer(async(req,res)=>{
     let body={};try{let s='';for await(const c of req)s+=c;body=JSON.parse(s||'{}')}catch{}
     return send(res,201,createRoom(body.name,body.hostProfile||null));
   }
-  if(u.pathname==='/api/leaderboard'&&req.method==='GET')return send(res,200,{players:leaderboard(),updatedAt:stats.updatedAt||0,matches:Object.keys(target.matches).length});
-  if(u.pathname==='/api/heroes'&&req.method==='GET')return send(res,200,{heroes:heroStats(),updatedAt:stats.updatedAt||0,matches:Object.keys(target.matches).length});
+  if(u.pathname==='/api/leaderboard'&&req.method==='GET')return send(res,200,{players:leaderboard(),updatedAt:stats.updatedAt||0,matches:Object.keys(stats.matches).length});
+  if(u.pathname==='/api/heroes'&&req.method==='GET')return send(res,200,{heroes:heroStats(),updatedAt:stats.updatedAt||0,matches:Object.keys(stats.matches).length});
   if(u.pathname==='/api/stats-export'&&req.method==='GET')return send(res,200,stats);
   if(u.pathname==='/api/match'&&req.method==='POST'){
     let body={};try{let s='';for await(const c of req)s+=c;body=JSON.parse(s||'{}')}catch{}
