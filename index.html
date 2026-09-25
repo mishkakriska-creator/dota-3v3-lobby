@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1018">
+<title>Dota Cards 3v3 — Web Prototype</title>
+<style>
+:root{--bg:#080c12;--panel:#111824;--panel2:#172131;--line:#2d3a50;--text:#edf3ff;--muted:#8d9ab0;--blue:#5b8dff;--red:#ff646c;--gold:#f3ba4d;--green:#5bd783}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% 0,#162033 0,#090d14 35%,#06090e 100%);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}button,input{font:inherit}
+button{cursor:pointer;border:1px solid #41516b;background:#1b2637;color:#eef4ff;border-radius:10px;padding:10px 14px;font-weight:800}button:hover{filter:brightness(1.12)}button:disabled{opacity:.38;cursor:not-allowed}
+.hidden{display:none!important}.app{max-width:1540px;margin:0 auto;padding:18px}.topbar{display:flex;align-items:center;gap:18px;padding:16px 18px;border:1px solid #202c3d;background:#0d131d;border-radius:14px;margin-bottom:16px;box-shadow:0 12px 35px #0006}.brand{font-size:26px;font-weight:950;letter-spacing:.4px}.brand b{color:#ff5964}.grow{flex:1}.status{font-size:13px;color:#93a4bc}.profile{display:flex;align-items:center;gap:8px}.profile input{width:180px;background:#070b11;color:white;border:1px solid #344259;border-radius:8px;padding:8px 10px}
+.screen{border:1px solid #233047;background:#0c121bda;border-radius:16px;padding:20px;box-shadow:0 16px 50px #0008}.menu-head{display:flex;align-items:flex-end;gap:16px;margin-bottom:18px}.menu-head h2{margin:0;font-size:24px}.menu-actions{margin-left:auto;display:flex;gap:8px}.lobby-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}.lobby{background:#121b28;border:1px solid #2d3c53;border-radius:13px;padding:14px;display:flex;gap:12px;align-items:center}.lobby strong{display:block;font-size:16px}.lobby small{color:var(--muted)}.lobby .join{margin-left:auto}.empty{color:var(--muted);padding:40px 10px;text-align:center}
+.draft-layout{display:grid;grid-template-columns:260px 1fr 260px;gap:18px}.slots{background:#0a0f17;border:1px solid #26344a;border-radius:14px;padding:12px}.slot-title{font-weight:900;margin-bottom:10px}.slot{height:128px;border:1px solid #3b4658;background:#262f3e;border-radius:12px;margin:10px 0;display:flex;align-items:center;justify-content:center;color:#8390a3;font-size:28px;font-weight:950;overflow:hidden}.slot.filled{padding:0;justify-content:flex-start;color:white;background:#111a27}.slot img{width:105px;height:100%;object-fit:cover}.slot span{padding:12px;font-size:14px}
+.pool{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:10px;align-content:start}.hero-pick{position:relative;background:#101827;border:1px solid #2c3a50;border-radius:10px;overflow:hidden;padding:0;text-align:left}.hero-pick img{width:100%;height:112px;object-fit:cover;display:block}.hero-pick .nm{padding:8px 9px;font-size:12px;font-weight:950}.hero-pick .st{padding:0 9px 9px;color:#a8b5c7;font-size:11px}.hero-pick.taken{filter:grayscale(.9);opacity:.42}.draft-foot{display:flex;align-items:center;gap:12px;margin-top:16px}.turn-pill{padding:8px 12px;border-radius:999px;background:#17243a;border:1px solid #32496d;color:#bed1f7;font-weight:800}
+.game-layout{display:grid;grid-template-columns:1fr 380px 1fr;gap:18px;align-items:stretch}.team{display:flex;gap:12px;align-items:end;justify-content:center;min-height:510px;border-radius:15px;padding:16px;background:#0a1018;border:1px solid #26344a}.team.blue{box-shadow:inset 3px 0 #4e83ff}.team.red{box-shadow:inset -3px 0 #ff5964}.card{width:180px;border:1px solid #35445c;border-radius:13px;overflow:hidden;background:#141c29;transition:.2s}.card.front{border-color:#f3ba4d;box-shadow:0 0 24px #f3ba4d33;transform:translateY(-9px)}.card.dead{filter:grayscale(1);opacity:.32}.card img{width:100%;height:220px;object-fit:cover;display:block}.card .name{font-size:13px;font-weight:950;padding:9px 10px}.card .stats{display:flex;justify-content:space-between;padding:0 10px 8px;font-size:13px}.hpbar{height:6px;margin:0 10px 12px;border-radius:9px;background:#3a2025;overflow:hidden}.hpbar i{display:block;height:100%;background:#54c978}
+.center{display:flex;flex-direction:column;min-width:0}.battle-head{text-align:center;font-size:22px;font-weight:950;color:#ffd069;margin:14px 0}.battle-meta{text-align:center;color:#9fb0c7;margin-bottom:10px}.log{flex:1;min-height:310px;max-height:420px;overflow:auto;background:#080d15;border:1px solid #2a3850;border-radius:12px;padding:12px}.log p{margin:0 0 8px;line-height:1.35}.actions{display:flex;gap:8px;margin-top:12px}.actions button{flex:1}.attack{background:#7e3039;border-color:#a84955}.end{background:#27344a}
+.winner{padding:12px;text-align:center;border-radius:10px;background:#193824;color:#7ff0a5;margin-bottom:10px;font-weight:950}
+.modal-wrap{position:fixed;inset:0;background:#000a;display:grid;place-items:center;padding:18px;z-index:40}.modal{width:min(980px,96vw);max-height:82vh;overflow:auto;background:#0b111a;border:1px solid #34445c;border-radius:18px;padding:20px;box-shadow:0 24px 80px #000}.modal-head{display:flex;align-items:center;margin-bottom:14px}.modal-head h3{margin:0}.close{margin-left:auto}.stat-row{display:flex;align-items:center;gap:14px;padding:11px;border:1px solid #2f3d54;border-radius:11px;background:#111a27;margin:8px 0}.stat-row img{width:74px;height:44px;object-fit:cover;border-radius:7px}.stat-row b:last-child{margin-left:auto}.rank{font-size:22px;color:#78a7ff;width:44px}.note{color:#8998ae;font-size:13px;margin-top:10px}
+@media(max-width:1050px){.app{padding:8px}.draft-layout{grid-template-columns:190px 1fr 190px;gap:8px}.pool{grid-template-columns:repeat(4,1fr)}.game-layout{grid-template-columns:1fr}.center{order:-1}.team{min-height:330px}.card{width:150px}.card img{height:175px}}
+@media(max-width:720px){.topbar{flex-wrap:wrap}.brand{font-size:21px}.profile{width:100%}.profile input{flex:1}.draft-layout{display:block}.slots{display:flex;gap:6px;margin-bottom:10px}.slot-title{display:none}.slot{height:82px;flex:1;margin:0}.slot img{width:64px}.slot span{display:none}.pool{grid-template-columns:repeat(3,1fr)}.hero-pick img{height:95px}.game-layout{display:block}.team{min-height:auto;overflow-x:auto;justify-content:flex-start;margin:8px 0}.card{min-width:145px}.card img{height:165px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">DOTA CARDS <b>3v3</b> <small style="font-size:12px;color:#8090a5">WEB PROTOTYPE</small></div>
+    <div class="grow status" id="status">Подключение к серверу…</div>
+    <div class="profile"><input id="nick" maxlength="24"><button id="saveNick">Сохранить ник</button></div>
+  </header>
+
+  <section id="menu" class="screen">
+    <div class="menu-head"><div><h2>Публичные лобби</h2><div class="note">Первый браузерный прототип. Оба игрока должны играть через эту веб-версию.</div></div>
+      <div class="menu-actions"><button id="topBtn">Топ мира</button><button id="heroesBtn">Винрейт героев</button><button id="refreshBtn">Обновить</button><button id="createBtn">Создать лобби</button></div>
+    </div>
+    <div id="lobbies" class="lobby-grid"></div>
+  </section>
+
+  <section id="draft" class="screen hidden">
+    <div class="menu-head"><div><h2>Выбор команд</h2><div class="note" id="draftStatus"></div></div><div class="menu-actions"><button id="leaveDraft">Выйти</button></div></div>
+    <div class="draft-layout">
+      <div class="slots"><div class="slot-title">Игрок 1</div><div id="slots0"></div></div>
+      <div><div id="pool" class="pool"></div><div class="draft-foot"><div id="turnPill" class="turn-pill"></div><button id="startBtn" disabled>Начать бой</button></div></div>
+      <div class="slots"><div class="slot-title">Игрок 2</div><div id="slots1"></div></div>
+    </div>
+  </section>
+
+  <section id="game" class="screen hidden">
+    <div class="menu-head"><div><h2 id="turnTitle">Матч</h2><div class="note">Прототип боя: базовые атаки и смена хода. Полные способности будут переноситься после проверки веб-архитектуры.</div></div><div class="menu-actions"><button id="leaveGame">Выйти</button></div></div>
+    <div class="game-layout">
+      <div id="team0" class="team blue"></div>
+      <div class="center"><div class="battle-head">⚔ ЛИНИЯ БОЯ ⚔</div><div id="battleMeta" class="battle-meta"></div><div id="winner" class="winner hidden"></div><div id="log" class="log"></div><div class="actions"><button id="attackBtn" class="attack">Атака</button><button id="endBtn" class="end">Закончить ход</button></div></div>
+      <div id="team1" class="team red"></div>
+    </div>
+  </section>
+</div>
+
+<div id="modalWrap" class="modal-wrap hidden"><div class="modal"><div class="modal-head"><h3 id="modalTitle"></h3><button id="modalClose" class="close">✕</button></div><div id="modalBody"></div></div></div>
+
+<script>
+const API='https://dota-3v3-lobby.onrender.com';
+const WS='wss://dota-3v3-lobby.onrender.com';
+const GAME_VERSION='1.86.94-web-prototype';
+const PROTOCOL_VERSION=12;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+const uid=()=>crypto.randomUUID?.()||('web-'+Date.now()+'-'+Math.random().toString(16).slice(2));
+const playerId=localStorage.dotaWebPlayerId||(localStorage.dotaWebPlayerId=uid());
+let nickname=localStorage.dotaWebNick||('Игрок'+Math.floor(1000+Math.random()*9000));
+$('#nick').value=nickname;
+
+const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
+const HEROES={
+ techies:['TECHIES',7,2,'techies.png'],morphling:['MORPHLING',7,1,'morphling.png'],bane:['BANE',6,1,'bane.png'],io:['IO',7,1,'wisp.png'],
+ tinker:['TINKER',6,1,'tinker.png'],silencer:['SILENCER',6,2,'silencer.png'],shadowfiend:['SHADOW FIEND',8,1,'nevermore.png'],
+ lifestealer:['LIFESTEALER',8,2,'life_stealer.png'],pudge:['PUDGE',10,2,'pudge.png'],abaddon:['ABADDON',7,1,'abaddon.png'],
+ invoker:['INVOKER',7,1,'invoker.png'],arcwarden:['ARC WARDEN',7,1,'arc_warden.png'],axe:['AXE',8,1,'axe.png'],
+ broodmother:['BROODMOTHER',8,1,'broodmother.png'],mars:['MARS',9,2,'mars.png'],phantomlancer:['PHANTOM LANCER',7,2,'phantom_lancer.png'],
+ enigma:['ENIGMA',7,1,'enigma.png']
+};
+const heroImg=id=>IMG+(HEROES[id]?.[3]||'unknown.png');
+const heroName=id=>HEROES[id]?.[0]||id.toUpperCase();
+const profile=()=>({globalId:playerId,id:playerId,nick:nickname,rating:0,rank:'Без ранга',rankIndex:1});
+
+let ws=null,player=null,roomId='',chosen=[],G=null,connected=false,remoteProfiles=[null,null],sendTimer=null;
+
+function setStatus(s){$('#status').textContent=s}
+function show(id){['menu','draft','game'].forEach(x=>$('#'+x).classList.toggle('hidden',x!==id))}
+function api(path,opt){return fetch(API+path,{cache:'no-store',...opt})}
+function send(obj){if(ws&&ws.readyState===1)ws.send(JSON.stringify(obj))}
+function sendProfile(){send({type:'profile',player,profile:{...profile(),__gameVersion:GAME_VERSION,__protocolVersion:PROTOCOL_VERSION},gameVersion:GAME_VERSION,protocolVersion:PROTOCOL_VERSION})}
+function sendState(){send({type:'state',G,chosen,phase:G?'game':'draft'})}
+function queueState(){clearTimeout(sendTimer);sendTimer=setTimeout(sendState,30)}
+
+async function loadLobbies(){
+ setStatus('Загружаем лобби…');
+ try{
+   const r=await api('/api/lobbies'); const j=await r.json();
+   $('#lobbies').innerHTML=(j.lobbies||[]).length?(j.lobbies||[]).map(l=>`<div class="lobby"><div><strong>${esc(l.name)}</strong><small>${l.players}/2 игроков</small></div><button class="join" data-room="${esc(l.id)}" ${l.players>=2?'disabled':''}>Войти</button></div>`).join(''):'<div class="empty">Публичных лобби пока нет.</div>';
+   document.querySelectorAll('[data-room]').forEach(b=>b.onclick=()=>joinRoom(b.dataset.room));
+   setStatus('Render подключён');
+ }catch(e){$('#lobbies').innerHTML='<div class="empty">Сервер просыпается или недоступен. Нажми «Обновить» через несколько секунд.</div>';setStatus('Render: '+e.message)}
+}
+
+async function createLobby(){
+ const name='Лобби '+nickname;
+ $('#createBtn').disabled=true;
+ try{
+   const r=await api('/api/lobbies',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name,hostProfile:profile()})});
+   const j=await r.json(); if(!r.ok)throw new Error('HTTP '+r.status);
+   joinRoom(j.id);
+ }catch(e){alert('Не удалось создать лобби: '+e.message);$('#createBtn').disabled=false}
+}
+function joinRoom(id){
+ roomId=id;history.replaceState(null,'','?room='+encodeURIComponent(id));connect();
+}
+function disconnect(){try{ws?.close(1000,'leave')}catch{}ws=null;connected=false;player=null;roomId='';chosen=[];G=null;remoteProfiles=[null,null];history.replaceState(null,'',location.pathname);show('menu');loadLobbies()}
+
+function connect(){
+ show('draft');setStatus('Подключаемся к лобби…');roomId=roomId||new URLSearchParams(location.search).get('room')||'';
+ ws=new WebSocket(WS+'/ws?room='+encodeURIComponent(roomId));
+ ws.onopen=()=>setStatus('WebSocket подключён');
+ ws.onerror=()=>setStatus('Ошибка WebSocket');
+ ws.onclose=()=>{connected=false;setStatus('Соединение закрыто')};
+ ws.onmessage=e=>{
+   let m;try{m=JSON.parse(e.data)}catch{return}
+   if(m.type==='hello'){
+     player=m.player;connected=true;remoteProfiles[player]=profile();setStatus('Ты — Игрок '+(player+1));
+     send({type:'version',gameVersion:GAME_VERSION,protocolVersion:PROTOCOL_VERSION});sendProfile();
+     if(m.state)applyState(m.state);else renderDraft();return;
+   }
+   if(m.type==='profile'&&Number.isInteger(m.player)){remoteProfiles[m.player]=m.profile;renderDraft()}
+   if(m.type==='info'){setStatus(m.message||m.text||'Сеть');sendProfile()}
+   if(m.type==='state')applyState(m);
+ };
+}
+function applyState(m){
+ if(m.phase==='draft'){G=null;chosen=Array.isArray(m.chosen)?m.chosen:[];show('draft');renderDraft();return}
+ if(m.phase==='game'&&m.G){G=m.G;chosen=Array.isArray(m.chosen)?m.chosen:chosen;show('game');renderGame()}
+}
+function teamPicks(t){return chosen.filter((_,i)=>i%2===t).slice(0,3)}
+function renderSlots(t){
+ const picks=teamPicks(t),root=$('#slots'+t);root.innerHTML='';
+ for(let i=0;i<3;i++){
+   const id=picks[i];const d=document.createElement('div');d.className='slot'+(id?' filled':'');
+   d.innerHTML=id?`<img src="${heroImg(id)}"><span><b>${heroName(id)}</b><br><small>${HEROES[id][1]} HP • ${HEROES[id][2]} ATK</small></span>`:(i+1);
+   root.append(d);
+ }
+}
+function renderDraft(){
+ renderSlots(0);renderSlots(1);
+ const turn=chosen.length%2;
+ $('#draftStatus').textContent=chosen.length<6?`Сейчас выбирает Игрок ${turn+1}`:'Команды собраны.';
+ $('#turnPill').textContent=chosen.length<6?(player===turn?'ТВОЙ ПИК':'ПИК СОПЕРНИКА'):'ДРАФТ ЗАВЕРШЁН';
+ $('#pool').innerHTML=Object.keys(HEROES).map(id=>`<button class="hero-pick ${chosen.includes(id)?'taken':''}" data-hero="${id}" ${chosen.includes(id)||chosen.length>=6?'disabled':''}><img src="${heroImg(id)}"><div class="nm">${heroName(id)}</div><div class="st">♥ ${HEROES[id][1]} &nbsp; ⚔ ${HEROES[id][2]}</div></button>`).join('');
+ document.querySelectorAll('[data-hero]').forEach(b=>b.onclick=()=>pickHero(b.dataset.hero));
+ $('#startBtn').disabled=!(player===0&&chosen.length===6);
+}
+function pickHero(id){
+ if(!connected||chosen.length>=6||chosen.includes(id))return;
+ const turn=chosen.length%2;if(player!==turn){alert('Сейчас выбирает Игрок '+(turn+1));return}
+ chosen.push(id);renderDraft();queueState();
+}
+function createGame(){
+ const mk=(id,t)=>({id,name:heroName(id),team:t,hp:HEROES[id][1],maxHp:HEROES[id][1],atk:HEROES[id][2],dead:false});
+ G={matchId:'web-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),teams:[teamPicks(0).map(id=>mk(id,0)),teamPicks(1).map(id=>mk(id,1))],front:[0,0],team:0,actions:2,winner:null,turn:1,log:['Матч начался.']};
+ show('game');renderGame();sendState();
+}
+function aliveIndex(t){
+ const a=G.teams[t];let i=Math.max(0,Number(G.front?.[t])||0);
+ while(i<a.length&&a[i].dead)i++;
+ if(i>=a.length){i=a.findIndex(h=>!h.dead)}
+ return i;
+}
+function front(t){const i=aliveIndex(t);return i>=0?G.teams[t][i]:null}
+function pushLog(s){G.log=Array.isArray(G.log)?G.log:[];G.log.push(s);if(G.log.length>60)G.log=G.log.slice(-60)}
+function checkWin(){
+ for(let t=0;t<2;t++)if(G.teams[t].every(h=>h.dead||h.hp<=0)){G.winner=1-t;pushLog('Игрок '+(2-t)+' побеждает!');return true}
+ return false;
+}
+function attack(){
+ if(!G||G.winner!=null||player!==G.team||G.actions<=0)return;
+ const a=front(G.team),b=front(1-G.team);if(!a||!b)return;
+ b.hp=Math.max(0,b.hp-a.atk);pushLog(a.name+' наносит '+a.atk+' урона '+b.name+'.');G.actions--;
+ if(b.hp<=0){b.dead=true;pushLog(b.name+' погибает.');G.front[1-G.team]=aliveIndex(1-G.team)}
+ checkWin();renderGame();sendState();
+}
+function endTurn(){
+ if(!G||G.winner!=null||player!==G.team)return;
+ G.team=1-G.team;G.actions=2;G.turn++;pushLog('Ход переходит к Игроку '+(G.team+1)+'.');renderGame();sendState();
+}
+function card(h,isFront){
+ const pct=Math.max(0,Math.round(h.hp/h.maxHp*100));
+ return `<div class="card ${isFront?'front':''} ${h.dead?'dead':''}"><img src="${heroImg(h.id)}"><div class="name">${esc(h.name)}</div><div class="stats"><span>♥ ${h.hp}/${h.maxHp}</span><span>⚔ ${h.atk}</span></div><div class="hpbar"><i style="width:${pct}%"></i></div></div>`;
+}
+function renderGame(){
+ if(!G)return;
+ for(let t=0;t<2;t++){const fi=aliveIndex(t);$('#team'+t).innerHTML=G.teams[t].map((h,i)=>card(h,i===fi)).join('')}
+ $('#turnTitle').textContent=G.winner==null?`Ход Игрока ${G.team+1}`:'Матч завершён';
+ $('#battleMeta').textContent=G.winner==null?`Действия: ${G.actions}/2 • общий ход ${G.turn}`:'';
+ $('#log').innerHTML=(G.log||[]).slice().reverse().map(x=>'<p>'+esc(x)+'</p>').join('');
+ $('#winner').classList.toggle('hidden',G.winner==null);if(G.winner!=null)$('#winner').textContent='Победил Игрок '+(G.winner+1);
+ $('#attackBtn').disabled=G.winner!=null||player!==G.team||G.actions<=0;
+ $('#endBtn').disabled=G.winner!=null||player!==G.team;
+}
+async function openLeaderboard(){
+ openModal('Топ мира','Загрузка…');
+ try{const j=await api('/api/leaderboard').then(r=>r.json());$('#modalBody').innerHTML=(j.players||[]).length?(j.players||[]).map(p=>`<div class="stat-row"><span class="rank">#${p.place}</span><div><b>${esc(p.nick)}</b><div class="note">${esc(p.rank)} • ${p.rating} MMR</div></div></div>`).join(''):'<div class="empty">Рейтинг пока пуст.</div>'}catch(e){$('#modalBody').textContent=e.message}
+}
+async function openHeroStats(){
+ openModal('Винрейт героев','Загрузка…');
+ try{const j=await api('/api/heroes').then(r=>r.json());$('#modalBody').innerHTML=(j.heroes||[]).length?(j.heroes||[]).map(h=>`<div class="stat-row"><img src="${heroImg(h.heroId)}"><b>${heroName(h.heroId)}</b><b>${Number(h.winrate).toFixed(1)}%</b></div>`).join(''):'<div class="empty">Статистики пока нет.</div>'}catch(e){$('#modalBody').textContent=e.message}
+}
+function openModal(t,b){$('#modalTitle').textContent=t;$('#modalBody').innerHTML=b;$('#modalWrap').classList.remove('hidden')}
+
+$('#saveNick').onclick=()=>{nickname=$('#nick').value.trim().slice(0,24)||nickname;localStorage.dotaWebNick=nickname;sendProfile();loadLobbies()};
+$('#refreshBtn').onclick=loadLobbies;$('#createBtn').onclick=createLobby;$('#topBtn').onclick=openLeaderboard;$('#heroesBtn').onclick=openHeroStats;
+$('#modalClose').onclick=()=>$('#modalWrap').classList.add('hidden');$('#modalWrap').onclick=e=>{if(e.target.id==='modalWrap')$('#modalWrap').classList.add('hidden')};
+$('#startBtn').onclick=createGame;$('#attackBtn').onclick=attack;$('#endBtn').onclick=endTurn;$('#leaveDraft').onclick=disconnect;$('#leaveGame').onclick=disconnect;
+window.addEventListener('beforeunload',()=>{try{ws?.close()}catch{}});
+
+const incomingRoom=new URLSearchParams(location.search).get('room');
+if(incomingRoom){roomId=incomingRoom;connect()}else{show('menu');loadLobbies();setInterval(()=>{if(!roomId)loadLobbies()},6000)}
+</script>
+</body>
+</html>
