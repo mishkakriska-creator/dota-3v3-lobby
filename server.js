@@ -290,4 +290,4 @@ setInterval(()=>{
 },30000).unref();
 
 await restoreStatsBackup();
-server.listen(PORT,()=>console.log(`Dota 3v3 lobby listening on ${PORT}; global stats: ${Object.keys(target.matches).length} matches, ${Object.keys(stats.players).length} players`));
+server.listen(PORT,()=>console.log(`Dota 3v3 lobby listening on ${PORT}; global stats: ${Object.keys(stats.matches).length} matches, ${Object.keys(stats.players).length} players`));
