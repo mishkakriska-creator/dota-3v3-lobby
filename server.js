@@ -290,4 +290,18 @@ setInterval(()=>{
 },30000).unref();
 
 await restoreStatsBackup();
+
+// Remove stale CI smoke-test pollution from the live global statistics.
+// This cleanup only resets the store when every recorded player is clearly a CI test account.
+{
+  const playerEntries=Object.entries(stats.players||{});
+  const onlyCi=playerEntries.length>0 && playerEntries.every(([key,p])=>
+    String(key||'').startsWith('ci-') || /^CI\s/i.test(String(p?.nick||''))
+  );
+  if(onlyCi){
+    stats={players:{},heroes:{},matches:{},updatedAt:Date.now()};
+    saveStats();
+    console.log('Cleared CI-only global statistics');
+  }
+}
 server.listen(PORT,()=>console.log(`Dota 3v3 lobby listening on ${PORT}; global stats: ${Object.keys(stats.matches).length} matches, ${Object.keys(stats.players).length} players`));
