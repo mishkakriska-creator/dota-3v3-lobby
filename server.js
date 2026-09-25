@@ -153,7 +153,7 @@ function applyMatch(body){
 const server=http.createServer(async(req,res)=>{
   const u=new URL(req.url,'http://localhost');
   if(req.method==='OPTIONS'){res.writeHead(204,cors);return res.end();}
-  if(u.pathname==='/health')return send(res,200,{ok:true});
+  if(u.pathname==='/health')return send(res,200,{ok:true,statsApiVersion:2});
   if(u.pathname==='/api/lobbies'&&req.method==='GET')return send(res,200,{lobbies:[...rooms].map(([id,r])=>view(id,r))});
   if(u.pathname==='/api/lobbies'&&req.method==='POST'){
     let body={};try{let s='';for await(const c of req)s+=c;body=JSON.parse(s||'{}')}catch{}
