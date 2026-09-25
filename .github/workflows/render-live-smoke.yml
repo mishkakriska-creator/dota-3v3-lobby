@@ -40,6 +40,7 @@ jobs:
             return r.json();
           });
           const beforeMatches=Object.keys(before.matches||{}).length;
+          if(Object.values(before.players||{}).some(p=>/^CI P[12]$/i.test(String(p.nick||'')))) throw new Error('old CI players still present');
 
           const dry=await fetch(HTTP+'/api/match',{
             method:'POST',
