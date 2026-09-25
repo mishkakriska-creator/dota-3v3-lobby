@@ -1,0 +1,44 @@
+name: Backup global stats
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout backup branch
+        uses: actions/checkout@v4
+        with:
+          ref: stats-backup
+          fetch-depth: 1
+
+      - name: Fetch live Render stats
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --retry 8 --retry-delay 3 --max-time 20 \
+            https://dota-3v3-lobby.onrender.com/api/stats-export \
+            -o stats.new.json
+          node -e "const fs=require('fs');const s=JSON.parse(fs.readFileSync('stats.new.json','utf8'));if(!s||typeof s.players!=='object'||typeof s.heroes!=='object'||typeof s.matches!=='object')process.exit(1);console.log('backup',Object.keys(s.matches).length,'matches',Object.keys(s.players).length,'players')"
+          mv stats.new.json stats.json
+
+      - name: Save snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "dota-stats-bot"
+          git config user.email "actions@users.noreply.github.com"
+          if git diff --quiet -- stats.json; then
+            echo "No stats changes"
+            exit 0
+          fi
+          git add stats.json
+          git commit -m "Backup global stats"
+          git push origin HEAD:stats-backup
