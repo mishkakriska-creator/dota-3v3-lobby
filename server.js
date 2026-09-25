@@ -6,6 +6,7 @@ import { WebSocketServer } from 'ws';
 const PORT = Number(process.env.PORT || 10000);
 const rooms = new Map();
 const STATS_FILE = process.env.STATS_FILE || './stats.json';
+const STATS_BACKUP_URL = process.env.STATS_BACKUP_URL || 'https://raw.githubusercontent.com/mishkakriska-creator/dota-3v3-lobby/stats-backup/stats.json';
 
 const RANKS=[
  [0,'Без ранга',1],[50,'Рекрут 1',2],[150,'Рекрут 2',3],[300,'Рекрут 3',4],[450,'Рекрут 4',5],[600,'Рекрут 5',6],
@@ -23,12 +24,47 @@ function safeNick(v){return String(v||'Игрок').trim().slice(0,24)||'Игр�
 function playerKey(p){return String(p?.id||p?.profileId||safeNick(p?.nick)).trim().toLowerCase().slice(0,80)}
 function cleanHeroes(arr){return [...new Set((Array.isArray(arr)?arr:[]).map(x=>String(x||'').trim()).filter(Boolean))].slice(0,3)}
 
-let stats={players:{},heroes:{},matches:{}};
+let stats={players:{},heroes:{},matches:{},updatedAt:0};
 try{
   const raw=JSON.parse(fs.readFileSync(STATS_FILE,'utf8'));
-  if(raw&&typeof raw==='object')stats={players:raw.players||{},heroes:raw.heroes||{},matches:raw.matches||{}};
+  if(raw&&typeof raw==='object')stats={players:raw.players||{},heroes:raw.heroes||{},matches:raw.matches||{},updatedAt:Number(raw.updatedAt)||0};
 }catch{}
-function saveStats(){try{fs.writeFileSync(STATS_FILE,JSON.stringify(stats,null,2))}catch(e){console.error('stats save failed',e?.message||e)}}
+function normalizedStats(raw){
+  return {
+    players:raw&&typeof raw.players==='object'&&raw.players?raw.players:{},
+    heroes:raw&&typeof raw.heroes==='object'&&raw.heroes?raw.heroes:{},
+    matches:raw&&typeof raw.matches==='object'&&raw.matches?raw.matches:{},
+    updatedAt:Number(raw?.updatedAt)||0
+  };
+}
+function saveStats(){
+  try{
+    stats.updatedAt=Date.now();
+    const dir=STATS_FILE.includes('/')?STATS_FILE.slice(0,STATS_FILE.lastIndexOf('/')):'';
+    if(dir)fs.mkdirSync(dir,{recursive:true});
+    const tmp=STATS_FILE+'.tmp';
+    fs.writeFileSync(tmp,JSON.stringify(stats,null,2));
+    fs.renameSync(tmp,STATS_FILE);
+    return true;
+  }catch(e){console.error('stats save failed',e?.message||e);return false}
+}
+async function restoreStatsBackup(){
+  try{
+    const r=await fetch(STATS_BACKUP_URL,{cache:'no-store'});
+    if(!r.ok)return;
+    const remote=normalizedStats(await r.json());
+    const local=normalizedStats(stats);
+    const localCount=Object.keys(local.matches).length;
+    const remoteCount=Object.keys(remote.matches).length;
+    if(remote.updatedAt>local.updatedAt || (!localCount&&remoteCount)){
+      stats=remote;
+      try{fs.writeFileSync(STATS_FILE,JSON.stringify(stats,null,2))}catch{}
+      console.log(`Stats restored from backup: ${remoteCount} matches, ${Object.keys(remote.players).length} players`);
+    }
+  }catch(e){
+    console.warn('stats backup restore skipped',e?.message||e);
+  }
+}
 
 const cors={
   'Access-Control-Allow-Origin':'*',
@@ -77,15 +113,22 @@ function applyMatch(body){
   const players=Array.isArray(body?.players)?body.players:[];
   const teams=Array.isArray(body?.teams)?body.teams:[];
   if(!matchId||![0,1].includes(winner)||players.length<2||teams.length<2)return {ok:false,error:'invalid_match'};
-  if(stats.matches[matchId])return {ok:true,duplicate:true};
+  if(teams.some(x=>!Array.isArray(x)||x.length<1))return {ok:false,error:'invalid_teams'};
+  if(stats.matches[matchId]){
+    console.log('Global match duplicate',matchId);
+    return {ok:true,duplicate:true,matchId,players:leaderboard(),heroes:heroStats()};
+  }
 
+  const changedPlayers=[];
   for(let t=0;t<2;t++){
     const p=players[t]||{};
     const key=playerKey(p);
+    if(!key)return {ok:false,error:'invalid_player'};
     const existing=stats.players[key];
     const base=Math.max(0,Math.floor(Number(existing?.rating ?? p.rating)||0));
     const rating=Math.max(0,base+(t===winner?40:-20));
     stats.players[key]={nick:safeNick(p.nick),rating,updatedAt:Date.now()};
+    changedPlayers.push({key,nick:stats.players[key].nick,rating,team:t});
     for(const heroId of cleanHeroes(teams[t])){
       const h=stats.heroes[heroId]||{games:0,wins:0};
       h.games++;
@@ -100,8 +143,9 @@ function applyMatch(body){
     ids.sort((a,b)=>(stats.matches[a]?.at||0)-(stats.matches[b]?.at||0));
     for(const id of ids.slice(0,ids.length-5000))delete stats.matches[id];
   }
-  saveStats();
-  return {ok:true};
+  const saved=saveStats();
+  console.log('Global match recorded',matchId,'winner',winner,'players',changedPlayers.map(x=>x.nick+':'+x.rating).join(', '),'saved',saved);
+  return {ok:true,matchId,saved,changedPlayers,players:leaderboard(),heroes:heroStats()};
 }
 
 const server=http.createServer(async(req,res)=>{
@@ -113,8 +157,9 @@ const server=http.createServer(async(req,res)=>{
     let body={};try{let s='';for await(const c of req)s+=c;body=JSON.parse(s||'{}')}catch{}
     return send(res,201,createRoom(body.name,body.hostProfile||null));
   }
-  if(u.pathname==='/api/leaderboard'&&req.method==='GET')return send(res,200,{players:leaderboard()});
-  if(u.pathname==='/api/heroes'&&req.method==='GET')return send(res,200,{heroes:heroStats()});
+  if(u.pathname==='/api/leaderboard'&&req.method==='GET')return send(res,200,{players:leaderboard(),updatedAt:stats.updatedAt||0,matches:Object.keys(stats.matches).length});
+  if(u.pathname==='/api/heroes'&&req.method==='GET')return send(res,200,{heroes:heroStats(),updatedAt:stats.updatedAt||0,matches:Object.keys(stats.matches).length});
+  if(u.pathname==='/api/stats-export'&&req.method==='GET')return send(res,200,stats);
   if(u.pathname==='/api/match'&&req.method==='POST'){
     let body={};try{let s='';for await(const c of req)s+=c;body=JSON.parse(s||'{}')}catch{}
     const out=applyMatch(body);
@@ -242,4 +287,5 @@ setInterval(()=>{
   }
 },30000).unref();
 
-server.listen(PORT,()=>console.log(`Dota 3v3 lobby listening on ${PORT}`));
+await restoreStatsBackup();
+server.listen(PORT,()=>console.log(`Dota 3v3 lobby listening on ${PORT}; global stats: ${Object.keys(stats.matches).length} matches, ${Object.keys(stats.players).length} players`));
