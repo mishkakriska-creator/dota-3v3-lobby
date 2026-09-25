@@ -31,7 +31,7 @@ button{cursor:pointer;border:1px solid #41516b;background:#1b2637;color:#eef4ff;
 
   <section id="menu" class="screen">
     <div class="menu-head"><div><h2>Публичные лобби</h2><div class="note">Первый браузерный прототип. Оба игрока должны играть через эту веб-версию.</div></div>
-      <div class="menu-actions"><button id="topBtn">Топ мира</button><button id="heroesBtn">Винрейт героев</button><button id="refreshBtn">Обновить</button><button id="createBtn">Создать лобби</button></div>
+      <div class="menu-actions"><button id="offlineBtn">Офлайн на этом устройстве</button><button id="topBtn">Топ мира</button><button id="heroesBtn">Винрейт героев</button><button id="refreshBtn">Обновить</button><button id="createBtn">Создать онлайн-лобби</button></div>
     </div>
     <div id="lobbies" class="lobby-grid"></div>
   </section>
@@ -82,12 +82,12 @@ const heroImg=id=>IMG+(HEROES[id]?.[3]||'unknown.png');
 const heroName=id=>HEROES[id]?.[0]||id.toUpperCase();
 const profile=()=>({globalId:playerId,id:playerId,nick:nickname,rating:0,rank:'Без ранга',rankIndex:1});
 
-let ws=null,player=null,roomId='',chosen=[],G=null,connected=false,remoteProfiles=[null,null],sendTimer=null;
+let ws=null,player=null,roomId='',chosen=[],G=null,connected=false,remoteProfiles=[null,null],sendTimer=null,offlineMode=false;
 
 function setStatus(s){$('#status').textContent=s}
 function show(id){['menu','draft','game'].forEach(x=>$('#'+x).classList.toggle('hidden',x!==id))}
 function api(path,opt){return fetch(API+path,{cache:'no-store',...opt})}
-function send(obj){if(ws&&ws.readyState===1)ws.send(JSON.stringify(obj))}
+function send(obj){if(offlineMode)return;if(ws&&ws.readyState===1)ws.send(JSON.stringify(obj))}
 function sendProfile(){send({type:'profile',player,profile:{...profile(),__gameVersion:GAME_VERSION,__protocolVersion:PROTOCOL_VERSION},gameVersion:GAME_VERSION,protocolVersion:PROTOCOL_VERSION})}
 function sendState(){send({type:'state',G,chosen,phase:G?'game':'draft'})}
 function queueState(){clearTimeout(sendTimer);sendTimer=setTimeout(sendState,30)}
@@ -114,8 +114,15 @@ async function createLobby(){
 function joinRoom(id){
  roomId=id;history.replaceState(null,'','?room='+encodeURIComponent(id));connect();
 }
-function disconnect(){try{ws?.close(1000,'leave')}catch{}ws=null;connected=false;player=null;roomId='';chosen=[];G=null;remoteProfiles=[null,null];history.replaceState(null,'',location.pathname);show('menu');loadLobbies()}
+function disconnect(){try{ws?.close(1000,'leave')}catch{}ws=null;connected=false;player=null;roomId='';chosen=[];G=null;remoteProfiles=[null,null];offlineMode=false;history.replaceState(null,'',location.pathname);show('menu');loadLobbies()}
 
+function startOffline(){
+ offlineMode=true;connected=true;player=0;roomId='';chosen=[];G=null;remoteProfiles=[profile(),{globalId:'offline-p2',id:'offline-p2',nick:'Игрок 2',rating:0,rank:'Без ранга',rankIndex:1}];
+ history.replaceState(null,'',location.pathname);
+ setStatus('Офлайн-режим • обе команды на этом устройстве');
+ show('draft');
+ renderDraft();
+}
 function connect(){
  show('draft');setStatus('Подключаемся к лобби…');roomId=roomId||new URLSearchParams(location.search).get('room')||'';
  ws=new WebSocket(WS+'/ws?room='+encodeURIComponent(roomId));
@@ -151,20 +158,20 @@ function renderDraft(){
  renderSlots(0);renderSlots(1);
  const turn=chosen.length%2;
  $('#draftStatus').textContent=chosen.length<6?`Сейчас выбирает Игрок ${turn+1}`:'Команды собраны.';
- $('#turnPill').textContent=chosen.length<6?(player===turn?'ТВОЙ ПИК':'ПИК СОПЕРНИКА'):'ДРАФТ ЗАВЕРШЁН';
+ $('#turnPill').textContent=chosen.length<6?(offlineMode?`ПИК ИГРОКА ${turn+1}`:(player===turn?'ТВОЙ ПИК':'ПИК СОПЕРНИКА')):'ДРАФТ ЗАВЕРШЁН';
  $('#pool').innerHTML=Object.keys(HEROES).map(id=>`<button class="hero-pick ${chosen.includes(id)?'taken':''}" data-hero="${id}" ${chosen.includes(id)||chosen.length>=6?'disabled':''}><img src="${heroImg(id)}"><div class="nm">${heroName(id)}</div><div class="st">♥ ${HEROES[id][1]} &nbsp; ⚔ ${HEROES[id][2]}</div></button>`).join('');
  document.querySelectorAll('[data-hero]').forEach(b=>b.onclick=()=>pickHero(b.dataset.hero));
- $('#startBtn').disabled=!(player===0&&chosen.length===6);
+ $('#startBtn').disabled=!((offlineMode||player===0)&&chosen.length===6);
 }
 function pickHero(id){
  if(!connected||chosen.length>=6||chosen.includes(id))return;
- const turn=chosen.length%2;if(player!==turn){alert('Сейчас выбирает Игрок '+(turn+1));return}
- chosen.push(id);renderDraft();queueState();
+ const turn=chosen.length%2;if(!offlineMode&&player!==turn){alert('Сейчас выбирает Игрок '+(turn+1));return}
+ chosen.push(id);renderDraft();if(!offlineMode)queueState();
 }
 function createGame(){
  const mk=(id,t)=>({id,name:heroName(id),team:t,hp:HEROES[id][1],maxHp:HEROES[id][1],atk:HEROES[id][2],dead:false});
  G={matchId:'web-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),teams:[teamPicks(0).map(id=>mk(id,0)),teamPicks(1).map(id=>mk(id,1))],front:[0,0],team:0,actions:2,winner:null,turn:1,log:['Матч начался.']};
- show('game');renderGame();sendState();
+ show('game');renderGame();if(!offlineMode)sendState();
 }
 function aliveIndex(t){
  const a=G.teams[t];let i=Math.max(0,Number(G.front?.[t])||0);
@@ -179,15 +186,15 @@ function checkWin(){
  return false;
 }
 function attack(){
- if(!G||G.winner!=null||player!==G.team||G.actions<=0)return;
+ if(!G||G.winner!=null||(!offlineMode&&player!==G.team)||G.actions<=0)return;
  const a=front(G.team),b=front(1-G.team);if(!a||!b)return;
  b.hp=Math.max(0,b.hp-a.atk);pushLog(a.name+' наносит '+a.atk+' урона '+b.name+'.');G.actions--;
  if(b.hp<=0){b.dead=true;pushLog(b.name+' погибает.');G.front[1-G.team]=aliveIndex(1-G.team)}
- checkWin();renderGame();sendState();
+ checkWin();renderGame();if(!offlineMode)sendState();
 }
 function endTurn(){
- if(!G||G.winner!=null||player!==G.team)return;
- G.team=1-G.team;G.actions=2;G.turn++;pushLog('Ход переходит к Игроку '+(G.team+1)+'.');renderGame();sendState();
+ if(!G||G.winner!=null||(!offlineMode&&player!==G.team))return;
+ G.team=1-G.team;G.actions=2;G.turn++;pushLog('Ход переходит к Игроку '+(G.team+1)+'.');renderGame();if(!offlineMode)sendState();
 }
 function card(h,isFront){
  const pct=Math.max(0,Math.round(h.hp/h.maxHp*100));
@@ -200,8 +207,8 @@ function renderGame(){
  $('#battleMeta').textContent=G.winner==null?`Действия: ${G.actions}/2 • общий ход ${G.turn}`:'';
  $('#log').innerHTML=(G.log||[]).slice().reverse().map(x=>'<p>'+esc(x)+'</p>').join('');
  $('#winner').classList.toggle('hidden',G.winner==null);if(G.winner!=null)$('#winner').textContent='Победил Игрок '+(G.winner+1);
- $('#attackBtn').disabled=G.winner!=null||player!==G.team||G.actions<=0;
- $('#endBtn').disabled=G.winner!=null||player!==G.team;
+ $('#attackBtn').disabled=G.winner!=null||(!offlineMode&&player!==G.team)||G.actions<=0;
+ $('#endBtn').disabled=G.winner!=null||(!offlineMode&&player!==G.team);
 }
 async function openLeaderboard(){
  openModal('Топ мира','Загрузка…');
@@ -214,7 +221,7 @@ async function openHeroStats(){
 function openModal(t,b){$('#modalTitle').textContent=t;$('#modalBody').innerHTML=b;$('#modalWrap').classList.remove('hidden')}
 
 $('#saveNick').onclick=()=>{nickname=$('#nick').value.trim().slice(0,24)||nickname;localStorage.dotaWebNick=nickname;sendProfile();loadLobbies()};
-$('#refreshBtn').onclick=loadLobbies;$('#createBtn').onclick=createLobby;$('#topBtn').onclick=openLeaderboard;$('#heroesBtn').onclick=openHeroStats;
+$('#refreshBtn').onclick=loadLobbies;$('#createBtn').onclick=createLobby;$('#offlineBtn').onclick=startOffline;$('#topBtn').onclick=openLeaderboard;$('#heroesBtn').onclick=openHeroStats;
 $('#modalClose').onclick=()=>$('#modalWrap').classList.add('hidden');$('#modalWrap').onclick=e=>{if(e.target.id==='modalWrap')$('#modalWrap').classList.add('hidden')};
 $('#startBtn').onclick=createGame;$('#attackBtn').onclick=attack;$('#endBtn').onclick=endTurn;$('#leaveDraft').onclick=disconnect;$('#leaveGame').onclick=disconnect;
 window.addEventListener('beforeunload',()=>{try{ws?.close()}catch{}});
