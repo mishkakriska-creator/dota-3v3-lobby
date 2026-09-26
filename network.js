@@ -205,8 +205,9 @@
   };
   function globalMatchPayload(){
     if(!G?.matchId||G?.winner==null)return null;
-    const p0=waitProfiles[0]||((player===0)?window.DotaProfile?.getPublic?.():null)||{};
-    const p1=waitProfiles[1]||((player===1)?window.DotaProfile?.getPublic?.():null)||{};
+    const localProfile=window.DotaProfile?.getPublic?.()||{};
+    const p0=(player===0?localProfile:waitProfiles[0])||waitProfiles[0]||{};
+    const p1=(player===1?localProfile:waitProfiles[1])||waitProfiles[1]||{};
     return {
       matchId:String(G.matchId),
       winner:Number(G.winner),
