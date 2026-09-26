@@ -134,34 +134,43 @@ function syncBattleResponsiveVars(logicalW,logicalH){
    if(bf)for(const k of ['--team0-card-w','--team1-card-w','--battle-card-h','--battle-mid-w','--battle-card-gap','--battle-column-gap'])bf.style.removeProperty(k);
    return;
   }
+
   logicalW=Number(logicalW)||parseFloat(getComputedStyle(root).getPropertyValue('--dota-vw'))||window.innerWidth||844;
   logicalH=Number(logicalH)||parseFloat(getComputedStyle(root).getPropertyValue('--dota-vh'))||window.innerHeight||390;
+
   const counts=G?[0,1].map(t=>Math.max(1,(G.teams?.[t]||[]).filter(h=>!h.infested).length)):[3,3];
   const maxUnits=Math.max(...counts);
   const clamp=(a,v,b)=>Math.max(a,Math.min(b,v));
+
   const compact=logicalH<=400||logicalW<=860;
   const roomy=logicalH>=410&&logicalW>=880;
+
   const middle=maxUnits>3
-    ?clamp(46,Math.round(logicalW*.055),58)
-    :(roomy?52:clamp(52,Math.round(logicalW*.064),60));
-  const columnGap=compact?3:3;
-  const outerAllowance=roomy?6:(compact?8:10);
-  const sideWidth=Math.max(150,(logicalW-middle-outerAllowance-columnGap*2)/2);
-  const cardGap=maxUnits>3?2:(roomy?3:3);
-  const cap=roomy?138:(compact?126:132);
+    ?clamp(40,Math.round(logicalW*.048),44)
+    :clamp(46,Math.round(logicalW*.054),50);
+
+  const columnGap=2;
+  const outerAllowance=6;
+  const sideWidth=Math.max(140,(logicalW-middle-outerAllowance-columnGap*2)/2);
+  const cardGap=maxUnits>3?2:3;
+
   const widthFor=n=>{
-   const raw=Math.floor((sideWidth-8-cardGap*Math.max(0,n-1))/Math.max(1,n));
-   return clamp(n>=4?76:98,raw,cap);
+   const raw=Math.floor((sideWidth-6-cardGap*Math.max(0,n-1))/Math.max(1,n));
+   if(n>=4)return clamp(88,raw,92);
+   return clamp(roomy?118:116,raw,roomy?122:120);
   };
-  const cardH=roomy
-    ?clamp(260,Math.round(logicalH*.67),282)
-    :(compact?clamp(220,Math.round(logicalH*.595),236):clamp(238,Math.round(logicalH*.63),266));
+
+  const cardH=maxUnits>3
+    ?clamp(232,Math.round(logicalH*.565),236)
+    :clamp(roomy?236:232,Math.round(logicalH*.58),roomy?240:236);
+
   bf.style.setProperty('--team0-card-w',widthFor(counts[0])+'px');
   bf.style.setProperty('--team1-card-w',widthFor(counts[1])+'px');
   bf.style.setProperty('--battle-card-h',cardH+'px');
   bf.style.setProperty('--battle-mid-w',middle+'px');
   bf.style.setProperty('--battle-card-gap',cardGap+'px');
   bf.style.setProperty('--battle-column-gap',columnGap+'px');
+
   root.classList.toggle('dota-landscape-compact',compact);
   root.classList.toggle('dota-landscape-roomy',roomy);
  }catch(_){}
