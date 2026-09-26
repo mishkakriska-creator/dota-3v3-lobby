@@ -2842,3 +2842,56 @@ html.dota-landscape-mobile body.game-running #game .battlefield .team .hero>.her
   max-height:100%!important;
   object-fit:cover!important;
 }
+
+
+/* v1.86.108 — shorter phone cards + spread HP / damage row */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero,
+html.dota-landscape-mobile body.game-running #game .battlefield .team.has-extra .hero,
+html.dota-landscape-mobile body.game-running #game .battlefield .team.has-four .hero{
+  height:min(80%,338px)!important;
+  min-height:286px!important;
+  max-height:338px!important;
+  align-self:flex-end!important;
+}
+
+/* Keep the 28/72 portrait-to-info split inside the shorter card. */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero{
+  grid-template-rows:28% minmax(0,72%)!important;
+}
+
+/* HP left, attack right, armor in the middle when present. */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats{
+  grid-template-columns:auto minmax(0,1fr) auto!important;
+  column-gap:2px!important;
+  width:100%!important;
+  padding:0 1px!important;
+  box-sizing:border-box!important;
+  align-items:center!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .hpstat{
+  grid-column:1!important;
+  justify-self:start!important;
+  width:auto!important;
+  min-width:0!important;
+  padding-left:2px!important;
+  padding-right:6px!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .armorstat{
+  grid-column:2!important;
+  justify-self:center!important;
+  width:auto!important;
+  min-width:0!important;
+  padding-left:2px!important;
+  padding-right:2px!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .atkstat{
+  grid-column:3!important;
+  justify-self:end!important;
+  width:auto!important;
+  min-width:0!important;
+  padding-left:6px!important;
+  padding-right:2px!important;
+}
