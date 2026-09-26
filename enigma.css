@@ -1,4 +1,4 @@
-/* Enigma — v1.86.99 */
+/* Enigma — v1.86.100 */
 #game .battlefield{position:relative!important;overflow:visible!important}
 #game .team.enigma-black-hole-team{position:relative!important;isolation:isolate!important}
 #game .team.enigma-black-hole-team .hero.enigma-black-hole-victim{position:relative!important;left:auto!important;top:auto!important;margin:0!important;z-index:var(--bh-z,50)!important;transform:translate(var(--bh-dx,0px),var(--bh-dy,0px)) rotate(var(--bh-rot,0deg)) scale(var(--bh-scale,.78))!important;filter:saturate(1.08) brightness(.94);transition:transform .78s cubic-bezier(.18,.82,.14,1),filter .3s ease!important;animation:enigmaVictimFloat var(--bh-period,2.7s) ease-in-out .8s infinite;animation-delay:calc(.8s + var(--bh-stack,0) * -0.19s)}
