@@ -1,6 +1,8 @@
 (()=>{
  const HELPER='/profile';
  const RESULT='/result';
+ const WEB_STATIC=/\.github\.io$/i.test(location.hostname);
+ const WEB_PROFILE_KEY='dota_cards_web_profile_v1';
  let localPlayer=0, remotes={}, local={nick:'',avatar:'',rating:0,wins:0,losses:0}, ready=false, loading=null, localSig='';
  const recordedMatches=new Set();
  const GLOBAL_ID_KEY='dota_cards_global_player_id_v1';
@@ -57,6 +59,19 @@
  }
  function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
  function getPublic(){return clean({...local,heroMastery:localMastery},localPlayer)}
+ function readWebProfile(){
+   if(!WEB_STATIC)return null;
+   try{return JSON.parse(localStorage.getItem(WEB_PROFILE_KEY)||'null')}catch{return null}
+ }
+ function saveWebProfile(){
+   if(!WEB_STATIC)return;
+   try{localStorage.setItem(WEB_PROFILE_KEY,JSON.stringify(getPublic()))}catch{}
+ }
+ function updateLocalProfile(next={}){
+   local=clean({...local,...next,heroMastery:localMastery},localPlayer);ready=true;saveWebProfile();render();
+   window.dispatchEvent(new CustomEvent('dota-profile-ready',{detail:{profile:getPublic(),ready:true}}));
+   return getPublic();
+ }
  function setLocalPlayer(n){localPlayer=Number.isInteger(n)?n:0;render()}
  function setRemote(n,p){if(n===localPlayer||!p)return;remotes[n]=clean(p,n);render()}
  function dataFor(n){if(n===localPlayer)return getPublic();return remotes[n]||blank(n)}
@@ -77,6 +92,16 @@
    if(loading)return loading;
    loading=(async()=>{
      const wasReady=ready, before=localSig;
+     if(WEB_STATIC){
+       const stored=readWebProfile()||{};
+       let nick=String(stored.nick||'').trim();
+       if(!nick){const id=globalId().replace(/[^a-zA-Z0-9]/g,'');nick='Игрок'+(id.slice(-4)||Math.floor(1000+Math.random()*9000))}
+       local=clean({...stored,nick,heroMastery:localMastery},localPlayer);ready=true;saveWebProfile();
+       localSig=JSON.stringify({nick:local.nick,avatar:local.avatar,rating:local.rating,wins:local.wins,losses:local.losses,heroMastery:localMastery});
+       render();
+       if(!wasReady||localSig!==before)window.dispatchEvent(new CustomEvent('dota-profile-ready',{detail:{profile:getPublic(),ready:true}}));
+       return getPublic();
+     }
      try{
        const r=await fetch(HELPER,{cache:'no-store'});if(!r.ok)throw 0;
        const p=await r.json();
@@ -102,8 +127,22 @@
    if(!Number.isInteger(window.DOTA_NET_PLAYER))return false;
    const key=String(matchId||''); if(!key||recordedMatches.has(key))return false;
    recordedMatches.add(key);
+   const won=window.DOTA_NET_PLAYER===winner;
+   if(WEB_STATIC){
+     const gain=won?MASTERY_WIN_XP:MASTERY_LOSS_XP;
+     try{
+       const team=(typeof G!=='undefined'&&G?.teams?.[localPlayer])?G.teams[localPlayer]:[];
+       const heroes=[...new Set(team.filter(h=>h&&h.id!=='arcwarden_clone').map(h=>h.id).filter(id=>HERO_IDS.includes(id)))];
+       for(const id of heroes)localMastery[id]=Math.max(0,Math.floor(Number(localMastery[id])||0))+gain;
+       saveMastery();
+       local=clean({...local,wins:(Number(local.wins)||0)+(won?1:0),losses:(Number(local.losses)||0)+(won?0:1),rating:Math.max(0,(Number(local.rating)||0)+(won?40:-20)),heroMastery:localMastery},localPlayer);
+       ready=true;saveWebProfile();render();
+       if(heroes.length)window.dispatchEvent(new CustomEvent('dota-mastery-gain',{detail:{heroes,gain,won}}));
+       window.dispatchEvent(new CustomEvent('dota-profile-ready',{detail:{profile:getPublic(),ready:true}}));
+       return true;
+     }catch{recordedMatches.delete(key);return false}
+   }
    try{
-     const won=window.DOTA_NET_PLAYER===winner;
      const r=await fetch(RESULT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({matchId:key,won})}); if(!r.ok)throw 0;
      let serverProfile=await r.json();
      const gain=won?MASTERY_WIN_XP:MASTERY_LOSS_XP;
@@ -150,8 +189,21 @@
    modal.querySelector('.profile-mastery-head').innerHTML=`<span class="profile-mastery-avatar">${av}</span><span class="profile-mastery-title"><b>${esc(p.nick)}</b><small>${esc(p.rank)} • ${p.rating} MMR • ${p.wins}–${p.losses}</small><em>${subtitle}</em></span><img class="profile-mastery-rank" src="${rank}" alt="">`;
    modal.querySelector('.profile-mastery-list').innerHTML=masteryProfileRowsHTML(p,Number.POSITIVE_INFINITY,true,matchHeroes);modal.classList.remove('hidden');
  }
+ function openEditor(){
+   const modal=document.createElement('div');modal.className='web-profile-editor';
+   const p=getPublic();
+   modal.innerHTML=`<div class="web-profile-editor-box"><button class="web-profile-editor-close" type="button">×</button><h2>ПРОФИЛЬ</h2><div class="web-profile-editor-current"><span class="web-profile-editor-avatar">${p.avatar?`<img src="${p.avatar}" alt="">`:'?'}</span><div><b>${esc(p.nick)}</b><small>${esc(p.rank)} • ${p.rating} MMR • ${p.wins}–${p.losses}</small></div></div><label>Ник<input class="web-profile-nick" maxlength="24" value="${esc(p.nick)}"></label><label>Аватар<input class="web-profile-avatar-input" type="file" accept="image/png,image/jpeg,image/webp"></label><div class="web-profile-editor-actions"><button class="web-profile-remove-avatar" type="button">Убрать аватар</button><button class="web-profile-save" type="button">СОХРАНИТЬ</button></div></div>`;
+   const css=document.getElementById('webProfileEditorCss')||document.createElement('style');css.id='webProfileEditorCss';css.textContent='.web-profile-editor{position:fixed;inset:0;z-index:2147483647;background:#05080dbd;display:grid;place-items:center;padding:18px}.web-profile-editor-box{width:min(430px,94vw);padding:20px;border:1px solid #3a4a62;border-radius:16px;background:#0f1621;color:#f4f7fb;box-shadow:0 24px 80px #000a;font-family:Segoe UI,Arial,sans-serif;position:relative}.web-profile-editor-box h2{margin:0 0 16px}.web-profile-editor-close{position:absolute;right:12px;top:10px;border:0;background:#233147;color:white;width:34px;height:34px;border-radius:9px;font-size:20px}.web-profile-editor-current{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:10px;border:1px solid #28364a;border-radius:12px;background:#0a1018}.web-profile-editor-avatar{width:54px;height:54px;display:grid;place-items:center;overflow:hidden;border-radius:11px;background:#182235;font-weight:900}.web-profile-editor-avatar img{width:100%;height:100%;object-fit:cover}.web-profile-editor-current div{display:flex;flex-direction:column;gap:3px}.web-profile-editor-current small{color:#92a1b5}.web-profile-editor-box label{display:flex;flex-direction:column;gap:6px;margin:12px 0;font-weight:700}.web-profile-editor-box input{padding:10px;border:1px solid #35455e;border-radius:9px;background:#080d14;color:white}.web-profile-editor-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.web-profile-editor-actions button{padding:9px 12px;border:1px solid #40526e;border-radius:9px;background:#1a2638;color:white;font-weight:800}.web-profile-save{background:#2f5fd1!important}';if(!css.isConnected)document.head.append(css);
+   let avatar=p.avatar||'';
+   modal.querySelector('.web-profile-editor-close').onclick=()=>modal.remove();
+   modal.addEventListener('click',e=>{if(e.target===modal)modal.remove()});
+   modal.querySelector('.web-profile-remove-avatar').onclick=()=>{avatar='';modal.querySelector('.web-profile-editor-avatar').textContent='?'};
+   modal.querySelector('.web-profile-avatar-input').onchange=e=>{const file=e.target.files?.[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{const v=String(reader.result||'');if(v.length<900000){avatar=v;modal.querySelector('.web-profile-editor-avatar').innerHTML=`<img src="${v}" alt="">`}};reader.readAsDataURL(file)};
+   modal.querySelector('.web-profile-save').onclick=()=>{const nick=modal.querySelector('.web-profile-nick').value.trim().slice(0,24)||p.nick;updateLocalProfile({nick,avatar});modal.remove()};
+   document.body.append(modal);
+ }
  function masteryInfoFor(playerIndex,heroId){if(heroId==='arcwarden_clone')heroId='arcwarden';let p=dataFor(Number.isInteger(playerIndex)?playerIndex:localPlayer),xp=Math.max(0,Math.floor(Number(p?.heroMastery?.[heroId])||0));return masteryInfoFromXp(xp)}
  function masteryBadgeHTML(playerIndex,heroId,compact=false){let m=masteryInfoFor(playerIndex,heroId),title=`${m.tierName} • уровень ${m.level} • ${m.xp} XP${m.level<MASTERY_MAX_LEVEL?` • ${m.nextXp-m.levelXp} XP до уровня ${m.level+1}`:' • максимальный уровень'}`;return `<span class="hero-mastery ${compact?'compact':''} tier-${m.tier.key}" title="${esc(title)}"><img src="${m.icon}" alt="${esc(m.tierName)}"><b>${m.level}</b></span>`}
- window.DotaProfile={getPublic,setLocalPlayer,setRemote,render,load,recordResult,rankFor,rankIndexFor,rankIconFor,mmrFromWL,masteryInfoFor,masteryBadgeHTML,masteryLevelForXp,xpForLevel,xpToNext,topMasteriesForProfile,masteryProfileRowsHTML,openMasteryProfile,isReady:()=>ready};
+ window.DotaProfile={getPublic,setLocalPlayer,setRemote,render,load,recordResult,rankFor,rankIndexFor,rankIconFor,mmrFromWL,masteryInfoFor,masteryBadgeHTML,masteryLevelForXp,xpForLevel,xpToNext,topMasteriesForProfile,masteryProfileRowsHTML,openMasteryProfile,openEditor,setLocalProfile:updateLocalProfile,isReady:()=>ready};
  document.addEventListener('DOMContentLoaded',()=>{render();retryLoad();setInterval(()=>load(),4000)});
 })();
