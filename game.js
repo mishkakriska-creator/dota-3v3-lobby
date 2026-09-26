@@ -135,8 +135,17 @@ function syncDotaViewport(){
   const logicalW=forcedPortrait?physicalH:physicalW;
   const logicalH=forcedPortrait?physicalW:physicalH;
   const root=document.documentElement;
+  const landscapePhone=phone&&logicalW>logicalH;
+  // iPhone 12/13/14 standard-class landscape is roughly 844x390 CSS px.
+  // Do not rely on CSS @media here: Safari's viewport/chrome handling can make
+  // max-height media queries inconsistent between otherwise identical sessions.
+  const shortLandscape=landscapePhone&&(
+    logicalH<=400 ||
+    (logicalW<=860&&logicalH<=430)
+  );
   root.classList.toggle('dota-force-landscape',forcedPortrait);
-  root.classList.toggle('dota-landscape-mobile',phone&&logicalW>logicalH);
+  root.classList.toggle('dota-landscape-mobile',landscapePhone);
+  root.classList.toggle('dota-landscape-short',shortLandscape);
   root.style.setProperty('--dota-physical-vw',physicalW+'px');
   root.style.setProperty('--dota-physical-vh',physicalH+'px');
   root.style.setProperty('--dota-vw',logicalW+'px');
