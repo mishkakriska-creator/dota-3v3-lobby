@@ -2067,3 +2067,78 @@ html body #game .shop-info-buy{
     filter:blur(6px) brightness(1.45)!important;
   }
 }
+
+
+/* MOBILE DRAFT GLOW + LONGER NICKS v15 */
+@media (orientation:landscape) and (max-height:760px), (max-width:1100px) and (pointer:coarse) {
+  /* Let selected-card glow breathe on the last draft row instead of being cut by the stage. */
+  html body #draft .draft-stage,
+  html body #draft .draft-grid,
+  html body #draft .draft-pool,
+  html body #draft .draft-center {
+    overflow:visible!important;
+  }
+  html body #draft .draft-stage {
+    padding-bottom:10px!important;
+  }
+  html body #draft .draft-grid {
+    padding-bottom:8px!important;
+    margin-bottom:0!important;
+  }
+
+  /* Keep the card itself clipped, but not its outer selection glow. */
+  html body #draft .draft-card {
+    overflow:visible!important;
+  }
+  html body #draft .draft-card>img,
+  html body #draft .draft-card .draft-card-media {
+    border-radius:inherit!important;
+    overflow:hidden!important;
+  }
+
+  /* Around 10–11 nickname characters should remain visible on phone. */
+  html body #draft .draft-side-title.side-profile {
+    grid-template-columns:20px minmax(0,1fr) 23px!important;
+    column-gap:4px!important;
+    padding-left:4px!important;
+    padding-right:4px!important;
+  }
+  html body #draft .draft-side-title.side-profile .side-profile-avatar {
+    width:20px!important;height:20px!important;
+    min-width:20px!important;min-height:20px!important;
+    max-width:20px!important;max-height:20px!important;
+  }
+  html body #draft .draft-side-title.side-profile .side-profile-name {
+    width:100%!important;max-width:none!important;min-width:0!important;
+    font-size:7.5px!important;letter-spacing:-.05px!important;
+    white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+  }
+  html body #draft .draft-side-title.side-profile .side-profile-rank-icon {
+    width:23px!important;height:23px!important;
+    min-width:23px!important;min-height:23px!important;
+  }
+  html body #draft .draft-side-title.side-profile .side-profile-rank-icon>img {
+    width:22px!important;height:22px!important;
+    min-width:22px!important;min-height:22px!important;
+    max-width:22px!important;max-height:22px!important;
+  }
+
+  html body #game .side-title .side-profile-name {
+    max-width:122px!important;
+    min-width:0!important;
+    font-size:8.5px!important;
+    letter-spacing:-.05px!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  html body #game .side-title .side-profile-avatar {
+    width:18px!important;height:18px!important;
+    min-width:18px!important;min-height:18px!important;
+  }
+  html body #game .side-title .side-profile-rank-icon,
+  html body #game .side-title .side-profile-rank-icon>img {
+    width:20px!important;height:20px!important;
+    min-width:20px!important;min-height:20px!important;
+  }
+}
