@@ -2706,6 +2706,7 @@ html body #draft .draft-side .draft-slot.filled::after{
 /* Keep the centre hero pool untouched; these rules intentionally target only .draft-side. */
 
 @media (orientation:landscape) and (max-height:760px), (max-width:1100px) and (pointer:coarse){
+  html body.game-running #game .battlefield{--battle-card-w:clamp(105px,10.2vw,165px)!important}
   /* Card proportions closer to the PC layout: slightly smaller card,
      shorter portrait, much more room for combat information below. */
   html body.game-running #game .battlefield .team .hero,
