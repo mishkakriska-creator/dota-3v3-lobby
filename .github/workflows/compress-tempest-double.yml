@@ -7,6 +7,8 @@ on:
       - .github/workflows/compress-tempest-double.yml
   pull_request_target:
     types: [opened, synchronize, reopened]
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: write
