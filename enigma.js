@@ -69,6 +69,7 @@
     return blackHoleActive(team)?blackHoleVictims(team):[frontHero(team)].filter(h=>h&&!h.dead&&!h.infested&&(Number(h.hp)||0)>0);
   }
   window.enigmaBlackHoleActive=blackHoleActive;
+  window.enigmaBlackHoleKeepsHero=h=>!!h&&blackHoleActive(h.team)&&blackHoleVictims(h.team).includes(h);
   window.enigmaDirectedTargets=team=>blackHoleActive(team)?blackHoleVictims(team):[];
 
   const enigmaKillAudio=new Audio();enigmaKillAudio.volume=.72;
@@ -302,16 +303,14 @@
     const team=G.enigmaBlackHoleEnemyTeam,box=document.getElementById(`team${team}`),victims=blackHoleVictims(team),front=frontHero(team),frontNode=front?document.getElementById(`hero-${team}-${front.id}`):null,bf=document.querySelector('#game .battlefield');
     if(!box||!victims.length||!frontNode||!bf)return;
     const keepIds=new Set(victims.map(h=>`hero-${team}-${h.id}`));clearBoardClasses(team,keepIds);
-    // Always recapture from the normal in-flow front card. The victims never leave
-    // flex layout now, so later renders cannot collapse the team and throw them down.
-    const anchor=captureBlackHoleAnchor(team);if(!anchor)return;
+    const anchor=getBlackHoleAnchor(team);if(!anchor)return;
     box.classList.add('enigma-black-hole-team');
-    const br=bf.getBoundingClientRect(),count=Math.max(1,victims.length),mobile=mobileBlackHoleLayout(),cardW=Math.max(1,anchor.cardW||frontNode.getBoundingClientRect().width),cardH=Math.max(1,anchor.cardH||frontNode.getBoundingClientRect().height);
-    const targetBaseX=br.left+anchor.fieldLeft,targetBaseY=br.top+anchor.fieldTop;
+    const count=Math.max(1,victims.length),mobile=mobileBlackHoleLayout(),cardW=Math.max(1,anchor.cardW||frontNode.offsetWidth),cardH=Math.max(1,anchor.cardH||frontNode.offsetHeight);
+    const targetBaseX=anchor.boxLeft,targetBaseY=anchor.boxTop;
     victims.forEach((h,i)=>{
       const d=document.getElementById(`hero-${team}-${h.id}`);if(!d)return;
-      const r=d.getBoundingClientRect(),pose=blackHoleVictimPose(i,count,cardW,cardH,mobile);
-      const sx=r.left+r.width/2,sy=r.top+r.height/2,dx=targetBaseX+pose.x-sx,dy=targetBaseY+pose.y-sy;
+      const pose=blackHoleVictimPose(i,count,cardW,cardH,mobile);
+      const sx=d.offsetLeft+d.offsetWidth/2,sy=d.offsetTop+d.offsetHeight/2,dx=targetBaseX+pose.x-sx,dy=targetBaseY+pose.y-sy;
       const a=suctionAnimations.get(d);if(a){try{a.cancel()}catch(_){}suctionAnimations.delete(d)}
       d.classList.remove('enigma-black-hole-mobile-victim');d.classList.add('enigma-black-hole-victim');
       d.style.setProperty('--bh-stack',String(i));d.style.setProperty('--bh-z',String(h===active(team)?80:58+i));
