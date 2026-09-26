@@ -352,6 +352,7 @@ function updateDraft(){
  }else $('#draftStatus').innerHTML=`Игрок 1: <b>3/3</b> • Игрок 2: <b>3/3</b> • Драфт завершён`;
  $('#startBtn').disabled=chosen.length!==6 || (!window.DOTA_OFFLINE_MODE && Number.isInteger(window.DOTA_NET_PLAYER) && window.DOTA_NET_PLAYER!==0);
  window.syncDraftState?.();
+ if(chosen.length===6)warmChosenBattleAssets(false);
 }
 const HERO_ICONS={techies:'assets/hero_portraits_v166/techies.png',morphling:'assets/hero_portraits_v166/morphling.png',bane:'assets/hero_portraits_v166/bane.png',silencer:'assets/hero_portraits_v166/silencer.png',shadowfiend:'assets/hero_portraits_v166/shadowfiend.png',lifestealer:'assets/hero_portraits_v166/lifestealer.png',abaddon:'assets/abaddon_icon.png',io:'assets/io_icon.png',tinker:'assets/tinker_icon.png',invoker:'assets/invoker_icon.png',arcwarden:'assets/arcwarden_icon.png',axe:'assets/axe_icon.png',broodmother:'assets/broodmother_icon.png',mars:'assets/turn_mars.png'};
 function draftPortraitSrc(id){ if(id==='invoker') return 'assets/invoker.jpg'; if(id==='axe') return 'assets/axe.jpg'; if(id==='broodmother') return 'assets/hero_portraits_v166/broodmother.png'; if(id==='tinker') return 'assets/tinker_draft.png'; if(id==='abaddon') return 'assets/abaddon_portrait.png'; if(id==='mars') return 'assets/mars_draft.png'; return HERO_ICONS[id]||DATA[id]?.img||'' }
@@ -384,7 +385,55 @@ window.refreshMasteryUI=function(){
 };
 function mkHero(id,team){let d=DATA[id],portrait=(id==='broodmother'?'assets/portraits/broodmother.webm':(d.staticPortrait||`assets/portraits/${id}.webm`));return{id,team,name:d.name,img:d.img,portrait,staticPortrait:!!d.staticPortrait,maxHp:d.hp,hp:d.hp,atk:d.atk,baseAtk:d.atk,armor:0,morphShiftArmor:0,dead:false,stun:0,sleep:false,nightmare:false,nightmareSkipped:false,silence:0,cd:{},itemCd:{},items:[],magicDebuff:null,itemSilence:null,actionDebt:0,sfMarks:[],sfKills:0,kills:0,gripped:false,infested:false,infestHost:null,infestTurns:0,turnUsed:{},tetherTargetId:null,tetheredBy:null,spirits:0,spiritsTurns:0,spiritTimers:[],alacrityTurns:0,coldSnapTurns:0,burnTurns:0,disarmTurns:0,ghostWalkTurns:0,ghostWalkTicks:0,tornadoAirborne:0,tornadoLandingDamage:0,invokedSpells:[],forgeSpirit:null,invoking:false,desolatorTurns:0,itemHpBonus:0,broodHungerTurns:0,broodHungerImmediate:false,broodHungerAppliedTurn:0,broodEggTurns:0,broodlingTimers:[],broodlingHp:[],broodBiteTimers:[],tinkerBlindTurns:0,morphRepeatPct:0,rageTurns:0,rageAppliedTurn:0,tinkerMatrixShield:false,tinkerMatrixShieldTurns:0,tinkerMatrixShieldAppliedTurn:0,tinkerMatrixBoostTurns:0,tinkerMatrixBoostAppliedTurn:0,nightmareCasterId:null,nightmareCasterTeam:null,pipeShield:0,pipeShieldTurns:0,pipeShieldAppliedTurn:0,aphoticShield:0,borrowedTimeTurns:0,borrowedTimeAppliedTurn:0,skadiTurns:0,skadiAppliedTurn:0,marsArenaTurns:0,marsArenaAppliedTurn:0}}
 function clearBattlefield(){window.clearPhantomFx?.();window.clearKillFeed?.();window.clearCombatFx?.();['#team0','#team1'].forEach(sel=>{let box=$(sel);if(box){box.querySelectorAll("video").forEach(v=>{v.onpause=null;v.pause();v.removeAttribute("src");v.load()});box.replaceChildren()}});let q=$('#turnQueue');if(q)q.innerHTML='';let log=$('#log');if(log)log.innerHTML='';let effects=$('#effects');if(effects)effects.innerHTML=''}
-function start(){if(chosen.length!==6){alert('Сначала завершите драфт: по 3 героя каждому игроку.');return}ensureMusic();clearBattlefield();let p1=draftTeamHeroes(0),p2=draftTeamHeroes(1);G={matchId:Date.now()+Math.random(),teams:[p1.map(x=>mkHero(x,0)),p2.map(x=>mkHero(x,1))],front:[0,0],team:0,actions:2,attackUsed:false,round:0,bombs:[],mines:[false,false],gold:[0,0],teamTurns:[0,0],winner:null,log:[],holdFrontOnce:[false,false],turnSerial:0,firstBloodDone:false,marsArenaTurns:0,marsArenaAppliedTurn:0,marsArenaTeam:null,marsArenaEnemyTeam:null,marsArenaCasterId:null,enigmaBlackHoleTurns:0,enigmaBlackHoleTeam:null,enigmaBlackHoleEnemyTeam:null,enigmaBlackHoleCasterId:null,enigmaBlackHoleAnimatingUntil:0};$('#draft').classList.add('hidden');$('#game').classList.remove('hidden');document.documentElement.classList.add('game-running');document.body.classList.add('game-running');try{window.scrollTo({top:0,left:0,behavior:'instant'})}catch(_){window.scrollTo(0,0)};beginActivation();const refit=()=>{try{document.body.offsetHeight;window.dispatchEvent(new Event('resize'));render()}catch(_){}};requestAnimationFrame(()=>requestAnimationFrame(refit));setTimeout(refit,120);setTimeout(refit,420)}
+let matchAssetWarmKey='',matchAssetWarmPromise=null;
+function battlePortraitSrcFor(id){
+  const d=DATA[id]||{};
+  if(d.staticPortrait)return d.img||d.portrait||'';
+  return id==='broodmother'?'assets/portraits/broodmother.webm':`assets/portraits/${id}.webm`;
+}
+function preloadMatchImage(url){
+  if(!url)return Promise.resolve();
+  return new Promise(resolve=>{const img=new Image(),done=()=>resolve();img.onload=done;img.onerror=done;img.src=url;if(img.complete)done()});
+}
+function preloadMatchVideo(url,host){
+  if(!url)return Promise.resolve();
+  return new Promise(resolve=>{
+    const v=document.createElement('video');let settled=false;
+    const done=()=>{if(settled)return;settled=true;clearTimeout(timer);try{v.pause();v.removeAttribute('src');v.load()}catch(_){}v.remove();resolve()};
+    v.muted=true;v.playsInline=true;v.preload='auto';v.style.cssText='position:absolute;width:2px;height:2px;opacity:.001;pointer-events:none;left:-9999px;top:-9999px';
+    v.addEventListener('loadeddata',done,{once:true});v.addEventListener('canplay',done,{once:true});v.addEventListener('error',done,{once:true});
+    (host||document.body).appendChild(v);v.src=url;try{v.load()}catch(_){}
+    const timer=setTimeout(done,4200);
+  });
+}
+function warmChosenBattleAssets(showOverlay=false){
+  const ids=[...new Set(chosen)].filter(Boolean),key=ids.join('|');
+  if(key!==matchAssetWarmKey||!matchAssetWarmPromise){
+    matchAssetWarmKey=key;
+    const host=document.createElement('div');host.className='match-preload-cache';host.style.cssText='position:fixed;left:-9999px;top:-9999px;width:2px;height:2px;overflow:hidden;opacity:.001;pointer-events:none';document.body.appendChild(host);
+    const tasks=[];
+    for(const id of ids){
+      const d=DATA[id]||{};
+      tasks.push(preloadMatchImage(d.img||draftPortraitSrc(id)||''));
+      tasks.push(preloadMatchVideo(battlePortraitSrcFor(id),host));
+      for(const sk of d.skills||[]){const icon=skillIcon(id,sk.id);if(icon)tasks.push(preloadMatchImage(icon))}
+    }
+    matchAssetWarmPromise=Promise.allSettled(tasks).finally(()=>host.remove());
+  }
+  if(!showOverlay)return matchAssetWarmPromise;
+  let overlay=document.getElementById('matchPrepOverlay');
+  if(!overlay){overlay=document.createElement('div');overlay.id='matchPrepOverlay';overlay.className='match-prep-overlay';overlay.innerHTML='<div class="match-prep-box"><b>ПОДГОТОВКА МАТЧА</b><span>Загружаю портреты выбранных героев…</span><i><em></em></i></div>';document.body.appendChild(overlay)}
+  overlay.classList.add('show');
+  const bar=overlay.querySelector('em'),copy=overlay.querySelector('span');let pct=12;
+  bar.style.width=pct+'%';
+  const tick=setInterval(()=>{pct=Math.min(92,pct+Math.max(1,(94-pct)*.08));bar.style.width=pct+'%'},90);
+  const started=Date.now();
+  return Promise.resolve(matchAssetWarmPromise).catch(()=>{}).then(()=>new Promise(r=>setTimeout(r,Math.max(0,360-(Date.now()-started))))).finally(()=>{
+    clearInterval(tick);bar.style.width='100%';copy.textContent='Готово';
+    setTimeout(()=>{overlay.classList.remove('show');setTimeout(()=>overlay.remove(),220)},120);
+  });
+}
+async function start(){if(chosen.length!==6){alert('Сначала завершите драфт: по 3 героя каждому игроку.');return}await warmChosenBattleAssets(true);ensureMusic();clearBattlefield();let p1=draftTeamHeroes(0),p2=draftTeamHeroes(1);G={matchId:Date.now()+Math.random(),teams:[p1.map(x=>mkHero(x,0)),p2.map(x=>mkHero(x,1))],front:[0,0],team:0,actions:2,attackUsed:false,round:0,bombs:[],mines:[false,false],gold:[0,0],teamTurns:[0,0],winner:null,log:[],holdFrontOnce:[false,false],turnSerial:0,firstBloodDone:false,marsArenaTurns:0,marsArenaAppliedTurn:0,marsArenaTeam:null,marsArenaEnemyTeam:null,marsArenaCasterId:null,enigmaBlackHoleTurns:0,enigmaBlackHoleTeam:null,enigmaBlackHoleEnemyTeam:null,enigmaBlackHoleCasterId:null,enigmaBlackHoleAnimatingUntil:0};$('#draft').classList.add('hidden');$('#game').classList.remove('hidden');document.documentElement.classList.add('game-running');document.body.classList.add('game-running');try{window.scrollTo({top:0,left:0,behavior:'instant'})}catch(_){window.scrollTo(0,0)};beginActivation();const refit=()=>{try{document.body.offsetHeight;window.dispatchEvent(new Event('resize'));render()}catch(_){}};requestAnimationFrame(()=>requestAnimationFrame(refit));setTimeout(refit,120);setTimeout(refit,420)}
 function living(team){return G.teams[team].filter(h=>!h.dead&&!h.infested)}
 function active(team=G.team){let arr=G.teams[team],start=G.front[team];for(let i=0;i<arr.length;i++){let idx=(start+i)%arr.length;if(!arr[idx].dead&&!arr[idx].infested){G.front[team]=idx;return arr[idx]}}return null}
 function frontHero(team){return active(team)}
