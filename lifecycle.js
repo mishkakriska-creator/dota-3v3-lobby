@@ -8,7 +8,7 @@
   bar.id='webLifecycleBar';
   bar.style.cssText = 'position:fixed;right:14px;bottom:12px;z-index:10000;display:flex;gap:8px;align-items:center;padding:8px;border:1px solid #3a4358;border-radius:12px;background:#11151ef2;color:#fff;font:12px Segoe UI,sans-serif';
   const label = document.createElement('span');
-  label.textContent = WEB_STATIC ? '1.86.99 • WEB' : '1.86.0 • Tinker';
+  label.textContent = WEB_STATIC ? '1.86.100 • WEB' : '1.86.0 • Tinker';
   bar.append(label);
   function button(text, action) {
     const b = document.createElement('button');
