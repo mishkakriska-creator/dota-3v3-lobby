@@ -89,6 +89,26 @@
 #game .hero.arc-tempest-card{box-shadow:0 0 0 1px rgba(96,170,255,.5),0 0 16px rgba(68,142,255,.24)!important}
 
 
+/* Keep desktop Tempest Double exactly as in v1.86.106 */
+html:not(.dota-landscape-mobile) body #game .hero.arc-tempest-card .hero-portrait{
+  background:#080b10!important;
+  overflow:hidden!important;
+}
+html:not(.dota-landscape-mobile) body #game .hero.arc-tempest-card .hero-portrait>video{
+  position:absolute!important;
+  inset:4%!important;
+  width:92%!important;
+  height:92%!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  transform:none!important;
+  border-radius:0!important;
+}
+
 /* v1.86.107 — phone landscape Tempest Double framing */
 html.dota-landscape-mobile body.game-running #game .hero.arc-tempest-card .hero-portrait>video{
   inset:3%!important;
