@@ -117,6 +117,25 @@ function setHTMLCached(el,html){if(!el)return;if(el._dotaCachedHTML===html)retur
 function closeShopsForTargeting(team,id){let panel=document.getElementById(`shop${team}`);shopTargetResume={team,id,wasOpen:!!panel?.classList?.contains?.('open')};document.querySelectorAll('.shop-panel.open').forEach(x=>x.classList.remove('open'));document.body.classList.add('shop-targeting')}
 function restoreShopAfterTargeting(){let st=shopTargetResume;shopTargetResume=null;document.body.classList.remove('shop-targeting');if(!st?.wasOpen)return;let panel=document.getElementById(`shop${st.team}`);if(panel){panel.classList.add('open');if(st.id)showShopItemInfo(st.team,st.id)}}
 
+function syncDotaViewport(){
+ try{
+  const vv=window.visualViewport;
+  const vh=Math.max(1,Math.round(vv?.height||window.innerHeight||document.documentElement.clientHeight||0));
+  const header=document.querySelector('#app>header');
+  const hh=Math.max(0,Math.round(header?.getBoundingClientRect?.().height||0));
+  document.documentElement.style.setProperty('--dota-vh',vh+'px');
+  document.documentElement.style.setProperty('--dota-header-h',hh+'px');
+  document.body.style.setProperty('--dota-vh',vh+'px');
+  document.body.style.setProperty('--dota-header-h',hh+'px');
+  document.body.offsetHeight;
+ }catch(_){}
+}
+syncDotaViewport();
+window.addEventListener('load',syncDotaViewport);
+window.addEventListener('pageshow',()=>{syncDotaViewport();requestAnimationFrame(syncDotaViewport);setTimeout(syncDotaViewport,80)});
+window.addEventListener('resize',syncDotaViewport);
+window.addEventListener('orientationchange',()=>{setTimeout(syncDotaViewport,40);setTimeout(syncDotaViewport,220)});
+window.visualViewport?.addEventListener?.('resize',syncDotaViewport);
 function draftTeamForPick(i){return i%2}
 function localDraftPlayer(){return window.DOTA_OFFLINE_MODE?draftTeamForPick(chosen.length):(Number.isInteger(window.DOTA_NET_PLAYER)?window.DOTA_NET_PLAYER:0)}
 function draftTurn(){return draftTeamForPick(chosen.length)}
@@ -353,7 +372,7 @@ function updateDraft(){
  }else $('#draftStatus').innerHTML=`Игрок 1: <b>3/3</b> • Игрок 2: <b>3/3</b> • Драфт завершён`;
  $('#startBtn').disabled=chosen.length!==6 || (!window.DOTA_OFFLINE_MODE && Number.isInteger(window.DOTA_NET_PLAYER) && window.DOTA_NET_PLAYER!==0);
  window.syncDraftState?.();
- if(chosen.length>0)warmChosenBattleAssets(false);
+
 }
 const HERO_ICONS={techies:'assets/hero_portraits_v166/techies.png',morphling:'assets/hero_portraits_v166/morphling.png',bane:'assets/hero_portraits_v166/bane.png',silencer:'assets/hero_portraits_v166/silencer.png',shadowfiend:'assets/hero_portraits_v166/shadowfiend.png',lifestealer:'assets/hero_portraits_v166/lifestealer.png',abaddon:'assets/abaddon_icon.png',io:'assets/io_icon.png',tinker:'assets/tinker_icon.png',invoker:'assets/invoker_icon.png',arcwarden:'assets/arcwarden_icon.png',axe:'assets/axe_icon.png',broodmother:'assets/broodmother_icon.png',mars:'assets/turn_mars.png'};
 function draftPortraitSrc(id){ if(id==='invoker') return 'assets/invoker.jpg'; if(id==='axe') return 'assets/axe.jpg'; if(id==='broodmother') return 'assets/hero_portraits_v166/broodmother.png'; if(id==='tinker') return 'assets/tinker_draft.png'; if(id==='abaddon') return 'assets/abaddon_portrait.png'; if(id==='mars') return 'assets/mars_draft.png'; return HERO_ICONS[id]||DATA[id]?.img||'' }
