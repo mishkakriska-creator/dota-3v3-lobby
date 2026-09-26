@@ -2347,3 +2347,106 @@ html body #game .shop-info-buy{
     flex-wrap:nowrap!important;
   }
 }
+
+
+/* v1.86.98 — keep real card size; grow team zone only when extra units appear */
+@media (orientation:landscape) and (max-height:600px){
+  html body #game .battlefield{
+    --battle-card-w:clamp(108px,11.5vw,180px);
+    overflow:visible!important;
+  }
+
+  /* Normal teams keep the existing 3-card footprint. */
+  html body #game .battlefield .team .hero,
+  html body #game .battlefield .team.has-four .hero,
+  html body #game .battlefield .team.has-extra .hero{
+    width:var(--battle-card-w)!important;
+    min-width:var(--battle-card-w)!important;
+    max-width:var(--battle-card-w)!important;
+    flex:0 0 var(--battle-card-w)!important;
+    margin:0!important;
+  }
+
+  /* When a fourth unit appears, enlarge only that side and squeeze the center lane. */
+  html body #game .battlefield.expand-left:not(.expand-both){
+    grid-template-columns:
+      minmax(calc(var(--battle-card-w) + var(--battle-card-w) + var(--battle-card-w) + var(--battle-card-w) + 14px),1.25fr)
+      minmax(108px,13vw)
+      minmax(calc(var(--battle-card-w) + var(--battle-card-w) + var(--battle-card-w) + 10px),.85fr)!important;
+  }
+  html body #game .battlefield.expand-right:not(.expand-both){
+    grid-template-columns:
+      minmax(calc(var(--battle-card-w) + var(--battle-card-w) + var(--battle-card-w) + 10px),.85fr)
+      minmax(108px,13vw)
+      minmax(calc(var(--battle-card-w) + var(--battle-card-w) + var(--battle-card-w) + var(--battle-card-w) + 14px),1.25fr)!important;
+  }
+  html body #game .battlefield.expand-both{
+    grid-template-columns:minmax(0,1fr) 96px minmax(0,1fr)!important;
+  }
+
+  html body #game .battlefield .team.has-extra{
+    justify-content:center!important;
+    overflow:visible!important;
+  }
+  html body #game .battlefield .team.has-five-plus{
+    justify-content:flex-start!important;
+    overflow-x:auto!important;
+    overflow-y:visible!important;
+    scrollbar-width:none;
+  }
+  html body #game .battlefield .team.has-five-plus::-webkit-scrollbar{display:none}
+
+  /* Cards reach almost to the player name instead of sitting low in the lane. */
+  html body.game-running #game .battlefield .team .hero{
+    height:calc(100% - 4px)!important;
+    min-height:0!important;
+    max-height:none!important;
+    align-self:flex-end!important;
+  }
+  html body.game-running #game .battlefield .hero .hero-portrait{
+    height:58%!important;
+    min-height:0!important;
+    max-height:none!important;
+    flex:0 0 58%!important;
+  }
+
+  /* Permanent static fallback behind every animated portrait. */
+  html body #game .battlefield .hero .hero-portrait{
+    background-color:#0b1018!important;
+    background-size:cover!important;
+    background-position:center!important;
+    background-repeat:no-repeat!important;
+  }
+  html body #game .battlefield .hero .hero-portrait>video{
+    opacity:1!important;
+    transition:opacity .10s linear!important;
+  }
+  html body #game .battlefield .hero .hero-portrait.video-pending>video{
+    opacity:0!important;
+  }
+
+  /* Finish the previous draft request: use the lower part of the viewport, no empty black strip. */
+  html body #draft.screen{
+    height:calc(100dvh - 34px)!important;
+    min-height:calc(100dvh - 34px)!important;
+    max-height:calc(100dvh - 34px)!important;
+    display:grid!important;
+    grid-template-rows:18px minmax(0,1fr) 34px!important;
+    align-content:end!important;
+    gap:4px!important;
+    padding:4px 6px max(6px,env(safe-area-inset-bottom))!important;
+    overflow:hidden!important;
+  }
+  html body #draft .draft-stage{
+    align-self:end!important;
+    margin-top:auto!important;
+    min-height:0!important;
+  }
+  html body #draft .draft-footer{
+    align-self:end!important;
+    height:34px!important;
+    min-height:34px!important;
+    margin:0!important;
+    padding:4px 6px!important;
+  }
+}
