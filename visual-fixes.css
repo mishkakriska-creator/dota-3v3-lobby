@@ -3716,3 +3716,105 @@ html.dota-force-landscape body>.modal{
 html.dota-force-landscape body>#app{
   overflow:hidden!important;
 }
+
+
+/* v1.86.116 — phone landscape lobby waiting screen */
+html.dota-landscape-mobile .lobby-wait-overlay{
+  padding:8px!important;
+  overflow:hidden!important;
+}
+html.dota-landscape-mobile .lobby-wait-shell{
+  position:relative!important;
+  width:min(1040px,calc(100% - 8px))!important;
+  height:calc(var(--dota-vh) - 16px)!important;
+  max-height:calc(var(--dota-vh) - 16px)!important;
+  min-height:0!important;
+  padding:14px 22px 52px!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+html.dota-landscape-mobile .lobby-wait-title{
+  font-size:24px!important;
+  line-height:1!important;
+  margin:0!important;
+}
+html.dota-landscape-mobile .lobby-wait-subtitle{
+  margin:5px 0 12px!important;
+  font-size:12px!important;
+  line-height:1.1!important;
+}
+html.dota-landscape-mobile .lobby-versus{
+  grid-template-columns:minmax(0,1fr) 54px minmax(0,1fr)!important;
+  gap:10px!important;
+}
+html.dota-landscape-mobile .lobby-player-card{
+  min-height:132px!important;
+  height:132px!important;
+  grid-template-columns:104px minmax(0,1fr)!important;
+  gap:12px!important;
+  padding:10px 14px!important;
+  border-radius:14px!important;
+}
+html.dota-landscape-mobile .lobby-wait-avatar{
+  width:104px!important;
+  height:104px!important;
+  border-radius:11px!important;
+}
+html.dota-landscape-mobile .lobby-wait-meta{
+  min-width:0!important;
+  width:100%!important;
+  overflow:visible!important;
+}
+html.dota-landscape-mobile .lobby-wait-nick{
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  font-size:20px!important;
+  line-height:1.05!important;
+  letter-spacing:0!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
+html.dota-landscape-mobile .lobby-wait-rank{
+  margin-top:9px!important;
+  gap:8px!important;
+}
+html.dota-landscape-mobile .lobby-wait-rank img{
+  width:40px!important;
+  height:40px!important;
+}
+html.dota-landscape-mobile .lobby-wait-rank b{
+  font-size:13px!important;
+}
+html.dota-landscape-mobile .lobby-wait-rank span{
+  font-size:11px!important;
+}
+html.dota-landscape-mobile .lobby-search-state{
+  margin-top:12px!important;
+  gap:10px!important;
+}
+html.dota-landscape-mobile .lobby-search-ring{
+  width:34px!important;
+  height:34px!important;
+}
+html.dota-landscape-mobile .lobby-search-copy{
+  font-size:12px!important;
+}
+html.dota-landscape-mobile .lobby-leave-btn{
+  position:absolute!important;
+  right:18px!important;
+  bottom:12px!important;
+  z-index:5!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-width:108px!important;
+  height:32px!important;
+  margin:0!important;
+  padding:6px 14px!important;
+  font-size:11px!important;
+  line-height:1!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
