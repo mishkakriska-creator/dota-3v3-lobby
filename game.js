@@ -590,10 +590,10 @@ function warmChosenBattleAssets(showOverlay=false){
     for(const id of ids){
       const d=DATA[id]||{};
       tasks.push(preloadMatchImage(d.img||draftPortraitSrc(id)||''));
-      tasks.push(preloadMatchVideo(battlePortraitSrcFor(id)));if(id==='arcwarden')tasks.push(preloadMatchVideo('assets/portraits/arcwarden_clone.webm'));
+      tasks.push(preloadMatchVideo(battlePortraitSrcFor(id)));
       for(const sk of d.skills||[]){const icon=skillIcon(id,sk.id);if(icon)tasks.push(preloadMatchImage(icon))}
     }
-    for(const src of selectedMatchAudioUrls(ids))tasks.push(preloadMatchAudio(src));
+    tasks.push((async()=>{for(const src of selectedMatchAudioUrls(ids))await preloadMatchAudio(src)})());
     matchAssetWarmPromise=Promise.allSettled(tasks);
   }
   if(!showOverlay)return matchAssetWarmPromise;
@@ -624,15 +624,14 @@ function warmAllGameAssets(onProgress){
   for(const id of ids){
     const d=DATA[id]||{};
     jobs.push(()=>preloadMatchImage(d.img||draftPortraitSrc(id)||''));
-    jobs.push(()=>warmVideoNetworkOnly(battlePortraitSrcFor(id)));
     for(const sk of d.skills||[]){const icon=skillIcon(id,sk.id);if(icon)jobs.push(()=>preloadMatchImage(icon))}
   }
   ['assets/portraits/forge_spirit.webm','assets/portraits/spiderling.webm','assets/portraits/arcwarden_clone.webm','assets/portraits/phantomlancer_illusion.webm'].forEach(url=>jobs.push(()=>warmVideoNetworkOnly(url)));
-  gameplayAudioUrls().forEach(url=>jobs.push(()=>warmAudioNetworkOnly(url)));
+  jobs.push(()=>warmAudioNetworkOnly('assets/audio/background_music.mp3'));
   let done=0;const total=Math.max(1,jobs.length),q=[...jobs];
   const report=()=>{try{onProgress?.(Math.round(done/total*100),done,total)}catch(_){}};
   const worker=async()=>{while(q.length){const job=q.shift();try{await job()}catch(_){}done++;report()}};
-  report();allGameAssetWarmPromise=Promise.all(Array.from({length:(window.innerHeight<=700?2:4)},worker)).then(()=>{report();return true});return allGameAssetWarmPromise;
+  report();allGameAssetWarmPromise=Promise.all(Array.from({length:(window.innerHeight<=700?1:3)},worker)).then(()=>{report();return true});return allGameAssetWarmPromise;
 }
 window.DotaWarmAllGameAssets=warmAllGameAssets;
 function resumeGameAudioFromGesture(){try{ensureDotaAudioContext()?.resume?.()}catch(_){}}
