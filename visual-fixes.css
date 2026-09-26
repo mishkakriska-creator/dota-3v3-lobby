@@ -3668,3 +3668,51 @@ html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .ins
   overflow:hidden!important;
   box-sizing:border-box!important;
 }
+
+
+/* v1.86.115 — phone can never render a portrait UI */
+html.dota-force-landscape{
+  width:100%!important;
+  height:100%!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+  background:#090d14!important;
+}
+
+html.dota-force-landscape body{
+  position:fixed!important;
+  top:0!important;
+  left:var(--dota-physical-vw)!important;
+  width:var(--dota-vw)!important;
+  height:var(--dota-vh)!important;
+  min-width:var(--dota-vw)!important;
+  min-height:var(--dota-vh)!important;
+  max-width:var(--dota-vw)!important;
+  max-height:var(--dota-vh)!important;
+  margin:0!important;
+  padding:0!important;
+  transform-origin:0 0!important;
+  transform:rotate(90deg)!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+  touch-action:manipulation;
+  background:#090d14!important;
+}
+
+html.dota-force-landscape body>#app,
+html.dota-force-landscape body>.mp-menu,
+html.dota-force-landscape body>.asset-loader,
+html.dota-force-landscape body>.lobby-wait-overlay,
+html.dota-force-landscape body>.inspect-modal,
+html.dota-force-landscape body>.hero-pick-modal,
+html.dota-force-landscape body>.modal{
+  width:100%!important;
+  max-width:100%!important;
+  height:100%!important;
+  max-height:100%!important;
+  box-sizing:border-box!important;
+}
+
+html.dota-force-landscape body>#app{
+  overflow:hidden!important;
+}
