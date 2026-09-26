@@ -1439,3 +1439,57 @@ html body #game .shop-info-buy{
     z-index:0!important;
   }
 }
+
+
+/* WEB MOBILE v10 — fill the whole center draft area and show player names */
+@media (orientation:landscape) and (max-height:600px){
+  html body #draft .draft-stage{
+    width:98vw!important;
+    max-width:none!important;
+    grid-template-columns:clamp(118px,14vw,180px) minmax(0,1fr) clamp(118px,14vw,180px)!important;
+    gap:4px!important;
+  }
+
+  html body #draft .draft-grid{
+    width:100%!important;
+    max-width:none!important;
+    justify-self:stretch!important;
+    justify-content:stretch!important;
+    grid-template-columns:repeat(6,minmax(0,1fr))!important;
+    grid-template-rows:repeat(3,auto)!important;
+    column-gap:2px!important;
+    row-gap:2px!important;
+  }
+  html body #draft .draft-card{
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    height:clamp(62px,17vh,98px)!important;
+  }
+
+  html body #draft .draft-side-p1,
+  html body #draft .draft-side-p2{
+    width:100%!important;
+    min-width:0!important;
+  }
+  html body #draft .draft-side-title{
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    padding:2px 4px!important;
+    justify-content:flex-start!important;
+  }
+  html body #draft .draft-side .side-profile-name{
+    flex:1 1 auto!important;
+    width:auto!important;
+    max-width:none!important;
+    min-width:0!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+    font-size:6.5px!important;
+  }
+  html body #draft .draft-side .side-profile-rank-icon{
+    flex:0 0 auto!important;
+  }
+}
