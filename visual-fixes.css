@@ -2895,3 +2895,93 @@ html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .atk
   padding-left:6px!important;
   padding-right:2px!important;
 }
+
+
+/* v1.86.109 — visibly shorter phone cards + true edge-to-edge combat stats */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero,
+html.dota-landscape-mobile body.game-running #game .battlefield .team.has-extra .hero,
+html.dota-landscape-mobile body.game-running #game .battlefield .team.has-four .hero{
+  height:min(70%,300px)!important;
+  min-height:250px!important;
+  max-height:300px!important;
+  align-self:flex-end!important;
+  margin-top:auto!important;
+  margin-bottom:0!important;
+}
+
+/* Keep portrait small inside the shorter card. */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero{
+  grid-template-rows:28% minmax(0,72%)!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero>.hero-body{
+  grid-template-rows:auto 30px 7px minmax(18px,1fr) auto 25px!important;
+  padding:5px 7px 6px!important;
+}
+
+/* This row is deliberately positioned instead of relying on old grid/flex rules. */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats{
+  grid-row:2!important;
+  position:relative!important;
+  display:block!important;
+  width:100%!important;
+  height:30px!important;
+  min-height:30px!important;
+  max-height:30px!important;
+  margin:2px 0 4px!important;
+  padding:0!important;
+  overflow:visible!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats>.stat{
+  position:absolute!important;
+  top:0!important;
+  width:auto!important;
+  min-width:42px!important;
+  max-width:48%!important;
+  height:30px!important;
+  min-height:30px!important;
+  margin:0!important;
+  padding:4px 6px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  white-space:nowrap!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats>.hpstat{
+  left:0!important;
+  right:auto!important;
+  transform:none!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats>.atkstat{
+  left:auto!important;
+  right:0!important;
+  transform:none!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats>.armorstat{
+  left:50%!important;
+  right:auto!important;
+  transform:translateX(-50%)!important;
+  min-width:34px!important;
+  max-width:38%!important;
+}
+
+/* Empty armor must not reserve visual space. */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats>.armorstat:empty{
+  display:none!important;
+}
+
+/* The card button stays physically inside the last row of the shorter card. */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .inspect-hero{
+  grid-row:6!important;
+  align-self:end!important;
+  width:100%!important;
+  height:25px!important;
+  min-height:25px!important;
+  max-height:25px!important;
+  margin:0!important;
+}
