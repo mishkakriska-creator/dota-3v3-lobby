@@ -3213,3 +3213,214 @@ html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .ins
   max-height:24px!important;
   margin:0!important;
 }
+
+
+/* v1.86.112 — phone card rebuilt to the requested vertical structure */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero,
+html.dota-landscape-mobile body.game-running #game .battlefield .team.has-extra .hero,
+html.dota-landscape-mobile body.game-running #game .battlefield .team.has-four .hero{
+  height:min(58%,250px)!important;
+  min-height:220px!important;
+  max-height:250px!important;
+  align-self:flex-end!important;
+  margin-top:auto!important;
+  margin-bottom:6px!important;
+  overflow:hidden!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:47% minmax(0,53%)!important;
+}
+
+/* 1. Portrait block */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero>.hero-portrait{
+  grid-row:1!important;
+  grid-column:1!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0!important;
+  overflow:hidden!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero>.hero-portrait>video,
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero>.hero-portrait>.static-hero-portrait{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:100%!important;
+  min-height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:cover!important;
+  object-position:center!important;
+}
+
+/* Body is the exact order from the sketch:
+   name -> HP/ATK -> hpbar -> armor -> effects/items -> card button */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero>.hero-body{
+  grid-row:2!important;
+  grid-column:1!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+  padding:0 6px 5px!important;
+  margin:0!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  grid-template-rows:
+    19px
+    29px
+    7px
+    23px
+    minmax(0,1fr)
+    24px!important;
+  column-gap:6px!important;
+  row-gap:2px!important;
+}
+
+/* 2. Name directly under the portrait */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .hero-name-row{
+  grid-column:1 / -1!important;
+  grid-row:1!important;
+  min-height:19px!important;
+  height:19px!important;
+  margin:0!important;
+  padding:3px 0 0!important;
+  display:flex!important;
+  align-items:center!important;
+  overflow:hidden!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .hero-name{
+  width:100%!important;
+  margin:0!important;
+  padding:0!important;
+  font-size:9px!important;
+  line-height:1!important;
+  max-height:15px!important;
+  white-space:nowrap!important;
+  text-overflow:ellipsis!important;
+  overflow:hidden!important;
+}
+
+/* Let HP / damage / armor participate directly in the body grid. */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats{
+  display:contents!important;
+}
+
+/* 3. Two equal boxes: HP | damage */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats>.hpstat,
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats>.atkstat{
+  position:static!important;
+  inset:auto!important;
+  transform:none!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:29px!important;
+  min-height:29px!important;
+  margin:0!important;
+  padding:4px 5px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  white-space:nowrap!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats>.hpstat{
+  grid-column:1!important;
+  grid-row:2!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats>.atkstat{
+  grid-column:2!important;
+  grid-row:2!important;
+}
+
+/* 4. HP bar */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .hpbar{
+  grid-column:1 / -1!important;
+  grid-row:3!important;
+  width:100%!important;
+  height:7px!important;
+  min-height:7px!important;
+  margin:0!important;
+  padding:0!important;
+}
+
+/* 5. Armor is its own wide box below the HP bar */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats>.armorstat{
+  position:static!important;
+  inset:auto!important;
+  transform:none!important;
+  grid-column:1 / -1!important;
+  grid-row:4!important;
+  justify-self:stretch!important;
+  align-self:stretch!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:23px!important;
+  min-height:23px!important;
+  margin:0!important;
+  padding:3px 6px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  white-space:nowrap!important;
+}
+
+/* Keep the row stable even with 0 armor so every hero has the same geometry. */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats>.armorstat:empty{
+  display:flex!important;
+  visibility:hidden!important;
+}
+
+/* 6. Effects and items share the flexible middle strip. */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .status{
+  grid-column:1!important;
+  grid-row:5!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  align-self:stretch!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .item-inventory{
+  grid-column:2!important;
+  grid-row:5!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  align-self:stretch!important;
+}
+
+/* 7. Button is always the last full-width block. */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .inspect-hero{
+  grid-column:1 / -1!important;
+  grid-row:6!important;
+  position:static!important;
+  inset:auto!important;
+  width:100%!important;
+  height:24px!important;
+  min-height:24px!important;
+  max-height:24px!important;
+  margin:0!important;
+  padding:3px 5px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  opacity:1!important;
+  visibility:visible!important;
+  overflow:hidden!important;
+}
