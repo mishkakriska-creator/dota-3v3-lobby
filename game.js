@@ -466,6 +466,19 @@ function clearMatchPreloadCache(){
   matchPreloadImages.clear();matchPreloadVideos.clear();matchPreloadAudios.clear();
   matchPreloadHost?.remove();matchPreloadHost=null;
 }
+function pruneMatchPreloadCacheForBattle(){
+  const keepClone=chosen.includes('arcwarden');
+  for(const [url,v] of [...matchPreloadVideos.entries()]){
+    if(keepClone&&url==='assets/portraits/arcwarden_clone.webm')continue;
+    try{v.pause();v.removeAttribute('src');v.load();v.remove()}catch(_){}
+    matchPreloadVideos.delete(url);
+  }
+  for(const [url,a] of [...matchPreloadAudios.entries()]){
+    try{a.pause();a.removeAttribute('src');a.load();a.remove()}catch(_){}
+    matchPreloadAudios.delete(url);
+  }
+  matchPreloadImages.clear();
+}
 function preloadMatchImage(url){
   if(!url)return Promise.resolve();
   if(matchPreloadImages.has(url)){
@@ -627,7 +640,7 @@ window.addEventListener('pointerdown',resumeGameAudioFromGesture,{once:true,capt
 window.addEventListener('touchstart',resumeGameAudioFromGesture,{once:true,capture:true,passive:true});
 window.addEventListener('keydown',resumeGameAudioFromGesture,{once:true,capture:true});
 
-async function start(){if(chosen.length!==6){alert('Сначала завершите драфт: по 3 героя каждому игроку.');return}unlockMatchAudio();ensureMusic();await warmChosenBattleAssets(false);clearBattlefield();let p1=draftTeamHeroes(0),p2=draftTeamHeroes(1);G={matchId:Date.now()+Math.random(),teams:[p1.map(x=>mkHero(x,0)),p2.map(x=>mkHero(x,1))],front:[0,0],team:0,actions:2,attackUsed:false,round:0,bombs:[],mines:[false,false],gold:[0,0],teamTurns:[0,0],winner:null,log:[],holdFrontOnce:[false,false],turnSerial:0,firstBloodDone:false,marsArenaTurns:0,marsArenaAppliedTurn:0,marsArenaTeam:null,marsArenaEnemyTeam:null,marsArenaCasterId:null,enigmaBlackHoleTurns:0,enigmaBlackHoleTeam:null,enigmaBlackHoleEnemyTeam:null,enigmaBlackHoleCasterId:null,enigmaBlackHoleAnimatingUntil:0};$('#draft').classList.add('hidden');$('#game').classList.remove('hidden');document.documentElement.classList.add('game-running');document.body.classList.add('game-running');try{window.scrollTo({top:0,left:0,behavior:'instant'})}catch(_){window.scrollTo(0,0)};beginActivation();const refit=()=>{try{document.body.offsetHeight;window.dispatchEvent(new Event('resize'));render()}catch(_){}};requestAnimationFrame(()=>requestAnimationFrame(refit));setTimeout(refit,120);setTimeout(refit,420);setTimeout(()=>{try{clearMatchPreloadCache()}catch(_){}},1600)}
+async function start(){if(chosen.length!==6){alert('Сначала завершите драфт: по 3 героя каждому игроку.');return}unlockMatchAudio();ensureMusic();await warmChosenBattleAssets(false);clearBattlefield();let p1=draftTeamHeroes(0),p2=draftTeamHeroes(1);G={matchId:Date.now()+Math.random(),teams:[p1.map(x=>mkHero(x,0)),p2.map(x=>mkHero(x,1))],front:[0,0],team:0,actions:2,attackUsed:false,round:0,bombs:[],mines:[false,false],gold:[0,0],teamTurns:[0,0],winner:null,log:[],holdFrontOnce:[false,false],turnSerial:0,firstBloodDone:false,marsArenaTurns:0,marsArenaAppliedTurn:0,marsArenaTeam:null,marsArenaEnemyTeam:null,marsArenaCasterId:null,enigmaBlackHoleTurns:0,enigmaBlackHoleTeam:null,enigmaBlackHoleEnemyTeam:null,enigmaBlackHoleCasterId:null,enigmaBlackHoleAnimatingUntil:0};$('#draft').classList.add('hidden');$('#game').classList.remove('hidden');document.documentElement.classList.add('game-running');document.body.classList.add('game-running');try{window.scrollTo({top:0,left:0,behavior:'instant'})}catch(_){window.scrollTo(0,0)};beginActivation();const refit=()=>{try{document.body.offsetHeight;window.dispatchEvent(new Event('resize'));render()}catch(_){}};requestAnimationFrame(()=>requestAnimationFrame(refit));setTimeout(refit,120);setTimeout(refit,420);setTimeout(()=>{try{pruneMatchPreloadCacheForBattle()}catch(_){}},1600)}
 function living(team){return G.teams[team].filter(h=>!h.dead&&!h.infested)}
 function active(team=G.team){let arr=G.teams[team],start=G.front[team];for(let i=0;i<arr.length;i++){let idx=(start+i)%arr.length;if(!arr[idx].dead&&!arr[idx].infested){G.front[team]=idx;return arr[idx]}}return null}
 function frontHero(team){return active(team)}
