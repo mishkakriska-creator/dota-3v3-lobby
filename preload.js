@@ -37,11 +37,30 @@
   let done=0;
   const update=()=>{const pct=Math.round(done/critical.length*100);bar.style.width=pct+'%';text.textContent=`Подготавливаю графику… ${pct}% (${done}/${critical.length})`};
   async function warm(url){try{const r=await fetch(url,{cache:'force-cache'});if(r.ok)await r.blob()}catch(_){} }
+  function startBackgroundGameWarm(){
+    if(typeof window.DotaWarmAllGameAssets!=='function')return;
+    let st=document.getElementById('assetWarmStatus');
+    if(!st){
+      st=document.createElement('div');st.id='assetWarmStatus';
+      st.style.cssText='position:fixed;right:14px;bottom:58px;z-index:9998;min-width:210px;padding:9px 11px;border:1px solid #35445b;border-radius:10px;background:#0d131df2;color:#dfe8f6;font:600 11px Segoe UI,Arial,sans-serif;box-shadow:0 8px 28px #0008;pointer-events:none';
+      st.innerHTML='<span>Ресурсы матча: 0%</span><i style="display:block;height:4px;margin-top:6px;border-radius:99px;background:#283247;overflow:hidden"><b style="display:block;height:100%;width:0;background:#7aa2ff;border-radius:inherit"></b></i>';
+      document.body.appendChild(st);
+    }
+    const label=st.querySelector('span'),fill=st.querySelector('b');
+    window.DotaWarmAllGameAssets((pct)=>{
+      if(!st.isConnected)return;
+      label.textContent='Ресурсы матча: '+pct+'%';fill.style.width=pct+'%';
+    }).then(()=>{
+      if(!st.isConnected)return;
+      label.textContent='Ресурсы матча готовы';fill.style.width='100%';
+      setTimeout(()=>st.remove(),1400);
+    }).catch(()=>st.remove());
+  }
   async function run(){
     const q=[...critical];const workers=Array.from({length:10},async()=>{while(q.length){await warm(q.shift());done++;update()}});await Promise.all(workers);
-    text.textContent='Готово';bar.style.width='100%';setTimeout(()=>loader.classList.add('asset-loader-done'),100);setTimeout(()=>loader.remove(),380);
-    // Audio no longer blocks the lobby. Warm it quietly after UI becomes usable.
-    const aq=[...lazy];Array.from({length:3},async()=>{while(aq.length)await warm(aq.shift())});
+    text.textContent='Готово';bar.style.width='100%';
+    setTimeout(()=>loader.classList.add('asset-loader-done'),100);
+    setTimeout(()=>{loader.remove();startBackgroundGameWarm()},380);
   }
   update();run();
 })();
