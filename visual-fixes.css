@@ -2450,3 +2450,100 @@ html body #game .shop-info-buy{
     padding:4px 6px!important;
   }
 }
+
+
+/* v1.86.99 — authoritative mobile layout repair */
+html body #draft.hidden,
+html body #game.hidden{
+  display:none!important;
+}
+
+html.dota-landscape-mobile body #draft.screen:not(.hidden){
+  position:fixed!important;
+  left:0!important;
+  right:0!important;
+  top:var(--dota-header-h,52px)!important;
+  bottom:0!important;
+  width:100vw!important;
+  height:calc(var(--dota-vh,100dvh) - var(--dota-header-h,52px))!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:4px 6px max(6px,env(safe-area-inset-bottom))!important;
+  box-sizing:border-box!important;
+  display:grid!important;
+  grid-template-rows:18px minmax(0,1fr) 34px!important;
+  gap:4px!important;
+  overflow:hidden!important;
+}
+html.dota-landscape-mobile body #draft.screen:not(.hidden)>h2{
+  grid-row:1!important;
+  margin:0!important;
+  align-self:end!important;
+  font-size:10px!important;
+  line-height:1!important;
+}
+html.dota-landscape-mobile body #draft.screen:not(.hidden)>p{display:none!important}
+html.dota-landscape-mobile body #draft.screen:not(.hidden) .draft-stage{
+  grid-row:2!important;
+  align-self:end!important;
+  width:min(1320px,98vw)!important;
+  max-width:98vw!important;
+  height:calc(100% - 2px)!important;
+  max-height:100%!important;
+  min-height:0!important;
+  margin:0 auto!important;
+  overflow:visible!important;
+}
+html.dota-landscape-mobile body #draft.screen:not(.hidden) .draft-footer{
+  grid-row:3!important;
+  align-self:end!important;
+  width:min(1440px,98vw)!important;
+  height:34px!important;
+  min-height:34px!important;
+  margin:0 auto!important;
+  padding:4px 6px!important;
+}
+html.dota-landscape-mobile body #draft .draft-slot-name{
+  display:flex!important;
+  align-items:flex-end!important;
+  justify-content:center!important;
+  position:absolute!important;
+  left:0!important;
+  right:0!important;
+  bottom:0!important;
+  z-index:30!important;
+  min-height:17px!important;
+  height:17px!important;
+  padding:3px 4px!important;
+  margin:0!important;
+  color:#fff!important;
+  background:linear-gradient(180deg,rgba(8,12,18,0),rgba(8,12,18,.96) 42%)!important;
+  font-size:6.5px!important;
+  font-weight:1000!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+/* Black Hole victims stay in their real flex slots; only the painted card moves. */
+html body #game .battlefield .team.enigma-black-hole-team .hero.enigma-black-hole-victim{
+  position:relative!important;
+  left:auto!important;
+  top:auto!important;
+  margin:0!important;
+  transform:none!important;
+  translate:var(--bh-dx,0px) var(--bh-dy,0px);
+  rotate:var(--bh-rot,0deg);
+  scale:var(--bh-scale,.78);
+  z-index:var(--bh-z,58)!important;
+  transition:translate .78s cubic-bezier(.18,.82,.14,1),rotate .78s cubic-bezier(.18,.82,.14,1),scale .78s cubic-bezier(.18,.82,.14,1),filter .3s ease!important;
+  animation:enigmaVictimFloat99 var(--bh-period,2.7s) ease-in-out .8s infinite;
+  animation-delay:calc(.8s + var(--bh-stack,0) * -.19s);
+}
+@keyframes enigmaVictimFloat99{
+  0%,100%{translate:var(--bh-dx,0px) calc(var(--bh-dy,0px) - 5px)}
+  38%{translate:calc(var(--bh-dx,0px) + 3px) calc(var(--bh-dy,0px) + 2px)}
+  72%{translate:calc(var(--bh-dx,0px) - 2px) calc(var(--bh-dy,0px) - 1px)}
+}
