@@ -157,11 +157,11 @@ const SKILL_IMPACT_MS={shadowfiend:{raze:180}};
 function attackImpactMs(h){return ATTACK_IMPACT_MS[h?.id]??120}
 const IO_ATTACK_AUDIO={pre:'assets/audio/io_attack_pre.mp3',launch:'assets/audio/io_attack_launch.mp3',impact:'assets/audio/io_attack_impact.mp3'};
 function ensureMusic(){if(!bgmAudio.paused)return;bgmAudio.play().catch(()=>{})}
-function playAttackSound(h,noNet=false){if(!h)return;if(!noNet)window.emitNetVfx?.('audio-attack',h);if(h?.id==='io'){try{attackAudio.pause();attackAudio.currentTime=0;attackAudio.src=IO_ATTACK_AUDIO.pre;attackAudio.load();attackAudio.play().catch(()=>{});setTimeout(()=>playFile(sfxAudio,IO_ATTACK_AUDIO.launch),120);setTimeout(()=>playFile(miscAudio,IO_ATTACK_AUDIO.impact),280)}catch(e){};return}playFile(attackAudio,ATTACK_AUDIO[h.id])}
+function playAttackSound(h,noNet=false){if(!h)return;if(!noNet)window.emitNetVfx?.('audio-attack',h);if(h?.id==='io'){playFile(attackAudio,IO_ATTACK_AUDIO.pre);setTimeout(()=>playFile(sfxAudio,IO_ATTACK_AUDIO.launch),120);setTimeout(()=>playFile(miscAudio,IO_ATTACK_AUDIO.impact),280);return}playFile(attackAudio,ATTACK_AUDIO[h.id])}
 document.addEventListener('pointerdown',ensureMusic,{once:true});
 const MINE_AUDIO={place:'assets/audio/techies_mine_place.mp3',approach:'assets/audio/techies_mine_approach.mp3',explode:'assets/audio/techies_mine_explode.mp3'};
 function playMineSound(kind){playFile(mineAudio,MINE_AUDIO[kind])}
-function playFile(a,src){if(!src)return;try{a.pause();a.currentTime=0;a.src=src;a.load();a.play().catch(()=>{})}catch(e){}}
+function playFile(a,src){if(!src)return;if(typeof playDecodedMatchAudio==='function'&&playDecodedMatchAudio(a,src))return;try{a.pause();a.currentTime=0;const key=audioCacheKey(src);if(audioCacheKey(a.dataset?.dotaSrc||'')!==key){a.src=src;a.dataset.dotaSrc=src;a.preload='auto';a.load()}a.play().catch(()=>{})}catch(e){}}
 let matrixFadeToken=0;
 function playMatrixSound(){let src=AUDIO.tinker?.skills?.matrix;if(!src)return;let token=++matrixFadeToken;try{matrixAudio.pause();matrixAudio.currentTime=0;matrixAudio.volume=.72;matrixAudio.src=src;matrixAudio.load();matrixAudio.play().catch(()=>{});let fadeStart=4200,fadeDuration=6200;setTimeout(()=>{let started=performance.now();let step=now=>{if(token!==matrixFadeToken||matrixAudio.paused)return;let t=Math.max(0,Math.min(1,(now-started)/fadeDuration));matrixAudio.volume=.72*(1-t);if(t<1)requestAnimationFrame(step);else{matrixAudio.volume=0;try{matrixAudio.pause()}catch(_){}}};requestAnimationFrame(step)},fadeStart)}catch(e){}}
 function playSkillSound(h,id,noNet=false){if(!h)return;let audioId=id;if(h.id==='shadowfiend'&&['raze_near','raze_mid','raze_far'].includes(id))audioId='raze';if(!noNet)window.emitNetVfx?.('audio-skill',h,{skillId:audioId});if(h.id==='mars'){let mars=AUDIO.mars||{},voices=mars.voices?.[audioId]||[];if(audioId==='spear'){playFile(sfxAudio,mars.skills?.spear);if(mars.spearImpact)setTimeout(()=>playFile(miscAudio,mars.spearImpact),330)}else if(audioId==='rebuke')playFile(sfxAudio,mars.skills?.rebuke);else if(audioId==='arena')playFile(sfxAudio,mars.skills?.arena);else playFile(sfxAudio,mars.skills?.[audioId]||mars.skills?.[id]);if(voices.length){let idx=Math.floor(Math.random()*voices.length);playFile(abilityVoiceAudio,voices[idx])}return}if(h.id==='tinker'&&audioId==='matrix')playMatrixSound();else playFile(sfxAudio,AUDIO[h.id]?.skills?.[audioId]||AUDIO[h.id]?.skills?.[id]);if(h.id==='shadowfiend'&&audioId==='raze'){let a=AUDIO.shadowfiend?.razeVoice||[];if(a.length){let idx=Math.floor(Math.random()*a.length);playFile(abilityVoiceAudio,a[idx])}}if(h.id==='broodmother'&&['hunger','spiderlings'].includes(audioId)){let a=AUDIO.broodmother?.voices?.[audioId]||[];if(a.length){let idx=Math.floor(Math.random()*a.length);playFile(abilityVoiceAudio,a[idx])}}if(h.id==='tinker'&&['laser','missile','rearm'].includes(audioId)){let a=AUDIO.tinker?.voices?.[audioId]||[];if(a.length){let idx=Math.floor(Math.random()*a.length);playFile(abilityVoiceAudio,a[idx])}}if(h.id==='abaddon'&&['mist_coil','aphotic_shield','borrowed'].includes(audioId)){let a=AUDIO.abaddon?.voices?.[audioId]||[];if(a.length){let idx=Math.floor(Math.random()*a.length);playFile(abilityVoiceAudio,a[idx])}}}
@@ -388,6 +388,38 @@ function mkHero(id,team){let d=DATA[id],portrait=(id==='broodmother'?'assets/por
 function clearBattlefield(){window.clearPhantomFx?.();window.clearKillFeed?.();window.clearCombatFx?.();['#team0','#team1'].forEach(sel=>{let box=$(sel);if(box){box.querySelectorAll("video").forEach(v=>{v.onpause=null;v.pause();v.removeAttribute("src");v.load()});box.replaceChildren()}});let q=$('#turnQueue');if(q)q.innerHTML='';let log=$('#log');if(log)log.innerHTML='';let effects=$('#effects');if(effects)effects.innerHTML=''}
 let matchAssetWarmKey='',matchAssetWarmPromise=null,matchPreloadHost=null;
 const matchPreloadImages=new Map(),matchPreloadVideos=new Map(),matchPreloadAudios=new Map();
+const decodedMatchAudio=new Map(),decodedMatchAudioJobs=new Map();
+let allGameAssetWarmPromise=null;
+function audioCacheKey(src){return String(src||'').split('?')[0]}
+function ensureDotaAudioContext(){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;
+    window.__dotaAudioCtx=window.__dotaAudioCtx||new AC();
+    return window.__dotaAudioCtx;
+  }catch(_){return null}
+}
+function decodeMatchAudioBuffer(url,arrayBuffer){
+  const key=audioCacheKey(url);if(!key||decodedMatchAudio.has(key))return Promise.resolve(decodedMatchAudio.get(key)||null);
+  if(decodedMatchAudioJobs.has(key))return decodedMatchAudioJobs.get(key);
+  const ctx=ensureDotaAudioContext();if(!ctx)return Promise.resolve(null);
+  const job=Promise.resolve().then(()=>ctx.decodeAudioData(arrayBuffer.slice(0))).then(buf=>{decodedMatchAudio.set(key,buf);return buf}).catch(()=>null).finally(()=>decodedMatchAudioJobs.delete(key));
+  decodedMatchAudioJobs.set(key,job);return job;
+}
+function warmDecodedMatchAudio(url){
+  const key=audioCacheKey(url);if(!key||decodedMatchAudio.has(key))return Promise.resolve(decodedMatchAudio.get(key)||null);
+  if(decodedMatchAudioJobs.has(key))return decodedMatchAudioJobs.get(key);
+  return fetch(key,{cache:'force-cache'}).then(r=>r.ok?r.arrayBuffer():Promise.reject()).then(ab=>decodeMatchAudioBuffer(key,ab)).catch(()=>null);
+}
+function playDecodedMatchAudio(channel,src){
+  const key=audioCacheKey(src),buf=decodedMatchAudio.get(key),ctx=ensureDotaAudioContext();
+  if(!buf||!ctx||ctx.state!=='running')return false;
+  try{
+    if(channel.__dotaBufferSource){try{channel.__dotaBufferSource.stop()}catch(_){}}
+    const source=ctx.createBufferSource(),gain=ctx.createGain();source.buffer=buf;gain.gain.value=Math.max(0,Number(channel?.volume??.72));source.connect(gain);gain.connect(ctx.destination);source.start(0);channel.__dotaBufferSource=source;source.onended=()=>{if(channel.__dotaBufferSource===source)channel.__dotaBufferSource=null};return true;
+  }catch(_){return false}
+}
+window.DotaAudioCache={warm:warmDecodedMatchAudio,resume:()=>{const c=ensureDotaAudioContext();return c?.resume?.()}};
+
 const MATCH_AUDIO_INDEX={"bane":["assets/audio/bane_attack.mp3","assets/audio/bane_skill1.mp3","assets/audio/bane_skill2.mp3","assets/audio/bane_turn1.mp3","assets/audio/bane_turn2.mp3"],"techies":["assets/audio/techies_attack.mp3","assets/audio/techies_mine_approach.mp3","assets/audio/techies_mine_explode.mp3","assets/audio/techies_mine_place.mp3","assets/audio/techies_skill1.mp3","assets/audio/techies_skill2.mp3","assets/audio/techies_turn1.mp3","assets/audio/techies_turn2.mp3"],"morphling":["assets/audio/morphling_attack.mp3","assets/audio/morphling_skill1.mp3","assets/audio/morphling_skill2.mp3","assets/audio/morphling_skill3.mp3","assets/audio/morphling_turn1.mp3","assets/audio/morphling_turn2.mp3"],"silencer":["assets/audio/silencer_attack.mp3","assets/audio/silencer_skill1.mp3","assets/audio/silencer_skill2.mp3","assets/audio/silencer_turn1.mp3","assets/audio/silencer_turn2.mp3"],"shadowfiend":["assets/audio/shadowfiend_attack.mp3","assets/audio/shadowfiend_raze_voice1.mp3","assets/audio/shadowfiend_raze_voice2.mp3","assets/audio/shadowfiend_skill1.mp3","assets/audio/shadowfiend_skill2.mp3","assets/audio/shadowfiend_turn1.mp3","assets/audio/shadowfiend_turn2.mp3"],"lifestealer":["assets/audio/lifestealer_attack.mp3","assets/audio/lifestealer_rage.mp3","assets/audio/lifestealer_skill2.mp3","assets/audio/lifestealer_turn1.mp3","assets/audio/lifestealer_turn2.mp3"],"io":["assets/audio/io_attack_impact.mp3","assets/audio/io_attack_launch.mp3","assets/audio/io_attack_pre.mp3","assets/audio/io_spawn.mp3","assets/audio/io_spirit_hit.mp3","assets/audio/io_spirits_cast.mp3","assets/audio/io_tether_attach.mp3","assets/audio/io_tether_break.mp3"],"tinker":["assets/audio/heat_seeking_missile_target.mp3","assets/audio/tinker_defense_matrix.mp3","assets/audio/tinker_heat_missile.mp3","assets/audio/tinker_heat_missile_target.mp3","assets/audio/tinker_kill_11.mp3","assets/audio/tinker_laser.mp3","assets/audio/tinker_laser_impact.mp3","assets/audio/tinker_projectile_launch.mp3","assets/audio/tinker_rearm_fx.mp3","assets/audio/tinker_spawn_01.mp3","assets/audio/tinker_spawn_04.mp3","assets/audio/tinker_voice_laser_01.mp3","assets/audio/tinker_voice_laser_04.mp3","assets/audio/tinker_voice_missile_01.mp3","assets/audio/tinker_voice_missile_05.mp3","assets/audio/tinker_voice_rearm_01.mp3","assets/audio/tinker_voice_rearm_09.mp3"],"invoker":["assets/audio/forge_spirit_attack.mp3","assets/audio/invoker_alacrity.mp3","assets/audio/invoker_attack.mp3","assets/audio/invoker_chaos_meteor.mp3","assets/audio/invoker_cold_snap.mp3","assets/audio/invoker_deafening_blast.mp3","assets/audio/invoker_emp.mp3","assets/audio/invoker_forge_spirit.mp3","assets/audio/invoker_ghost_walk.mp3","assets/audio/invoker_ice_wall.mp3","assets/audio/invoker_invoke.mp3","assets/audio/invoker_kill_01.mp3","assets/audio/invoker_kill_05.mp3","assets/audio/invoker_kill_laugh_05.mp3","assets/audio/invoker_spawn_02.mp3","assets/audio/invoker_spawn_04.mp3","assets/audio/invoker_sun_strike.mp3","assets/audio/invoker_tornado.mp3","assets/audio/invoker_voice_alacrity_1.mp3","assets/audio/invoker_voice_alacrity_2.mp3","assets/audio/invoker_voice_chaos_meteor_1.mp3","assets/audio/invoker_voice_chaos_meteor_2.mp3","assets/audio/invoker_voice_cold_snap_1.mp3","assets/audio/invoker_voice_deafening_blast_1.mp3","assets/audio/invoker_voice_deafening_blast_2.mp3","assets/audio/invoker_voice_emp_1.mp3","assets/audio/invoker_voice_emp_2.mp3","assets/audio/invoker_voice_forge_spirit_1.mp3","assets/audio/invoker_voice_forge_spirit_2.mp3","assets/audio/invoker_voice_ghost_walk_1.mp3","assets/audio/invoker_voice_ghost_walk_2.mp3","assets/audio/invoker_voice_ice_wall_1.mp3","assets/audio/invoker_voice_sun_strike_1.mp3","assets/audio/invoker_voice_tornado_1.mp3","assets/audio/invoker_voice_tornado_2.mp3"],"broodmother":["assets/audio/broodmother_attack_combo.mp3","assets/audio/broodmother_hunger_cast.mp3","assets/audio/broodmother_hunger_voice_02.mp3","assets/audio/broodmother_kill_01.mp3","assets/audio/broodmother_kill_03.mp3","assets/audio/broodmother_kill_11.mp3","assets/audio/broodmother_spawn_cast.mp3","assets/audio/broodmother_spawn_voice_03.mp3","assets/audio/broodmother_spawn_voice_04.mp3","assets/audio/broodmother_spawn_voice_05.mp3","assets/audio/broodmother_spider_death.mp3","assets/audio/broodmother_turn_attack_10.mp3","assets/audio/broodmother_turn_hunger_03.mp3","assets/audio/broodmother_turn_spawn_01.mp3"],"abaddon":["assets/audio/abaddon_attack_combo.mp3","assets/audio/abaddon_kill_06.mp3","assets/audio/abaddon_kill_09.mp3","assets/audio/abaddon_rival_axe_14.mp3","assets/audio/abaddon_rival_bane_12.mp3","assets/audio/abaddon_rival_silencer_09.mp3","assets/audio/abaddon_turn_levelup_01.mp3","assets/audio/abaddon_turn_spawn_02.mp3","assets/audio/abaddon_voice_aphotic_shield_01.mp3","assets/audio/abaddon_voice_aphotic_shield_05.mp3","assets/audio/abaddon_voice_borrowed_time_02.mp3","assets/audio/abaddon_voice_borrowed_time_07.mp3","assets/audio/abaddon_voice_mist_coil_02.mp3","assets/audio/abaddon_voice_mist_coil_06.mp3","assets/audio/aphotic_shield_cast.mp3","assets/audio/borrowed_time_cast.mp3","assets/audio/mist_coil_cast.mp3"],"mars":["assets/audio/mars_arena_blood.mp3","assets/audio/mars_arena_combo.mp3","assets/audio/mars_arena_start.mp3","assets/audio/mars_attack02.mp3","assets/audio/mars_attack_combo.mp3","assets/audio/mars_kill_01.mp3","assets/audio/mars_kill_12.mp3","assets/audio/mars_large_blade_whoosh.mp3","assets/audio/mars_rebuke.mp3","assets/audio/mars_rival_abaddon.mp3","assets/audio/mars_rival_arcwarden.mp3","assets/audio/mars_rival_axe.mp3","assets/audio/mars_rival_bane.mp3","assets/audio/mars_rival_lifestealer.mp3","assets/audio/mars_spear_cast.mp3","assets/audio/mars_spear_target.mp3","assets/audio/mars_turn_01.mp3","assets/audio/mars_turn_02.mp3","assets/audio/mars_turn_03.mp3","assets/audio/mars_voice_arena_06.mp3","assets/audio/mars_voice_arena_09.mp3","assets/audio/mars_voice_rebuke_01.mp3","assets/audio/mars_voice_rebuke_02.mp3","assets/audio/mars_voice_spear_01.mp3","assets/audio/mars_voice_spear_02.mp3","assets/audio/mars_wall_hit.mp3"],"axe":["assets/audio/axe_attack1.mp3","assets/audio/axe_berserk_voice1.mp3","assets/audio/axe_berserk_voice2.mp3","assets/audio/axe_berserkers_call.mp3","assets/audio/axe_counter_helix.mp3","assets/audio/axe_culling_blade.mp3","assets/audio/axe_culling_blade_fail.mp3","assets/audio/axe_deny_15.mp3","assets/audio/axe_kill_01.mp3","assets/audio/axe_kill_07.mp3","assets/audio/axe_preattack1.mp3","assets/audio/axe_turn1.mp3","assets/audio/axe_turn2.mp3"],"phantomlancer":["assets/audio/phantomlancer_attack.mp3","assets/audio/phantomlancer_death.mp3","assets/audio/phantomlancer_lance.mp3","assets/audio/phantomlancer_laugh.mp3","assets/audio/phantomlancer_spawn.mp3","assets/audio/phantomlancer_turn1.mp3","assets/audio/phantomlancer_turn2.mp3"],"pudge":["assets/audio/pudge_attack_combo.mp3","assets/audio/pudge_battlebegins_01.mp3","assets/audio/pudge_dismember.mp3","assets/audio/pudge_item_heart_04.mp3","assets/audio/pudge_kill_07.mp3","assets/audio/pudge_laugh_05.mp3","assets/audio/pudge_meat_hook.mp3","assets/audio/pudge_rival_silencer_12.mp3","assets/audio/pudge_rot_loop.mp3","assets/audio/pudge_spawn_01.mp3","assets/audio/pudge_spawn_06.mp3","assets/audio/pudge_voice_dismember_02.mp3","assets/audio/pudge_voice_dismember_03.mp3","assets/audio/pudge_voice_dismember_12.mp3","assets/audio/pudge_voice_hook_01.mp3","assets/audio/pudge_voice_hook_02.mp3","assets/audio/pudge_voice_hook_10.mp3","assets/audio/pudge_voice_rot_07.mp3","assets/audio/pudge_voice_rot_10.mp3"],"arcwarden":["assets/audio/arcwarden_attack_hit.mp3","assets/audio/arcwarden_attack_launch.mp3","assets/audio/arcwarden_attack_pre.mp3","assets/audio/arcwarden_battlebegins_03.mp3","assets/audio/arcwarden_field_voice_01.mp3","assets/audio/arcwarden_field_voice_05.mp3","assets/audio/arcwarden_kill_01.mp3","assets/audio/arcwarden_kill_11.mp3","assets/audio/arcwarden_laugh_02.mp3","assets/audio/arcwarden_magnetic_field.mp3","assets/audio/arcwarden_spark_voice_01.mp3","assets/audio/arcwarden_spark_voice_07.mp3","assets/audio/arcwarden_spark_wraith.mp3","assets/audio/arcwarden_spark_wraith_target.mp3","assets/audio/arcwarden_spawn_01.mp3","assets/audio/arcwarden_spawn_02.mp3","assets/audio/arcwarden_tempest_01.mp3","assets/audio/arcwarden_tempest_02.mp3","assets/audio/arcwarden_tempest_double.mp3","assets/audio/arcwarden_tempest_end_01.mp3","assets/audio/arcwarden_tempest_killed_01.mp3"],"enigma":["assets/audio/enigma_attack_impact.mp3","assets/audio/enigma_attack_launch.mp3","assets/audio/enigma_attack_pre.mp3","assets/audio/enigma_black_hole_cast.mp3","assets/audio/enigma_kill_01_ru.mp3","assets/audio/enigma_kill_05_ru.mp3","assets/audio/enigma_kill_09_ru.mp3","assets/audio/enigma_killspecial_01_ru.mp3","assets/audio/enigma_midnight_pulse_cast.mp3","assets/audio/enigma_move_13_ru.mp3","assets/audio/enigma_rival_14_ru.mp3","assets/audio/enigma_rival_15_ru.mp3","assets/audio/enigma_rival_16_ru.mp3","assets/audio/enigma_rival_17_ru.mp3","assets/audio/enigma_spawn_06_ru.mp3"]};
 function battlePortraitSrcFor(id){
   const d=DATA[id]||{};
@@ -466,8 +498,8 @@ function preloadMatchAudio(url){
     a.addEventListener('loadeddata',()=>{if(a.readyState>=3)done()},{once:true});
     a.addEventListener('error',done,{once:true});
     host.appendChild(a);a.src=url;try{a.load()}catch(_){}
-    // fetch() warms the normal HTTP cache used later by playFile/new Audio.
-    fetch(url,{cache:'force-cache'}).then(r=>r.arrayBuffer()).then(done).catch(()=>{});
+    // Keep the network response cached and decode selected-match sounds now, not on first cast.
+    fetch(audioCacheKey(url),{cache:'force-cache'}).then(r=>r.ok?r.arrayBuffer():Promise.reject()).then(ab=>Promise.allSettled([decodeMatchAudioBuffer(url,ab),Promise.resolve()])).then(done).catch(()=>{});
     const timer=setTimeout(done,10000);
   });
 }
@@ -503,10 +535,8 @@ function unlockMatchAudio(){
     }catch(_){}
   }
   try{
-    const AC=window.AudioContext||window.webkitAudioContext;
-    if(AC){
-      window.__dotaAudioCtx=window.__dotaAudioCtx||new AC();
-      const ctx=window.__dotaAudioCtx;
+    const ctx=ensureDotaAudioContext();
+    if(ctx){
       ctx.resume?.();
       const b=ctx.createBuffer(1,1,22050),s=ctx.createBufferSource();s.buffer=b;s.connect(ctx.destination);s.start(0);
     }
@@ -541,6 +571,36 @@ function warmChosenBattleAssets(showOverlay=false){
     setTimeout(()=>{overlay.classList.remove('show');setTimeout(()=>overlay.remove(),180)},100);
   });
 }
+function gameplayAudioUrls(){
+  const urls=new Set(['assets/audio/background_music.mp3']);
+  const collect=v=>{if(!v)return;if(typeof v==='string'&&v.startsWith('assets/audio/'))urls.add(audioCacheKey(v));else if(Array.isArray(v))v.forEach(collect);else if(typeof v==='object')Object.values(v).forEach(collect)};
+  Object.values(MATCH_AUDIO_INDEX).forEach(collect);collect(AUDIO);collect(ATTACK_AUDIO);collect(IO_ATTACK_AUDIO);
+  return [...urls];
+}
+function warmAudioNetworkOnly(url){return fetch(audioCacheKey(url),{cache:'force-cache'}).then(r=>r.ok?r.blob():null).catch(()=>null)}
+function warmAllGameAssets(onProgress){
+  if(allGameAssetWarmPromise)return allGameAssetWarmPromise;
+  const ids=[...new Set([...DRAFT_ORDER,...Object.keys(DATA)])].filter(id=>DATA[id]);
+  const jobs=[];
+  for(const id of ids){
+    const d=DATA[id]||{};
+    jobs.push(()=>preloadMatchImage(d.img||draftPortraitSrc(id)||''));
+    jobs.push(()=>preloadMatchVideo(battlePortraitSrcFor(id)));
+    for(const sk of d.skills||[]){const icon=skillIcon(id,sk.id);if(icon)jobs.push(()=>preloadMatchImage(icon))}
+  }
+  ['assets/portraits/forge_spirit.webm','assets/portraits/spiderling.webm','assets/portraits/arcwarden_clone.webm','assets/portraits/phantomlancer_illusion.webm'].forEach(url=>jobs.push(()=>preloadMatchVideo(url)));
+  gameplayAudioUrls().forEach(url=>jobs.push(()=>warmAudioNetworkOnly(url)));
+  let done=0;const total=Math.max(1,jobs.length),q=[...jobs];
+  const report=()=>{try{onProgress?.(Math.round(done/total*100),done,total)}catch(_){}};
+  const worker=async()=>{while(q.length){const job=q.shift();try{await job()}catch(_){}done++;report()}};
+  report();allGameAssetWarmPromise=Promise.all(Array.from({length:4},worker)).then(()=>{report();return true});return allGameAssetWarmPromise;
+}
+window.DotaWarmAllGameAssets=warmAllGameAssets;
+function resumeGameAudioFromGesture(){try{ensureDotaAudioContext()?.resume?.()}catch(_){}}
+window.addEventListener('pointerdown',resumeGameAudioFromGesture,{once:true,capture:true});
+window.addEventListener('touchstart',resumeGameAudioFromGesture,{once:true,capture:true,passive:true});
+window.addEventListener('keydown',resumeGameAudioFromGesture,{once:true,capture:true});
+
 async function start(){if(chosen.length!==6){alert('Сначала завершите драфт: по 3 героя каждому игроку.');return}unlockMatchAudio();ensureMusic();await warmChosenBattleAssets(false);clearBattlefield();let p1=draftTeamHeroes(0),p2=draftTeamHeroes(1);G={matchId:Date.now()+Math.random(),teams:[p1.map(x=>mkHero(x,0)),p2.map(x=>mkHero(x,1))],front:[0,0],team:0,actions:2,attackUsed:false,round:0,bombs:[],mines:[false,false],gold:[0,0],teamTurns:[0,0],winner:null,log:[],holdFrontOnce:[false,false],turnSerial:0,firstBloodDone:false,marsArenaTurns:0,marsArenaAppliedTurn:0,marsArenaTeam:null,marsArenaEnemyTeam:null,marsArenaCasterId:null,enigmaBlackHoleTurns:0,enigmaBlackHoleTeam:null,enigmaBlackHoleEnemyTeam:null,enigmaBlackHoleCasterId:null,enigmaBlackHoleAnimatingUntil:0};$('#draft').classList.add('hidden');$('#game').classList.remove('hidden');document.documentElement.classList.add('game-running');document.body.classList.add('game-running');try{window.scrollTo({top:0,left:0,behavior:'instant'})}catch(_){window.scrollTo(0,0)};beginActivation();const refit=()=>{try{document.body.offsetHeight;window.dispatchEvent(new Event('resize'));render()}catch(_){}};requestAnimationFrame(()=>requestAnimationFrame(refit));setTimeout(refit,120);setTimeout(refit,420)}
 function living(team){return G.teams[team].filter(h=>!h.dead&&!h.infested)}
 function active(team=G.team){let arr=G.teams[team],start=G.front[team];for(let i=0;i<arr.length;i++){let idx=(start+i)%arr.length;if(!arr[idx].dead&&!arr[idx].infested){G.front[team]=idx;return arr[idx]}}return null}
