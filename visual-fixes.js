@@ -7,3 +7,32 @@
  if(changed){const nodes=[...box.children];nodes.forEach(n=>moves.get(n)?.cancel());const after=new Map(nodes.map(n=>[n,n.getBoundingClientRect()]));if(!matchMedia('(prefers-reduced-motion: reduce)').matches)for(const n of nodes){const a=before.get(n),b=after.get(n);if(!a||n.classList.contains('dead'))continue;const x=a.left-b.left,y=a.top-b.top;if(Math.abs(x)+Math.abs(y)>1)moves.set(n,n.animate([{translate:`${x}px ${y}px`},{translate:'0px 0px'}],{duration:280,easing:'cubic-bezier(.22,.75,.25,1)'}))}layouts.set(box,key)}
  };
 })();
+
+
+// WEB MOBILE: iOS/PWA may suspend autoplaying WebM portraits while the app is backgrounded.
+// Explicitly revive all in-game video media when the page becomes active again.
+(()=>{
+  let reviveTimer=0;
+  function reviveGameVideos(){
+    clearTimeout(reviveTimer);
+    const run=()=>{
+      document.querySelectorAll('#game video').forEach(v=>{
+        if(!v.isConnected)return;
+        try{
+          v.muted=true;v.defaultMuted=true;v.playsInline=true;v.autoplay=true;v.loop=true;
+          if(v.readyState===0||v.networkState===3)v.load();
+          const p=v.play();if(p&&typeof p.catch==='function')p.catch(()=>{});
+        }catch(_){}
+      });
+    };
+    run();
+    requestAnimationFrame(run);
+    [90,320,900].forEach(ms=>setTimeout(run,ms));
+    reviveTimer=setTimeout(run,1500);
+  }
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)reviveGameVideos()});
+  window.addEventListener('pageshow',reviveGameVideos);
+  window.addEventListener('focus',reviveGameVideos);
+  window.addEventListener('orientationchange',()=>setTimeout(reviveGameVideos,120));
+  window.reviveDotaPortraitVideos=reviveGameVideos;
+})();
