@@ -292,7 +292,8 @@
   renderTurnQueue=function(){
     let q=$('#turnQueue');if(!q||!G)return;
     const icons={phantomlancer:'assets/turn_phantomlancer.webp',techies:'assets/turn_techies.png',morphling:'assets/turn_morphling.png',silencer:'assets/turn_silencer.png',bane:'assets/turn_bane.png',shadowfiend:'assets/turn_shadowfiend.png',lifestealer:'assets/turn_lifestealer.png',io:'assets/turn_io.png',invoker:'assets/turn_invoker.png',arcwarden:'assets/arcwarden_queue_icon.png',arcwarden_clone:'assets/arcwarden_clone_icon.png'};
-    let seq=turnQueuePreview(7);
+    const cloneActive=(G.teams||[]).some(arr=>arr.some(h=>h.id===ARC_CLONE_ID&&!h.dead));
+    let seq=turnQueuePreview(cloneActive?8:7);
     q.innerHTML=`<div class="turn-queue-title">ОЧЕРЁДНОСТЬ</div><div class="turn-queue-row">${seq.map((x,i)=>`${i?'<span class="turn-arrow">›</span>':''}<div class="turn-token team-${x.team}${x.current?' now':''}${x.skipped?' skipped':''}" title="${x.name}${x.skipped?' — пропустит ход из-за оглушения/сна':''}"><img src="${icons[x.id]||HERO_ICONS[x.id]||''}" alt="${x.name}">${x.skipped?'<span class="skip-mark">🌀</span>':''}</div>`).join('')}</div>`;
   };
 
