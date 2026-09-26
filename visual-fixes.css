@@ -3063,10 +3063,3 @@ html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .ins
   margin:0!important;
 }
 
-/* Keep cards visually inside the team box. */
-html.dota-landscape-mobile body.game-running #game .battlefield .side{
-  overflow:hidden!important;
-}
-html.dota-landscape-mobile body.game-running #game .battlefield .team{
-  overflow:hidden!important;
-}
