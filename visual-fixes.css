@@ -2968,3 +2968,142 @@ html body #draft .draft-side .draft-slot.filled::after{
     margin:0!important;
   }
 }
+
+
+/* v1.86.107 — FINAL phone landscape card layout; desktop untouched */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero,
+html.dota-landscape-mobile body.game-running #game .battlefield .team.has-extra .hero,
+html.dota-landscape-mobile body.game-running #game .battlefield .team.has-four .hero{
+  display:grid!important;
+  grid-template-rows:28% minmax(0,72%)!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  height:min(92%,390px)!important;
+  min-height:315px!important;
+  max-height:390px!important;
+  align-self:flex-end!important;
+  overflow:hidden!important;
+  scale:1!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero>.hero-portrait{
+  grid-row:1!important;
+  grid-column:1!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+  flex:none!important;
+  overflow:hidden!important;
+  position:relative!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero>.hero-body{
+  grid-row:2!important;
+  grid-column:1!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+  flex:none!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:auto auto 7px minmax(24px,1fr) auto 25px!important;
+  gap:0!important;
+  padding:6px 7px 6px!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .hero-name-row{
+  grid-row:1!important;
+  min-height:16px!important;
+  height:auto!important;
+  margin:0 0 3px!important;
+  overflow:hidden!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .hero-name{
+  font-size:10px!important;
+  line-height:1.05!important;
+  max-height:22px!important;
+  white-space:normal!important;
+  overflow:hidden!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats{
+  grid-row:2!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1.25fr) minmax(31px,.72fr) minmax(31px,.72fr)!important;
+  gap:3px!important;
+  min-height:27px!important;
+  margin:2px 0 4px!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stat{
+  height:27px!important;
+  min-height:27px!important;
+  padding:4px 5px!important;
+  font-size:9px!important;
+  line-height:1!important;
+  overflow:hidden!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .hpbar{
+  grid-row:3!important;
+  height:7px!important;
+  min-height:7px!important;
+  margin:0!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .status{
+  grid-row:4!important;
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-content:flex-start!important;
+  min-height:24px!important;
+  max-height:none!important;
+  margin:4px 0 3px!important;
+  overflow:hidden!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .item-inventory{
+  grid-row:5!important;
+  min-height:0!important;
+  max-height:24px!important;
+  margin:0 0 3px!important;
+  overflow:hidden!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .inspect-hero{
+  grid-row:6!important;
+  position:relative!important;
+  inset:auto!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  height:25px!important;
+  min-height:25px!important;
+  max-height:25px!important;
+  margin:0!important;
+  padding:3px 5px!important;
+  box-sizing:border-box!important;
+  opacity:1!important;
+  visibility:visible!important;
+  overflow:hidden!important;
+  z-index:10!important;
+  font-size:7px!important;
+  line-height:1!important;
+}
+
+/* Never let old mobile portrait sizing win again. */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero>.hero-portrait>video,
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero>.hero-portrait>.static-hero-portrait{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:100%!important;
+  min-height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:cover!important;
+}
