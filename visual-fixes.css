@@ -1155,3 +1155,77 @@ html body #game .shop-info-buy{
   touch-action:manipulation!important;
   cursor:pointer!important;
 }
+
+
+/* WEB MOBILE v6 — draft names below portrait like desktop */
+@media (orientation:landscape) and (max-height:600px){
+  html body #draft .draft-card{
+    display:grid!important;
+    grid-template-rows:minmax(0,1fr) 14px!important;
+    position:relative!important;
+    overflow:hidden!important;
+  }
+  html body #draft .draft-card img{
+    position:static!important;
+    inset:auto!important;
+    grid-row:1!important;
+    width:100%!important;
+    height:100%!important;
+    min-height:0!important;
+    object-fit:cover!important;
+    display:block!important;
+  }
+  html body #draft .draft-card .draft-card-name{
+    position:static!important;
+    inset:auto!important;
+    grid-row:2!important;
+    z-index:auto!important;
+    width:100%!important;
+    height:14px!important;
+    min-height:14px!important;
+    margin:0!important;
+    padding:3px 5px!important;
+    display:flex!important;
+    align-items:center!important;
+    background:linear-gradient(180deg,#1d2940 0%,#111925 100%)!important;
+    font-size:5.5px!important;
+    font-weight:900!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+}
+@media (orientation:portrait) and (max-width:720px){
+  html body #draft .draft-card{
+    display:grid!important;
+    grid-template-rows:minmax(0,1fr) 20px!important;
+    overflow:hidden!important;
+  }
+  html body #draft .draft-card img{
+    position:static!important;
+    inset:auto!important;
+    width:100%!important;
+    height:100%!important;
+    min-height:0!important;
+    object-fit:cover!important;
+    display:block!important;
+  }
+  html body #draft .draft-card .draft-card-name{
+    position:static!important;
+    inset:auto!important;
+    height:20px!important;
+    min-height:20px!important;
+    margin:0!important;
+    padding:5px 6px!important;
+    display:flex!important;
+    align-items:center!important;
+    background:linear-gradient(180deg,#1d2940 0%,#111925 100%)!important;
+    font-size:8px!important;
+    font-weight:900!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+}
