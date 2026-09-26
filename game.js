@@ -141,17 +141,21 @@ function syncBattleResponsiveVars(logicalW,logicalH){
   const clamp=(a,v,b)=>Math.max(a,Math.min(b,v));
   const compact=logicalH<=400||logicalW<=860;
   const roomy=logicalH>=410&&logicalW>=880;
-  const middle=maxUnits>3?clamp(54,Math.round(logicalW*.067),68):clamp(66,Math.round(logicalW*.082),84);
-  const columnGap=compact?3:4;
-  const outerAllowance=compact?16:20;
+  const middle=maxUnits>3
+    ?clamp(46,Math.round(logicalW*.055),58)
+    :(roomy?52:clamp(52,Math.round(logicalW*.064),60));
+  const columnGap=compact?3:3;
+  const outerAllowance=roomy?6:(compact?8:10);
   const sideWidth=Math.max(150,(logicalW-middle-outerAllowance-columnGap*2)/2);
-  const cardGap=maxUnits>3?2:(compact?3:4);
-  const cap=roomy?132:(compact?120:126);
+  const cardGap=maxUnits>3?2:(roomy?3:3);
+  const cap=roomy?138:(compact?126:132);
   const widthFor=n=>{
    const raw=Math.floor((sideWidth-8-cardGap*Math.max(0,n-1))/Math.max(1,n));
-   return clamp(n>=4?76:94,raw,cap);
+   return clamp(n>=4?76:98,raw,cap);
   };
-  const cardH=clamp(218,Math.round(logicalH*.59),258);
+  const cardH=roomy
+    ?clamp(260,Math.round(logicalH*.67),282)
+    :(compact?clamp(220,Math.round(logicalH*.595),236):clamp(238,Math.round(logicalH*.63),266));
   bf.style.setProperty('--team0-card-w',widthFor(counts[0])+'px');
   bf.style.setProperty('--team1-card-w',widthFor(counts[1])+'px');
   bf.style.setProperty('--battle-card-h',cardH+'px');
@@ -211,13 +215,24 @@ function draftTeamHeroes(team){return chosen.filter((_,i)=>draftTeamForPick(i)==
 function renderDraftSlots(){
  for(let team=0;team<2;team++){
   const box=document.getElementById(`draftSlots${team}`);if(!box)continue;
-  const picks=draftTeamHeroes(team);box.innerHTML='';
+  const picks=draftTeamHeroes(team);
   for(let i=0;i<3;i++){
-   const id=picks[i],slot=document.createElement('div');slot.className='draft-slot'+(id?' filled':'');
-   if(id){slot.dataset.team=String(team);slot.dataset.hero=id;slot.innerHTML=`<img src="${draftSlotPortraitSrc(id)}" alt="${DATA[id].name}"><div class="draft-slot-name">${DATA[id].name}</div><div class="draft-mastery-host">${window.DotaProfile?.masteryBadgeHTML?.(team,id,true)||''}</div>`}
-   else slot.innerHTML=`<div class="draft-slot-empty">${i+1}</div>`;
-   box.appendChild(slot);
+   const id=picks[i]||'';
+   let slot=box.children[i];
+   if(!slot){slot=document.createElement('div');box.appendChild(slot)}
+   const key=`${team}:${id}:${i}`;
+   if(slot.dataset.renderKey===key)continue;
+   slot.dataset.renderKey=key;
+   slot.className='draft-slot'+(id?' filled':'');
+   if(id){
+    slot.dataset.team=String(team);slot.dataset.hero=id;
+    slot.innerHTML=`<img src="${draftSlotPortraitSrc(id)}" alt="${DATA[id].name}" decoding="async"><div class="draft-slot-name">${DATA[id].name}</div><div class="draft-mastery-host">${window.DotaProfile?.masteryBadgeHTML?.(team,id,true)||''}</div>`;
+   }else{
+    delete slot.dataset.team;delete slot.dataset.hero;
+    slot.innerHTML=`<div class="draft-slot-empty">${i+1}</div>`;
+   }
   }
+  while(box.children.length>3)box.lastElementChild.remove();
  }
 }
 const AUDIO={
@@ -1009,4 +1024,4 @@ function render(){if(!G)return;renderTurnQueue();renderTeam(0,'#team0');renderTe
 function renderTetherFx(){let layer=document.getElementById('tetherFxLayer');if(!layer){layer=document.createElement('div');layer.id='tetherFxLayer';let bf=document.querySelector('#game .battlefield');if(bf)bf.appendChild(layer)}layer.innerHTML='';if(!G)return;for(const team of G.teams){for(const hero of team){if(hero.id!=='io'||!hero.tetherTargetId||hero.dead)continue;let ally=tetherTarget(hero);if(!ally||ally.dead)continue;let from=document.querySelector(`#hero-${hero.team}-${hero.id} .hero-portrait`);let toCard=document.querySelector(`#hero-${ally.team}-${ally.id}`);let bf=document.querySelector('#game .battlefield');if(!from||!toCard||!bf)continue;let b=bf.getBoundingClientRect(),r1=from.getBoundingClientRect(),r2=toCard.getBoundingClientRect();let x1=r1.left-b.left+r1.width/2,y1=r1.top-b.top+r1.height/2;let cx2=r2.left-b.left+r2.width/2,cy2=r2.top-b.top+r2.height/2;let dx=cx2-x1,dy=cy2-y1;let x2,y2;if(Math.abs(dx)>=Math.abs(dy)){x2=(dx>=0?r2.left:r2.right)-b.left;y2=Math.max(r2.top,Math.min(r2.bottom,b.top+y1))-b.top}else{x2=Math.max(r2.left,Math.min(r2.right,b.left+x1))-b.left;y2=(dy>=0?r2.top:r2.bottom)-b.top}let len=Math.hypot(x2-x1,y2-y1),ang=Math.atan2(y2-y1,x2-x1)*180/Math.PI;let div=document.createElement('div');div.className='tether-beam';div.style.width=len+'px';div.style.left=x1+'px';div.style.top=y1+'px';div.style.transform=`translateY(-50%) rotate(${ang}deg)`;layer.appendChild(div)}}}
 window.addEventListener('resize',()=>{if(G)renderTetherFx()});
 ensureShopCatalogDOM();document.querySelectorAll('.shop-toggle').forEach(b=>b.onclick=()=>toggleShop(Number(b.dataset.team)));bindShopItems();
-$('#startBtn').onclick=start;$('#endTurnBtn').onclick=()=>endTurn(false);$('#restartBtn').onclick=()=>{targetMode=null;G=null;chosen=[];draftPreview=null;clearBattlefield();closeInspect();closeHeroPick();if(typeof window.DotaReturnToMenu==='function'){window.DotaReturnToMenu();return}location.href=location.pathname};$('#rulesBtn').onclick=()=>$('#modal').classList.remove('hidden');$('#closeModal').onclick=()=>$('#modal').classList.add('hidden');$('#modal').onclick=e=>{if(e.target.id==='modal')$('#modal').classList.add('hidden')};$('#closeHeroPick').onclick=closeHeroPick;$('#heroPickModal').onclick=e=>{if(e.target.id==='heroPickModal')closeHeroPick()};$('#closeInspect').onclick=closeInspect;$('#inspectModal').onclick=e=>{if(e.target.id==='inspectModal')closeInspect()};$('#confirmHeroPick').onclick=()=>{if(!draftPreview||chosen.includes(draftPreview)||chosen.length>=6)return;if(!canLocalDraftPick()){alert(`Сейчас выбирает Игрок ${draftTurn()+1}.`);return}chosen.push(draftPreview);updateDraft();closeHeroPick()};draft();
+$('#startBtn').onclick=start;$('#endTurnBtn').onclick=()=>endTurn(false);$('#restartBtn').onclick=()=>{targetMode=null;G=null;chosen=[];draftPreview=null;clearBattlefield();closeInspect();closeHeroPick();if(typeof window.DotaReturnToMenu==='function'){window.DotaReturnToMenu();return}location.href=location.pathname};$('#rulesBtn').onclick=()=>$('#modal').classList.remove('hidden');$('#closeModal').onclick=()=>$('#modal').classList.add('hidden');$('#modal').onclick=e=>{if(e.target.id==='modal')$('#modal').classList.add('hidden')};$('#closeHeroPick').onclick=closeHeroPick;$('#heroPickModal').onclick=e=>{if(e.target.id==='heroPickModal')closeHeroPick()};$('#closeInspect').onclick=closeInspect;$('#inspectModal').onclick=e=>{if(e.target.id==='inspectModal')closeInspect()};$('#confirmHeroPick').onclick=()=>{if(!draftPreview||chosen.includes(draftPreview)||chosen.length>=6)return;if(!canLocalDraftPick()){alert(`Сейчас выбирает Игрок ${draftTurn()+1}.`);return}const picked=draftPreview;closeHeroPick();requestAnimationFrame(()=>{if(chosen.includes(picked)||chosen.length>=6)return;chosen.push(picked);updateDraft()})};draft();
