@@ -1,6 +1,6 @@
 {
-  "name":"Dota Cards 3v3",
-  "short_name":"Dota 3v3",
+  "name":"DotA: 3v3",
+  "short_name":"DotA: 3v3",
   "start_url":"./?pwa=1",
   "scope":"./",
   "display":"standalone",
@@ -9,6 +9,7 @@
   "background_color":"#090d14",
   "theme_color":"#090d14",
   "icons":[
-    {"src":"assets/enigma_icon.png","sizes":"any","type":"image/png","purpose":"any maskable"}
+    {"src":"assets/dota_app_icon_192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"assets/dota_app_icon.png","sizes":"180x180","type":"image/png","purpose":"any"}
   ]
 }
