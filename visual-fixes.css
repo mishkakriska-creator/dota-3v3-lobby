@@ -1022,3 +1022,136 @@ html body #game .battlefield .hero .broodling-summon-copy b{font-size:6px!import
 
   body.game-running #game.screen{padding-bottom:max(4px,env(safe-area-inset-bottom))!important}
 }
+
+
+/* WEB MOBILE v5 — fix hidden screens, draft labels, compact ability sheet, tappable shop */
+html body #draft.hidden,
+html body #game.hidden,
+html body .hero-pick-modal.hidden,
+html body .inspect-modal.hidden{display:none!important}
+
+/* Keep hero names attached to their draft portraits. */
+@media (orientation:landscape) and (max-height:600px){
+  html body #draft .draft-card{
+    position:relative!important;
+    display:block!important;
+    height:clamp(58px,16vh,92px)!important;
+    overflow:hidden!important;
+  }
+  html body #draft .draft-card img{
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
+    display:block!important;
+  }
+  html body #draft .draft-card .draft-card-name{
+    position:absolute!important;
+    left:0!important;
+    right:0!important;
+    bottom:0!important;
+    z-index:3!important;
+    height:14px!important;
+    min-height:14px!important;
+    margin:0!important;
+    padding:3px 4px!important;
+    display:flex!important;
+    align-items:center!important;
+    background:linear-gradient(180deg,rgba(14,22,34,.12),rgba(13,20,31,.96))!important;
+    font-size:5.5px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  html body #draft .draft-mastery-host{
+    z-index:5!important;
+  }
+
+  /* Hero skill card opened from draft: smaller and fully visible. */
+  html body #heroPickModal{
+    padding:5px!important;
+    place-items:center!important;
+    overflow:hidden!important;
+  }
+  html body #heroPickModal .ability-sheet{
+    width:min(560px,82vw)!important;
+    max-height:86dvh!important;
+    padding:9px 11px!important;
+    border-radius:9px!important;
+    overflow:auto!important;
+  }
+  html body #heroPickModal .ability-sheet-close{
+    right:7px!important;
+    top:7px!important;
+    width:27px!important;
+    height:27px!important;
+    font-size:12px!important;
+  }
+  html body #heroPickModal .ability-head{
+    gap:8px!important;
+    padding:0 34px 8px 0!important;
+  }
+  html body #heroPickModal .ability-hero-icon{
+    width:72px!important;
+    height:46px!important;
+    border-radius:5px!important;
+  }
+  html body #heroPickModal .ability-kicker{font-size:7px!important;margin-bottom:2px!important}
+  html body #heroPickModal .ability-hero-name{font-size:18px!important}
+  html body #heroPickModal .ability-row{
+    grid-template-columns:48px minmax(0,1fr)!important;
+    gap:8px!important;
+    padding:7px 0!important;
+  }
+  html body #heroPickModal .ability-icon{
+    width:46px!important;
+    height:46px!important;
+    border-radius:5px!important;
+  }
+  html body #heroPickModal .ability-name{
+    font-size:11px!important;
+    margin:0 0 3px!important;
+  }
+  html body #heroPickModal .ability-desc{
+    font-size:8px!important;
+    line-height:1.25!important;
+  }
+  html body #heroPickModal .pick-sheet .hero-pick-controls{
+    padding:6px 0 0!important;
+  }
+  html body #heroPickModal .hero-pick-confirm{
+    min-height:28px!important;
+    height:28px!important;
+    padding:4px 8px!important;
+    font-size:8px!important;
+    border-radius:6px!important;
+  }
+}
+
+/* Touch shop must always accept taps. */
+html body #game .shop-panel,
+html body #game .shop-panel.open,
+html body #game .shop-items,
+html body #game .shop-category,
+html body #game .shop-category-grid,
+html body #game .shop-item,
+html body #game .shop-info,
+html body #game .shop-info-buy{
+  pointer-events:auto!important;
+}
+html body #game .shop-panel.open{
+  touch-action:pan-y!important;
+}
+html body #game .shop-item{
+  touch-action:manipulation!important;
+  -webkit-tap-highlight-color:rgba(255,209,102,.18)!important;
+}
+html body #game .shop-item:disabled{
+  pointer-events:auto!important;
+}
+html body #game .shop-info-buy{
+  touch-action:manipulation!important;
+  cursor:pointer!important;
+}
