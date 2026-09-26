@@ -111,9 +111,15 @@ function applyMatch(body){
   const testOnly=body?.testOnly===true;
   const target=testOnly?structuredClone(stats):stats;
   const matchId=String(body?.matchId||'').trim().slice(0,120);
-  const winner=Number(body?.winner);
+  const claimedWinner=Number(body?.winner);
+  const winnerId=String(body?.winnerId||'').trim().toLowerCase();
   const players=Array.isArray(body?.players)?body.players:[];
   const teams=Array.isArray(body?.teams)?body.teams:[];
+  let winner=claimedWinner;
+  if(winnerId){
+    const byId=players.findIndex(p=>String(p?.id||p?.profileId||'').trim().toLowerCase()===winnerId);
+    if(byId>=0)winner=byId;
+  }
   if(!matchId||![0,1].includes(winner)||players.length<2||teams.length<2)return {ok:false,error:'invalid_match'};
   if(teams.some(x=>!Array.isArray(x)||x.length<1))return {ok:false,error:'invalid_teams'};
   if(target.matches[matchId]){
@@ -139,7 +145,7 @@ function applyMatch(body){
     }
   }
 
-  target.matches[matchId]={winner,at:Date.now()};
+  target.matches[matchId]={winner,winnerId:winnerId||String(players[winner]?.id||''),at:Date.now()};
   const ids=Object.keys(target.matches);
   if(ids.length>5000){
     ids.sort((a,b)=>(target.matches[a]?.at||0)-(target.matches[b]?.at||0));
@@ -255,7 +261,14 @@ wss.on('connection',(ws,ctx)=>{
             .filter(h=>h&&h.id&&h.id!=='arcwarden_clone')
             .map(h=>h.id)
             .slice(0,3));
-          const recorded=applyMatch({matchId:String(g.matchId),winner:Number(g.winner),players:profiles,teams});
+          const winIndex=Number(g.winner);
+          const recorded=applyMatch({
+            matchId:String(g.matchId),
+            winner:winIndex,
+            winnerId:String(profiles[winIndex]?.id||''),
+            players:profiles.map((p,i)=>({...p,team:i})),
+            teams
+          });
           if(recorded.ok&&!recorded.duplicate)console.log('Global match recorded from WebSocket state',String(g.matchId));
         }
       }
