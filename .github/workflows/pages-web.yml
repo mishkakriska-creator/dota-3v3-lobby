@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -23,6 +23,46 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Compress Tempest Double portrait when needed
+        run: |
+          set -euo pipefail
+          SRC="assets/portraits/arcwarden_clone.webm"
+          SIZE=$(stat -c%s "$SRC")
+          echo "Tempest Double portrait before: $SIZE bytes"
+
+          if [ "$SIZE" -gt 2500000 ]; then
+            TMP="assets/portraits/arcwarden_clone.comp.webm"
+
+            ffmpeg -y -i "$SRC" -an \
+              -vf "scale='min(512,iw)':-2:flags=lanczos,fps=24" \
+              -c:v libvpx-vp9 -b:v 0 -crf 34 \
+              -deadline good -cpu-used 2 -row-mt 1 -threads 4 \
+              -pix_fmt yuv420p "$TMP"
+
+            NEW_SIZE=$(stat -c%s "$TMP")
+            if [ "$NEW_SIZE" -gt 2200000 ]; then
+              rm -f "$TMP"
+              ffmpeg -y -i "$SRC" -an \
+                -vf "scale='min(480,iw)':-2:flags=lanczos,fps=22" \
+                -c:v libvpx-vp9 -b:v 0 -crf 38 \
+                -deadline good -cpu-used 2 -row-mt 1 -threads 4 \
+                -pix_fmt yuv420p "$TMP"
+            fi
+
+            mv "$TMP" "$SRC"
+            echo "Tempest Double portrait after: $(stat -c%s "$SRC") bytes"
+
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add "$SRC"
+            if ! git diff --cached --quiet; then
+              git commit -m "Compress Tempest Double portrait"
+              git push origin HEAD:web-prototype
+            fi
+          else
+            echo "Portrait already compressed; skipping."
+          fi
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
