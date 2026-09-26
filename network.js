@@ -1,8 +1,8 @@
 // Dota Cards v0.41 — built-in portable multiplayer host.
 // If opened through HOST_GAME.bat, the page connects to the local WebSocket server.
 (() => {
-  const GAME_VERSION='1.86.118';
-  const PROTOCOL_VERSION=13;
+  const GAME_VERSION='1.86.119';
+  const PROTOCOL_VERSION=14;
   const DOTA_SERVER_CONFIG = {
     primary: localStorage.getItem('dota_server_primary') || 'https://dota-3v3-lobby.onrender.com',
     fallbacks: [
@@ -45,6 +45,7 @@
   window.DOTA_GAME_VERSION=GAME_VERSION;
   const submittedGlobalMatches=new Set();
   const submittingGlobalMatches=new Map();
+  const matchResultAckWaiters=new Map();
   window.DOTA_PROTOCOL_VERSION=PROTOCOL_VERSION;
   const OFFLINE=new URLSearchParams(location.search).has('offline');
   window.DOTA_OFFLINE_MODE=OFFLINE;
@@ -231,16 +232,31 @@
       const payload=globalMatchPayload(); if(!payload)return false;
       let last=null;
 
-      // Primary path: use the already-open match WebSocket. This avoids CORS,
-      // Safari keepalive/background limitations and wrong fallback-server routing.
+      // Primary path: use the already-open match WebSocket. Wait for server ACK
+      // before treating the result as saved. If no ACK arrives, fall back to HTTP.
       if(ws&&ws.readyState===1){
         try{
+          const ackPromise=new Promise(resolve=>{
+            const timer=setTimeout(()=>{
+              matchResultAckWaiters.delete(key);
+              resolve(null);
+            },2500);
+            matchResultAckWaiters.set(key,{resolve:(ack)=>{
+              clearTimeout(timer);
+              matchResultAckWaiters.delete(key);
+              resolve(ack);
+            }});
+          });
           ws.send(JSON.stringify({type:'match_result',payload}));
-          // Server deduplicates by matchId. Mark locally as sent; HTTP below remains
-          // a fallback only when WebSocket send itself is unavailable.
-          submittedGlobalMatches.add(key);
-          console.log('[GLOBAL STATS] match_result sent over WebSocket',key,payload.winnerId);
-          return true;
+          const ack=await ackPromise;
+          if(ack?.ok){
+            submittedGlobalMatches.add(key);
+            console.log('[GLOBAL STATS] match_result ACK',key,ack);
+            return true;
+          }
+          if(ack?.error) last=new Error(ack.error);
+          else last=new Error('WebSocket stats ACK timeout');
+          console.warn('[GLOBAL STATS] WebSocket result not confirmed',key,ack||'timeout');
         }catch(e){
           last=e;
           console.warn('[GLOBAL STATS] WebSocket submit failed',key,e?.message||e);
@@ -388,6 +404,12 @@
     ws.onerror=()=>setStatus('Сеть: ошибка соединения');
     ws.onmessage=e=>{
       let m; try{m=JSON.parse(e.data)}catch{return}
+      if(m.type==='match_result_ack'){
+        const key=String(m.matchId||'');
+        const waiter=matchResultAckWaiters.get(key);
+        if(waiter)waiter.resolve(m);
+        return;
+      }
       if(m.type==='hello'){
         versionMismatch=false; connected=true; player=m.player; peerCompatible=false; if(player===0)setHostPeerStatus(false); window.DOTA_NET_CONNECTED=true; window.DOTA_NET_PLAYER=player; lastPayload=''; window.DotaProfile?.setLocalPlayer(player); refreshLocalWaitProfile(); showLobbySearching(player===0?'Лобби создано. Ждём второго игрока…':'Подключаемся к лобби…'); sendVersion(); if(window.DotaProfile?.isReady?.())sendProfile(); window.DotaProfile?.load?.().then(()=>{refreshLocalWaitProfile();sendProfile()})
         if(m.state) receiveState(m.state);
