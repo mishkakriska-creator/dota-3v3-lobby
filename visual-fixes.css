@@ -4277,3 +4277,28 @@ html.dota-landscape-mobile body #draft .draft-card{
 html.dota-landscape-mobile body #draft .draft-slot{
   transition:none!important;
 }
+
+
+/* v1.86.122 — reduce phone battle cards after 1.86.121 oversizing */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero>.hero-body{
+  grid-template-rows:13px 26px 5px 18px 20px 21px!important;
+  padding:4px 4px 3px!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .inspect-hero{
+  height:21px!important;
+  min-height:21px!important;
+  max-height:21px!important;
+  font-size:7px!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .item-inventory .item-owned{
+  width:18px!important;
+  height:18px!important;
+  min-width:18px!important;
+  min-height:18px!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .item-inventory .item-owned img{
+  width:17px!important;
+  height:17px!important;
+  min-width:17px!important;
+  min-height:17px!important;
+}
