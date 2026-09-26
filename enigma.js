@@ -241,11 +241,14 @@
     return fx;
   }
   function removeBlackHoleFx(){document.getElementById('enigmaBlackHoleFx')?.remove()}
+  function mobileBlackHoleLayout(){return !!window.matchMedia?.('(orientation:landscape) and (max-height:600px), (orientation:portrait) and (max-width:720px)')?.matches}
   function positionBlackHoleFx(){
     if(!G||!blackHoleActive()){removeBlackHoleFx();return}
     const bf=document.querySelector('#game .battlefield'),team=G.enigmaBlackHoleEnemyTeam,front=frontHero(team),card=front?document.getElementById(`hero-${team}-${front.id}`):null,fx=ensureBlackHoleFx();
     if(!bf||!card||!fx)return;
-    const br=bf.getBoundingClientRect(),cr=card.getBoundingClientRect(),w=Math.max(210,Math.min(320,cr.width*1.36)),h=Math.max(210,Math.min(320,cr.height*.72));
+    const br=bf.getBoundingClientRect(),cr=card.getBoundingClientRect(),mobile=mobileBlackHoleLayout();
+    const w=mobile?Math.max(120,Math.min(180,cr.width*1.08)):Math.max(210,Math.min(320,cr.width*1.36));
+    const h=mobile?Math.max(105,Math.min(165,cr.height*.58)):Math.max(210,Math.min(320,cr.height*.72));
     fx.style.left=(cr.left-br.left+cr.width/2-w/2)+'px';
     fx.style.top=(cr.top-br.top+cr.height/2-h/2)+'px';
     fx.style.width=w+'px';fx.style.height=h+'px';
@@ -253,7 +256,7 @@
   const suctionAnimations=new Map();
   function clearBoardClasses(){
     document.querySelectorAll('.team.enigma-black-hole-team').forEach(x=>x.classList.remove('enigma-black-hole-team'));
-    document.querySelectorAll('.hero.enigma-black-hole-victim').forEach(x=>{x.classList.remove('enigma-black-hole-victim');x.style.removeProperty('--bh-stack');x.style.removeProperty('--bh-z');x.style.removeProperty('--bh-left');x.style.removeProperty('--bh-top');x.style.removeProperty('--bh-center-left');x.style.removeProperty('--bh-center-top');x.style.removeProperty('--bh-angle');x.style.removeProperty('--bh-radius');x.style.removeProperty('--bh-period')});
+    document.querySelectorAll('.hero.enigma-black-hole-victim,.hero.enigma-black-hole-mobile-victim').forEach(x=>{x.classList.remove('enigma-black-hole-victim','enigma-black-hole-mobile-victim');x.style.removeProperty('--bh-stack');x.style.removeProperty('--bh-z');x.style.removeProperty('--bh-left');x.style.removeProperty('--bh-top');x.style.removeProperty('--bh-center-left');x.style.removeProperty('--bh-center-top');x.style.removeProperty('--bh-angle');x.style.removeProperty('--bh-radius');x.style.removeProperty('--bh-period')});
   }
   function updateEnigmaBoardFx(){
     clearBoardClasses();
@@ -263,8 +266,13 @@
     const animating=Date.now()<(Number(G.enigmaBlackHoleAnimatingUntil)||0),boxRect=box.getBoundingClientRect(),frontRect=frontNode.getBoundingClientRect();
     const centerLeft=Math.max(0,frontRect.left-boxRect.left+frontRect.width/2),centerTop=Math.max(0,frontRect.top-boxRect.top+frontRect.height/2);
     if(!animating){
-      const count=Math.max(1,victims.length);
-      victims.forEach((h,i)=>{const d=document.getElementById(`hero-${team}-${h.id}`);if(!d)return;const a=suctionAnimations.get(d);if(a){try{a.cancel()}catch(_){}suctionAnimations.delete(d)}d.classList.add('enigma-black-hole-victim');d.style.setProperty('--bh-stack',String(i));d.style.setProperty('--bh-z',String(h===active(team)?80:58+i));d.style.setProperty('--bh-center-left',centerLeft+'px');d.style.setProperty('--bh-center-top',centerTop+'px');const baseAngle=(-82 + (360/count)*i);const radius=Math.max(42,Math.min(68, frontRect.width*.34 + (i%2?8:0)));const period=(3.8 + i*.35).toFixed(2)+'s';d.style.setProperty('--bh-angle',baseAngle+'deg');d.style.setProperty('--bh-radius',radius+'px');d.style.setProperty('--bh-period',period)});
+      const count=Math.max(1,victims.length),mobile=mobileBlackHoleLayout();
+      victims.forEach((h,i)=>{const d=document.getElementById(`hero-${team}-${h.id}`);if(!d)return;const a=suctionAnimations.get(d);if(a){try{a.cancel()}catch(_){}suctionAnimations.delete(d)}
+        if(mobile){
+          d.classList.remove('enigma-black-hole-victim','enigma-black-hole-mobile-victim');d.classList.add('enigma-black-hole-mobile-victim');
+          return;
+        }
+        d.classList.remove('enigma-black-hole-mobile-victim');d.classList.add('enigma-black-hole-victim');d.style.setProperty('--bh-stack',String(i));d.style.setProperty('--bh-z',String(h===active(team)?80:58+i));d.style.setProperty('--bh-center-left',centerLeft+'px');d.style.setProperty('--bh-center-top',centerTop+'px');const baseAngle=(-82 + (360/count)*i);const radius=Math.max(42,Math.min(68, frontRect.width*.34 + (i%2?8:0)));const period=(3.8 + i*.35).toFixed(2)+'s';d.style.setProperty('--bh-angle',baseAngle+'deg');d.style.setProperty('--bh-radius',radius+'px');d.style.setProperty('--bh-period',period)});
     }
     positionBlackHoleFx();
   }
@@ -272,7 +280,7 @@
     if(!Number.isInteger(team))return;
     const box=document.getElementById(`team${team}`);
     if(!box)return;
-    const nodes=[...box.querySelectorAll('.hero.enigma-black-hole-victim')];
+    const nodes=[...box.querySelectorAll('.hero.enigma-black-hole-victim,.hero.enigma-black-hole-mobile-victim')];
     if(!nodes.length){box.classList.remove('enigma-black-hole-team');return}
     const before=new Map(nodes.map(d=>[d,d.getBoundingClientRect()]));
     for(const d of nodes){
@@ -298,6 +306,10 @@
 
   function flyEnemiesIntoHole(team){
     const victims=blackHoleVictims(team),front=frontHero(team),frontNode=front?document.getElementById(`hero-${team}-${front.id}`):null;if(!frontNode)return;
+    if(mobileBlackHoleLayout()){
+      victims.forEach(h=>{const d=document.getElementById(`hero-${team}-${h.id}`);if(!d)return;const old=suctionAnimations.get(d);if(old){try{old.cancel()}catch(_){}suctionAnimations.delete(d)}d.classList.remove('enigma-black-hole-victim');d.classList.add('enigma-black-hole-mobile-victim')});
+      positionBlackHoleFx();return;
+    }
     const tr=frontNode.getBoundingClientRect(),tx=tr.left+tr.width/2,ty=tr.top+tr.height/2,count=Math.max(1,victims.length);
     victims.forEach((h,i)=>{const d=document.getElementById(`hero-${team}-${h.id}`);if(!d)return;const r=d.getBoundingClientRect(),sx=r.left+r.width/2,sy=r.top+r.height/2;const baseAngle=(-82 + (360/count)*i)*(Math.PI/180),radius=Math.max(42,Math.min(68, tr.width*.34 + (i%2?8:0)));const targetX=tx+Math.cos(baseAngle)*radius,targetY=ty+Math.sin(baseAngle)*Math.max(18,radius*.50);const dx=targetX-sx,dy=targetY-sy;const sign=((team===0?-1:1)*(i%2===0?1:-1));const arcX=Math.max(48,Math.abs(dx)*.24)*sign,arcY=-Math.max(44,Math.min(110,Math.abs(dy)*.28));try{const old=suctionAnimations.get(d);if(old)old.cancel();const a=d.animate([
       {translate:'0 0',scale:'1',rotate:'0deg',filter:'brightness(1) saturate(1) blur(0px)',offset:0},
