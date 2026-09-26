@@ -240,17 +240,37 @@
     if(!fx){fx=document.createElement('div');fx.id='enigmaBlackHoleFx';fx.innerHTML='<i class="enigma-bh-a"></i><i class="enigma-bh-b"></i><i class="enigma-bh-core"></i><i class="enigma-bh-beam"></i><i class="enigma-bh-dust d1"></i><i class="enigma-bh-dust d2"></i><i class="enigma-bh-dust d3"></i>';bf.appendChild(fx)}
     return fx;
   }
-  function removeBlackHoleFx(){document.getElementById('enigmaBlackHoleFx')?.remove()}
+  let blackHoleAnchor=null;
+  function removeBlackHoleFx(){document.getElementById('enigmaBlackHoleFx')?.remove();blackHoleAnchor=null}
   function mobileBlackHoleLayout(){return !!window.matchMedia?.('(orientation:landscape) and (max-height:600px), (orientation:portrait) and (max-width:720px)')?.matches}
+  function captureBlackHoleAnchor(team){
+    const bf=document.querySelector('#game .battlefield'),box=document.getElementById(`team${team}`),front=frontHero(team),card=front?document.getElementById(`hero-${team}-${front.id}`):null;
+    if(!bf||!box||!card)return null;
+    const br=bf.getBoundingClientRect(),xr=box.getBoundingClientRect(),cr=card.getBoundingClientRect();
+    blackHoleAnchor={
+      team,
+      boxLeft:cr.left-xr.left+cr.width/2,
+      boxTop:cr.top-xr.top+cr.height/2,
+      fieldLeft:cr.left-br.left+cr.width/2,
+      fieldTop:cr.top-br.top+cr.height/2,
+      cardW:cr.width,
+      cardH:cr.height
+    };
+    return blackHoleAnchor;
+  }
+  function getBlackHoleAnchor(team){
+    if(blackHoleAnchor&&blackHoleAnchor.team===team)return blackHoleAnchor;
+    return captureBlackHoleAnchor(team);
+  }
   function positionBlackHoleFx(){
     if(!G||!blackHoleActive()){removeBlackHoleFx();return}
-    const bf=document.querySelector('#game .battlefield'),team=G.enigmaBlackHoleEnemyTeam,front=frontHero(team),card=front?document.getElementById(`hero-${team}-${front.id}`):null,fx=ensureBlackHoleFx();
-    if(!bf||!card||!fx)return;
-    const br=bf.getBoundingClientRect(),cr=card.getBoundingClientRect(),mobile=mobileBlackHoleLayout();
-    const w=mobile?Math.max(120,Math.min(180,cr.width*1.08)):Math.max(210,Math.min(320,cr.width*1.36));
-    const h=mobile?Math.max(105,Math.min(165,cr.height*.58)):Math.max(210,Math.min(320,cr.height*.72));
-    fx.style.left=(cr.left-br.left+cr.width/2-w/2)+'px';
-    fx.style.top=(cr.top-br.top+cr.height/2-h/2)+'px';
+    const bf=document.querySelector('#game .battlefield'),team=G.enigmaBlackHoleEnemyTeam,fx=ensureBlackHoleFx(),anchor=getBlackHoleAnchor(team);
+    if(!bf||!fx||!anchor)return;
+    const mobile=mobileBlackHoleLayout(),cw=Math.max(1,anchor.cardW||140),ch=Math.max(1,anchor.cardH||260);
+    const w=mobile?Math.max(120,Math.min(180,cw*1.08)):Math.max(210,Math.min(320,cw*1.36));
+    const h=mobile?Math.max(105,Math.min(165,ch*.58)):Math.max(210,Math.min(320,ch*.72));
+    fx.style.left=(anchor.fieldLeft-w/2)+'px';
+    fx.style.top=(anchor.fieldTop-h/2)+'px';
     fx.style.width=w+'px';fx.style.height=h+'px';
   }
   const suctionAnimations=new Map();
@@ -262,13 +282,14 @@
     clearBoardClasses();
     if(!G||!blackHoleActive()){removeBlackHoleFx();return}
     const team=G.enigmaBlackHoleEnemyTeam,box=document.getElementById(`team${team}`),victims=blackHoleVictims(team),front=frontHero(team),frontNode=front?document.getElementById(`hero-${team}-${front.id}`):null;if(!box||!victims.length||!frontNode)return;
+    const anchor=getBlackHoleAnchor(team);if(!anchor)return;
     box.classList.add('enigma-black-hole-team');
-    const animating=Date.now()<(Number(G.enigmaBlackHoleAnimatingUntil)||0),boxRect=box.getBoundingClientRect(),frontRect=frontNode.getBoundingClientRect();
-    const centerLeft=Math.max(0,frontRect.left-boxRect.left+frontRect.width/2),centerTop=Math.max(0,frontRect.top-boxRect.top+frontRect.height/2);
+    const animating=Date.now()<(Number(G.enigmaBlackHoleAnimatingUntil)||0);
+    const centerLeft=Math.max(0,anchor.boxLeft),centerTop=Math.max(0,anchor.boxTop),cardW=Math.max(1,anchor.cardW||frontNode.getBoundingClientRect().width);
     if(!animating){
       const count=Math.max(1,victims.length),mobile=mobileBlackHoleLayout();
       victims.forEach((h,i)=>{const d=document.getElementById(`hero-${team}-${h.id}`);if(!d)return;const a=suctionAnimations.get(d);if(a){try{a.cancel()}catch(_){}suctionAnimations.delete(d)}
-        d.classList.remove('enigma-black-hole-mobile-victim');d.classList.add('enigma-black-hole-victim');d.style.setProperty('--bh-stack',String(i));d.style.setProperty('--bh-z',String(h===active(team)?80:58+i));d.style.setProperty('--bh-center-left',centerLeft+'px');d.style.setProperty('--bh-center-top',centerTop+'px');const baseAngle=(-82 + (360/count)*i);const radius=mobile?Math.max(26,Math.min(42,frontRect.width*.30 + (i%2?6:0))):Math.max(42,Math.min(68, frontRect.width*.34 + (i%2?8:0)));const period=(3.8 + i*.35).toFixed(2)+'s';d.style.setProperty('--bh-angle',baseAngle+'deg');d.style.setProperty('--bh-radius',radius+'px');d.style.setProperty('--bh-period',period)});
+        d.classList.remove('enigma-black-hole-mobile-victim');d.classList.add('enigma-black-hole-victim');d.style.setProperty('--bh-stack',String(i));d.style.setProperty('--bh-z',String(h===active(team)?80:58+i));d.style.setProperty('--bh-center-left',centerLeft+'px');d.style.setProperty('--bh-center-top',centerTop+'px');const baseAngle=(-82 + (360/count)*i);const radius=mobile?Math.max(26,Math.min(42,cardW*.30 + (i%2?6:0))):Math.max(42,Math.min(68,cardW*.34 + (i%2?8:0)));const period=(3.8 + i*.35).toFixed(2)+'s';d.style.setProperty('--bh-angle',baseAngle+'deg');d.style.setProperty('--bh-radius',radius+'px');d.style.setProperty('--bh-period',period)});
     }
     positionBlackHoleFx();
   }
@@ -281,10 +302,11 @@
     const before=new Map(nodes.map(d=>[d,d.getBoundingClientRect()]));
     for(const d of nodes){
       const a=suctionAnimations.get(d);if(a){try{a.cancel()}catch(_){}suctionAnimations.delete(d)}
-      d.classList.remove('enigma-black-hole-victim');
+      d.classList.remove('enigma-black-hole-victim','enigma-black-hole-mobile-victim');
       for(const k of['--bh-stack','--bh-z','--bh-left','--bh-top','--bh-center-left','--bh-center-top','--bh-angle','--bh-radius','--bh-period'])d.style.removeProperty(k);
     }
     box.classList.remove('enigma-black-hole-team');
+    blackHoleAnchor=null;
     // Cards return to their real line slots. Animate the reflow instead of leaving the
     // WebAnimation fill state hanging over the board after Black Hole ends.
     requestAnimationFrame(()=>{
@@ -302,8 +324,8 @@
 
   function flyEnemiesIntoHole(team){
     const victims=blackHoleVictims(team),front=frontHero(team),frontNode=front?document.getElementById(`hero-${team}-${front.id}`):null;if(!frontNode)return;
-    const mobile=mobileBlackHoleLayout();
-    const tr=frontNode.getBoundingClientRect(),tx=tr.left+tr.width/2,ty=tr.top+tr.height/2,count=Math.max(1,victims.length);
+    const mobile=mobileBlackHoleLayout(),anchor=getBlackHoleAnchor(team);if(!anchor)return;
+    const tx=anchor.fieldLeft+document.querySelector('#game .battlefield').getBoundingClientRect().left,ty=anchor.fieldTop+document.querySelector('#game .battlefield').getBoundingClientRect().top,tr={width:anchor.cardW,height:anchor.cardH},count=Math.max(1,victims.length);
     victims.forEach((h,i)=>{const d=document.getElementById(`hero-${team}-${h.id}`);if(!d)return;const r=d.getBoundingClientRect(),sx=r.left+r.width/2,sy=r.top+r.height/2;const baseAngle=(-82 + (360/count)*i)*(Math.PI/180),radius=mobile?Math.max(26,Math.min(42,tr.width*.30+(i%2?6:0))):Math.max(42,Math.min(68, tr.width*.34 + (i%2?8:0)));const targetX=tx+Math.cos(baseAngle)*radius,targetY=ty+Math.sin(baseAngle)*Math.max(18,radius*.50);const dx=targetX-sx,dy=targetY-sy;const sign=((team===0?-1:1)*(i%2===0?1:-1));const arcX=Math.max(48,Math.abs(dx)*.24)*sign,arcY=-Math.max(44,Math.min(110,Math.abs(dy)*.28));try{const old=suctionAnimations.get(d);if(old)old.cancel();const a=d.animate([
       {translate:'0 0',scale:'1',rotate:'0deg',filter:'brightness(1) saturate(1) blur(0px)',offset:0},
       {translate:`${dx*.14+arcX*.70}px ${dy*.10+arcY}px`,scale:'.99',rotate:`${sign*8}deg`,filter:'brightness(.97) saturate(1.08)',offset:.18},
