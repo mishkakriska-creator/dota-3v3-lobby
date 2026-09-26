@@ -111,9 +111,15 @@ function applyMatch(body){
   const testOnly=body?.testOnly===true;
   const target=testOnly?structuredClone(stats):stats;
   const matchId=String(body?.matchId||'').trim().slice(0,120);
-  const winner=Number(body?.winner);
+  const claimedWinner=Number(body?.winner);
+  const winnerId=String(body?.winnerId||'').trim().toLowerCase();
   const players=Array.isArray(body?.players)?body.players:[];
   const teams=Array.isArray(body?.teams)?body.teams:[];
+  let winner=claimedWinner;
+  if(winnerId){
+    const byId=players.findIndex(p=>String(p?.id||p?.profileId||'').trim().toLowerCase()===winnerId);
+    if(byId>=0)winner=byId;
+  }
   if(!matchId||![0,1].includes(winner)||players.length<2||teams.length<2)return {ok:false,error:'invalid_match'};
   if(teams.some(x=>!Array.isArray(x)||x.length<1))return {ok:false,error:'invalid_teams'};
   if(target.matches[matchId]){
@@ -139,7 +145,7 @@ function applyMatch(body){
     }
   }
 
-  target.matches[matchId]={winner,at:Date.now()};
+  target.matches[matchId]={winner,winnerId:winnerId||String(players[winner]?.id||''),at:Date.now()};
   const ids=Object.keys(target.matches);
   if(ids.length>5000){
     ids.sort((a,b)=>(target.matches[a]?.at||0)-(target.matches[b]?.at||0));
@@ -153,7 +159,7 @@ function applyMatch(body){
 const server=http.createServer(async(req,res)=>{
   const u=new URL(req.url,'http://localhost');
   if(req.method==='OPTIONS'){res.writeHead(204,cors);return res.end();}
-  if(u.pathname==='/health')return send(res,200,{ok:true,statsApiVersion:2});
+  if(u.pathname==='/health')return send(res,200,{ok:true,statsApiVersion:3});
   if(u.pathname==='/api/lobbies'&&req.method==='GET')return send(res,200,{lobbies:[...rooms].map(([id,r])=>view(id,r))});
   if(u.pathname==='/api/lobbies'&&req.method==='POST'){
     let body={};try{let s='';for await(const c of req)s+=c;body=JSON.parse(s||'{}')}catch{}
@@ -241,23 +247,8 @@ wss.on('connection',(ws,ctx)=>{
         const picks=Array.isArray(m.chosen)?m.chosen.length:0;
         console.log(`State room=${ctx.roomId} player=${player} phase=${String(m.phase||'')} picks=${picks} bytes=${raw.length}`);
 
-        const g=m.G;
-        if(g&&g.matchId!=null&&[0,1].includes(Number(g.winner))&&Array.isArray(g.teams)&&g.teams.length>=2){
-          const profiles=[0,1].map(i=>{
-            const p=room.profiles?.[i]||{};
-            return {
-              id:String(p.globalId||p.id||''),
-              nick:p.nick||(`Игрок ${i+1}`),
-              rating:Number(p.rating)||0
-            };
-          });
-          const teams=[0,1].map(i=>(Array.isArray(g.teams[i])?g.teams[i]:[])
-            .filter(h=>h&&h.id&&h.id!=='arcwarden_clone')
-            .map(h=>h.id)
-            .slice(0,3));
-          const recorded=applyMatch({matchId:String(g.matchId),winner:Number(g.winner),players:profiles,teams});
-          if(recorded.ok&&!recorded.duplicate)console.log('Global match recorded from WebSocket state',String(g.matchId));
-        }
+        // Global MMR/hero stats are intentionally NOT written from raw WebSocket state.
+        // The clients submit one identity-bound /api/match payload after the winner is known.
       }
 
       if(['state','version','profile'].includes(m.type)){
