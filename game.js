@@ -117,27 +117,51 @@ function setHTMLCached(el,html){if(!el)return;if(el._dotaCachedHTML===html)retur
 function closeShopsForTargeting(team,id){let panel=document.getElementById(`shop${team}`);shopTargetResume={team,id,wasOpen:!!panel?.classList?.contains?.('open')};document.querySelectorAll('.shop-panel.open').forEach(x=>x.classList.remove('open'));document.body.classList.add('shop-targeting')}
 function restoreShopAfterTargeting(){let st=shopTargetResume;shopTargetResume=null;document.body.classList.remove('shop-targeting');if(!st?.wasOpen)return;let panel=document.getElementById(`shop${st.team}`);if(panel){panel.classList.add('open');if(st.id)showShopItemInfo(st.team,st.id)}}
 
+function dotaPhoneLike(vw,vh){
+ try{return (matchMedia('(pointer:coarse)').matches||/iPhone|iPod|Android.+Mobile/i.test(navigator.userAgent||''))&&Math.min(vw,vh)<=700}catch(_){return false}
+}
+async function lockDotaLandscape(){
+ try{
+  if(screen.orientation?.lock)await screen.orientation.lock('landscape');
+ }catch(_){}
+}
 function syncDotaViewport(){
  try{
   const vv=window.visualViewport;
-  const vh=Math.max(1,Math.round(vv?.height||window.innerHeight||document.documentElement.clientHeight||0));
-  const vw=Math.max(1,Math.round(vv?.width||window.innerWidth||document.documentElement.clientWidth||0));
-  document.documentElement.classList.toggle('dota-landscape-mobile',vw>vh&&vh<=700);
+  const physicalH=Math.max(1,Math.round(vv?.height||window.innerHeight||document.documentElement.clientHeight||0));
+  const physicalW=Math.max(1,Math.round(vv?.width||window.innerWidth||document.documentElement.clientWidth||0));
+  const phone=dotaPhoneLike(physicalW,physicalH);
+  const forcedPortrait=phone&&physicalH>physicalW;
+  const logicalW=forcedPortrait?physicalH:physicalW;
+  const logicalH=forcedPortrait?physicalW:physicalH;
+  const root=document.documentElement;
+  root.classList.toggle('dota-force-landscape',forcedPortrait);
+  root.classList.toggle('dota-landscape-mobile',phone&&logicalW>logicalH);
+  root.style.setProperty('--dota-physical-vw',physicalW+'px');
+  root.style.setProperty('--dota-physical-vh',physicalH+'px');
+  root.style.setProperty('--dota-vw',logicalW+'px');
+  root.style.setProperty('--dota-vh',logicalH+'px');
   const header=document.querySelector('#app>header');
   const hh=Math.max(0,Math.round(header?.getBoundingClientRect?.().height||0));
-  document.documentElement.style.setProperty('--dota-vh',vh+'px');
-  document.documentElement.style.setProperty('--dota-header-h',hh+'px');
-  document.body.style.setProperty('--dota-vh',vh+'px');
-  document.body.style.setProperty('--dota-header-h',hh+'px');
-  document.body.offsetHeight;
+  root.style.setProperty('--dota-header-h',hh+'px');
+  if(document.body){
+   document.body.style.setProperty('--dota-physical-vw',physicalW+'px');
+   document.body.style.setProperty('--dota-physical-vh',physicalH+'px');
+   document.body.style.setProperty('--dota-vw',logicalW+'px');
+   document.body.style.setProperty('--dota-vh',logicalH+'px');
+   document.body.style.setProperty('--dota-header-h',hh+'px');
+   document.body.offsetHeight;
+  }
  }catch(_){}
 }
 syncDotaViewport();
-window.addEventListener('load',syncDotaViewport);
-window.addEventListener('pageshow',()=>{syncDotaViewport();requestAnimationFrame(syncDotaViewport);setTimeout(syncDotaViewport,80)});
+window.addEventListener('load',()=>{syncDotaViewport();lockDotaLandscape()});
+window.addEventListener('pageshow',()=>{syncDotaViewport();requestAnimationFrame(syncDotaViewport);setTimeout(syncDotaViewport,80);lockDotaLandscape()});
 window.addEventListener('resize',syncDotaViewport);
-window.addEventListener('orientationchange',()=>{setTimeout(syncDotaViewport,40);setTimeout(syncDotaViewport,220)});
+window.addEventListener('orientationchange',()=>{setTimeout(syncDotaViewport,20);setTimeout(syncDotaViewport,120);setTimeout(syncDotaViewport,320);lockDotaLandscape()});
 window.visualViewport?.addEventListener?.('resize',syncDotaViewport);
+window.addEventListener('pointerdown',lockDotaLandscape,{once:true,capture:true});
+window.addEventListener('touchstart',lockDotaLandscape,{once:true,capture:true,passive:true});
 function draftTeamForPick(i){return i%2}
 function localDraftPlayer(){return window.DOTA_OFFLINE_MODE?draftTeamForPick(chosen.length):(Number.isInteger(window.DOTA_NET_PLAYER)?window.DOTA_NET_PLAYER:0)}
 function draftTurn(){return draftTeamForPick(chosen.length)}
