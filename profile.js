@@ -87,7 +87,7 @@
    const icon=rankIconFor(p.rating);
    el.innerHTML=`<span class="mp-profile-rank"><img src="${icon}" alt=""></span><span><b>${esc(p.nick||'Профиль')}</b><small>${esc(p.rank)} • ${p.rating} MMR • Победы: ${p.wins} • Поражения: ${p.losses}</small></span>`;
  }
- function render(){[0,1].forEach(n=>{for(const id of ['playerProfile'+n,'draftProfile'+n]){let el=document.getElementById(id);if(el){el.innerHTML=html(dataFor(n));el.classList.add('profile-clickable');el.title='Открыть профиль и лучшие тиры героев';el.onclick=()=>openMasteryProfile(n)}}});renderMenu();let menu=document.getElementById('menuProfileStats');if(menu){menu.classList.add('profile-clickable');menu.title='Открыть профиль и лучшие тиры героев';menu.onclick=()=>openMasteryProfile(localPlayer)}window.refreshMasteryUI?.()}
+ function render(){[0,1].forEach(n=>{for(const id of ['playerProfile'+n,'draftProfile'+n]){let el=document.getElementById(id);if(el){el.innerHTML=html(dataFor(n));el.classList.add('profile-clickable');el.title='Открыть профиль и лучшие тиры героев';el.onclick=()=>openMasteryProfile(n)}}});renderMenu();let menu=document.getElementById('menuProfileStats');if(menu){menu.classList.add('profile-clickable');menu.title='Открыть профиль и лучшие тиры героев';menu.onclick=()=>openMasteryProfile(localPlayer)}let menuBtn=document.getElementById('menuProfileBtn');if(menuBtn)menuBtn.onclick=()=>openEditor();window.refreshMasteryUI?.()}
  async function load(){
    if(loading)return loading;
    loading=(async()=>{
