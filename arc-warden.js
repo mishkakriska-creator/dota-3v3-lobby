@@ -280,10 +280,6 @@
       G.teams[team].forEach(hero=>{
         const card=document.getElementById(`hero-${team}-${hero.id}`); if(!card)return;
         card.classList.toggle('arc-tempest-card',hero.id===ARC_CLONE_ID);
-        let cloneMark=card.querySelector('.arc-clone-marker');
-        if(hero.id===ARC_CLONE_ID){
-          if(!cloneMark){cloneMark=document.createElement('img');cloneMark.className='arc-clone-marker';cloneMark.src='assets/arcwarden_clone_icon.png';cloneMark.alt='Tempest Double';card.querySelector('.hero-portrait')?.appendChild(cloneMark)}
-        }else cloneMark?.remove();
         const status=card.querySelector('.status');
         if(hero.id===ARC_CLONE_ID && status)status.innerHTML += statusBadge(`Двойник: ${Math.max(0,(hero.tempestTurns||1)-1)} ход.`, 'good arc-tempest-badge', skillIcon(ARC_ID,'tempest'));
         if(front===hero && (G.arcFieldTurns[team]||0)>0){
