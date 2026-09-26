@@ -2628,3 +2628,55 @@ html.dota-landscape-mobile body.game-running #game .battlefield .team.enigma-bla
   38%{transform:translate(calc(var(--bh-dx,0px) + 4px),calc(var(--bh-dy,0px) + 2px)) rotate(calc(var(--bh-rot,0deg) + 1.2deg)) scale(var(--bh-scale,.78))}
   72%{transform:translate(calc(var(--bh-dx,0px) - 3px),calc(var(--bh-dy,0px) - 1px)) rotate(calc(var(--bh-rot,0deg) - .7deg)) scale(var(--bh-scale,.78))}
 }
+
+
+/* v1.86.102 — equal draft pick slots on both sides */
+html.dota-landscape-mobile body #draft.screen:not(.hidden) .draft-stage{
+  align-items:stretch!important;
+}
+html.dota-landscape-mobile body #draft.screen:not(.hidden) .draft-side{
+  position:relative!important;
+  top:auto!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:100%!important;
+  display:grid!important;
+  grid-template-rows:auto minmax(0,1fr)!important;
+  align-self:stretch!important;
+  overflow:hidden!important;
+  padding:5px!important;
+}
+html.dota-landscape-mobile body #draft.screen:not(.hidden) .draft-side .side-profile{
+  grid-row:1!important;
+  margin:0 0 5px!important;
+}
+html.dota-landscape-mobile body #draft.screen:not(.hidden) .draft-slots{
+  grid-row:2!important;
+  display:grid!important;
+  grid-template-rows:repeat(3,minmax(0,1fr))!important;
+  gap:6px!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  margin:0!important;
+  overflow:hidden!important;
+}
+html.dota-landscape-mobile body #draft.screen:not(.hidden) .draft-slot,
+html.dota-landscape-mobile body #draft.screen:not(.hidden) .draft-slots>*{
+  position:relative!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0!important;
+  overflow:hidden!important;
+}
+html.dota-landscape-mobile body #draft.screen:not(.hidden) .draft-slot.filled img{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+  object-fit:cover!important;
+  object-position:center top!important;
+}
