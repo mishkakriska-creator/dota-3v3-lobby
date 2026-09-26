@@ -136,14 +136,16 @@ function syncDotaViewport(){
   const logicalH=forcedPortrait?physicalW:physicalH;
   const root=document.documentElement;
   const landscapePhone=phone&&logicalW>logicalH;
-  const sw=Math.max(Number(screen?.width)||0,Number(screen?.height)||0);
-  const sh=Math.min(Number(screen?.width)||0,Number(screen?.height)||0);
-  // Standard iPhone 13 screen is 390x844 CSS px. iPhone 11 is 414x896.
-  // This class therefore cannot affect the iPhone 11 layout.
-  const iphone13Class=landscapePhone&&sw>=840&&sw<=850&&sh>=385&&sh<=395;
+  // iPhone 12/13/14 standard-class landscape is roughly 844x390 CSS px.
+  // Do not rely on CSS @media here: Safari's viewport/chrome handling can make
+  // max-height media queries inconsistent between otherwise identical sessions.
+  const shortLandscape=landscapePhone&&(
+    logicalH<=400 ||
+    (logicalW<=860&&logicalH<=430)
+  );
   root.classList.toggle('dota-force-landscape',forcedPortrait);
   root.classList.toggle('dota-landscape-mobile',landscapePhone);
-  root.classList.toggle('dota-iphone13-class',iphone13Class);
+  root.classList.toggle('dota-landscape-short',shortLandscape);
   root.style.setProperty('--dota-physical-vw',physicalW+'px');
   root.style.setProperty('--dota-physical-vh',physicalH+'px');
   root.style.setProperty('--dota-vw',logicalW+'px');
@@ -387,7 +389,7 @@ function invokeGame(hero){if(document.getElementById('invoke-overlay')||!localCo
 function press(ch){if(!started)return;cur.push(ch);if(cur.length===3){let spell=invokerSpellFromCombo(cur.join(''));if(spell&&!found.includes(spell))found.push(spell);cur=[]}paint()}
 function finish(){if(timer)clearInterval(timer);window.removeEventListener('keydown',onKey,true);overlay.remove();hero.invoking=false;hero.invokedSpells=found.slice();G.actions=found.length;addLog(`${logIcon('invoker','invoke')}<span>${hero.name} завершает Invoke: ${found.length?found.map(id=>heroSkillName('invoker',id)).join(', '):'ничего не наколдовано'} • действий: ${found.length}.</span>`);render();if(found.length===0)setTimeout(()=>{if(G&&active()===hero&&!hero.invoking&&G.actions===0)endTurn(false)},350)}
 function onKey(e){if(!started)return;let map={KeyQ:'q',KeyW:'w',KeyE:'e'};let k=map[e.code]||({q:'q',w:'w',e:'e','й':'q','ц':'w','у':'e'}[(e.key||'').toLowerCase()]||'');if(k){e.preventDefault();e.stopPropagation();press(k)}}
-overlay.querySelectorAll('[data-orb]').forEach(btn=>btn.onclick=()=>press(btn.dataset.orb));overlay.querySelector('#invoke-start').onclick=()=>{if(started)return;started=true;overlay.querySelector('.invoke-ready').textContent='КОЛДУЙ!';overlay.querySelector('#invoke-start').remove();orbBox.classList.remove('locked');orbBox.querySelectorAll('button').forEach(b=>b.disabled=false);window.addEventListener('keydown',onKey,true);let left=3;timeEl.textContent=left.toFixed(1);timer=setInterval(()=>{left=Math.max(0,left-.05);timeEl.textContent=left.toFixed(1);if(left<=0)finish()},50)};paint()}
+let lastOrbTouchAt=0;overlay.querySelectorAll('[data-orb]').forEach(btn=>{btn.style.touchAction='manipulation';btn.onclick=()=>{if(Date.now()-lastOrbTouchAt<450)return;press(btn.dataset.orb)};btn.addEventListener('touchend',e=>{if(!started||btn.disabled)return;e.preventDefault();e.stopPropagation();lastOrbTouchAt=Date.now();press(btn.dataset.orb)},{passive:false})});overlay.querySelector('#invoke-start').onclick=()=>{if(started)return;started=true;overlay.querySelector('.invoke-ready').textContent='КОЛДУЙ!';overlay.querySelector('#invoke-start').remove();orbBox.classList.remove('locked');orbBox.querySelectorAll('button').forEach(b=>b.disabled=false);window.addEventListener('keydown',onKey,true);let left=3;timeEl.textContent=left.toFixed(1);timer=setInterval(()=>{left=Math.max(0,left-.05);timeEl.textContent=left.toFixed(1);if(left<=0)finish()},50)};paint()}
 function castForgeSpiritAttack(h){if(!isForgeSpiritTarget(h?.forgeSpirit)||h.forgeSpirit.used||(h.forgeSpirit.disarmTurns||0)>0||(h.forgeSpirit.tornadoAirborne||0)>0)return;chooseEnemy('Выберите цель для Forge Spirit',t=>!t.sleep,t=>{let spirit=h.forgeSpirit;t=window.redirectAxeAttack?.(spirit,t)||t;playFile(miscAudio,'assets/audio/forge_spirit_attack.mp3');if(attackMisses(spirit,t)){addLog(`💨 Forge Spirit промахивается по ${t.name}.`)}else{let hit=attackDamageInfo(spirit,t,physicalBaseDamage(spirit,t,spirit.atk),{allowCrit:false});damage(t,hit.damage,`<img class="log-skill-icon" src="assets/skills/invoker_forge.png" alt=""> Forge Spirit${hit.tags.length?` [${hit.tags.join(' • ')}]`:''}: `,h,{impactDelay:580});window.registerAxeBasicHit?.(spirit,t);if(!t.dead){t.armor=(Number(t.armor)||0)-1;addLog(`🔥 Forge Spirit снижает броню ${t.name} до ${t.armor}.`)}}spirit.used=true;render()})}
 function updateDraft(){
  $$('.draft-card').forEach(d=>{
