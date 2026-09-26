@@ -1,5 +1,5 @@
-const CACHE='dota-cards-shell-v27';
-const CORE=['./','./index.html','./style.css?v=18790','./visual-fixes.css?v=19070','./enigma.css?v=19000','./arc-warden.css?v=19070','./game.js?v=19040','./combat-fx.js?v=18890','./arc-warden.js?v=19020','./profile.js?v=18920','./enigma.js?v=19000','./network.js?v=19070','./preload.js?v=19020','./lifecycle.js?v=19070','./assets/dota_app_icon.png','./assets/dota_app_icon_192.png'];
+const CACHE='dota-cards-shell-v28';
+const CORE=['./','./index.html','./style.css?v=18790','./visual-fixes.css?v=19080','./enigma.css?v=19000','./arc-warden.css?v=19070','./game.js?v=19040','./combat-fx.js?v=18890','./arc-warden.js?v=19020','./profile.js?v=18920','./enigma.js?v=19000','./network.js?v=19080','./preload.js?v=19020','./lifecycle.js?v=19080','./assets/dota_app_icon.png','./assets/dota_app_icon_192.png'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE).catch(()=>{})))});
 self.addEventListener('activate',e=>{e.waitUntil((async()=>{for(const k of await caches.keys())if(k!==CACHE)await caches.delete(k);await self.clients.claim()})())});
 self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith((async()=>{try{const r=await fetch(e.request);const c=await caches.open(CACHE);if(new URL(e.request.url).origin===location.origin)c.put(e.request,r.clone()).catch(()=>{});return r}catch{return (await caches.match(e.request))||Response.error()}})())});
