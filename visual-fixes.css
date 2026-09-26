@@ -2547,3 +2547,84 @@ html body #game .battlefield .team.enigma-black-hole-team .hero.enigma-black-hol
   38%{translate:calc(var(--bh-dx,0px) + 3px) calc(var(--bh-dy,0px) + 2px)}
   72%{translate:calc(var(--bh-dx,0px) - 2px) calc(var(--bh-dy,0px) - 1px)}
 }
+
+
+/* v1.87.00 — performance-safe battle geometry */
+html.dota-landscape-mobile body.game-running #game .battlefield{
+  align-items:stretch!important;
+  min-height:0!important;
+  overflow:visible!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .side{
+  display:grid!important;
+  grid-template-rows:30px minmax(0,1fr)!important;
+  height:100%!important;
+  min-height:0!important;
+  padding:3px 5px 4px!important;
+  overflow:visible!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .side-title{
+  grid-row:1!important;
+  height:30px!important;
+  min-height:30px!important;
+  margin:0!important;
+  padding:2px 3px!important;
+  align-self:start!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team{
+  grid-row:2!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+  padding:2px 4px 3px!important;
+  align-items:stretch!important;
+  align-content:stretch!important;
+  overflow:visible!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero,
+html.dota-landscape-mobile body.game-running #game .battlefield .team.has-extra .hero,
+html.dota-landscape-mobile body.game-running #game .battlefield .team.has-four .hero{
+  height:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+  align-self:stretch!important;
+  scale:1!important;
+  margin-inline:0!important;
+  will-change:auto!important;
+  transition:border-color .12s ease,box-shadow .12s ease,opacity .12s ease!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .hero.front{
+  transform:none!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .hero .hero-portrait{
+  height:64%!important;
+  min-height:0!important;
+  max-height:none!important;
+  flex:0 0 64%!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .hero .hero-body{
+  height:auto!important;
+  min-height:0!important;
+  flex:1 1 auto!important;
+}
+
+/* Black Hole: cards keep layout space but visibly fly to one fixed vortex. */
+html.dota-landscape-mobile body.game-running #game .battlefield .team.enigma-black-hole-team .hero.enigma-black-hole-victim{
+  position:relative!important;
+  left:auto!important;
+  top:auto!important;
+  scale:1!important;
+  translate:none!important;
+  rotate:none!important;
+  transform:translate(var(--bh-dx,0px),var(--bh-dy,0px)) rotate(var(--bh-rot,0deg)) scale(var(--bh-scale,.78))!important;
+  transform-origin:center center!important;
+  will-change:transform!important;
+  transition:transform .76s cubic-bezier(.18,.82,.14,1),filter .2s ease!important;
+  animation:enigmaVictimFloat100 var(--bh-period,2.7s) ease-in-out .76s infinite!important;
+  animation-delay:calc(.76s + var(--bh-stack,0) * -.17s)!important;
+}
+@keyframes enigmaVictimFloat100{
+  0%,100%{transform:translate(var(--bh-dx,0px),calc(var(--bh-dy,0px) - 5px)) rotate(calc(var(--bh-rot,0deg) - 1.4deg)) scale(var(--bh-scale,.78))}
+  38%{transform:translate(calc(var(--bh-dx,0px) + 4px),calc(var(--bh-dy,0px) + 2px)) rotate(calc(var(--bh-rot,0deg) + 1.2deg)) scale(var(--bh-scale,.78))}
+  72%{transform:translate(calc(var(--bh-dx,0px) - 3px),calc(var(--bh-dy,0px) - 1px)) rotate(calc(var(--bh-rot,0deg) - .7deg)) scale(var(--bh-scale,.78))}
+}
