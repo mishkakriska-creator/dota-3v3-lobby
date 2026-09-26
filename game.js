@@ -588,7 +588,7 @@ function warmChosenBattleAssets(showOverlay=false){
     for(const id of ids){
       const d=DATA[id]||{};
       tasks.push(preloadMatchImage(d.img||draftPortraitSrc(id)||''));
-      tasks.push(preloadMatchVideo(battlePortraitSrcFor(id)));
+      tasks.push(preloadMatchVideo(battlePortraitSrcFor(id)));if(id==='arcwarden')tasks.push(preloadMatchVideo('assets/portraits/arcwarden_clone.webm'));
       for(const sk of d.skills||[]){const icon=skillIcon(id,sk.id);if(icon)tasks.push(preloadMatchImage(icon))}
     }
     tasks.push((async()=>{for(const src of selectedMatchAudioUrls(ids))await preloadMatchAudio(src)})());
