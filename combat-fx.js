@@ -204,6 +204,7 @@ function updateMarsArenaPersistent(){
   const segAngles=[214,226,238,250,262,276,292,308,324,36,52,68,84,100,116,130,144,156];
   const segs=[...el.querySelectorAll('.m79-seg')];
   const visibleCols=[];
+  const mobileArena=window.matchMedia?.('(orientation:landscape) and (max-height:600px)')?.matches;
   segs.forEach((seg,i)=>{
     const deg=segAngles[i%segAngles.length],ang=deg*Math.PI/180;
     const ex=cx+Math.cos(ang)*rx*.97;
@@ -211,10 +212,20 @@ function updateMarsArenaPersistent(){
     const upper=ey<cy;
     if(!upper){seg.style.display='none';return}
     seg.style.display='block';
-    const h=Math.max(154,Math.min(248,cardH*.40 + (1-Math.abs(Math.sin(ang)))*32 + 40));
-    const w=Math.max(64,Math.min(88,cardW*.36 + 4));
-    const lift=Math.max(102,Math.min(214,cardH*.40 + (cy-ey)*.72));
-    const left=ex-w/2, top=ey-h/2-lift;
+    let h,w,lift,left,top;
+    if(mobileArena){
+      h=Math.max(88,Math.min(138,cardH*.26 + (1-Math.abs(Math.sin(ang)))*18 + 28));
+      w=Math.max(34,Math.min(52,cardW*.24 + 2));
+      lift=Math.max(18,Math.min(54,cardH*.10 + (cy-ey)*.20));
+      left=ex-w/2;
+      top=Math.max(2,Math.min(br.height-h-6,ey-h*.42-lift));
+    }else{
+      h=Math.max(154,Math.min(248,cardH*.40 + (1-Math.abs(Math.sin(ang)))*32 + 40));
+      w=Math.max(64,Math.min(88,cardW*.36 + 4));
+      lift=Math.max(102,Math.min(214,cardH*.40 + (cy-ey)*.72));
+      left=ex-w/2;
+      top=ey-h/2-lift;
+    }
     setArenaBox(seg,left,top,w,h);
     seg.style.transform='rotate(0deg)';
     seg.style.zIndex='3';
