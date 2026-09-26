@@ -2937,3 +2937,34 @@ html body #draft .draft-side .draft-slot.filled::after{
     z-index:3!important;
   }
 }
+
+
+/* v1.86.105 — substantially smaller battle portraits */
+@media (orientation:landscape) and (max-height:760px), (max-width:1100px) and (pointer:coarse){
+  html body.game-running #game .battlefield .hero .hero-portrait{
+    height:36%!important;
+    flex:0 0 36%!important;
+    min-height:0!important;
+    max-height:none!important;
+  }
+
+  html body.game-running #game .battlefield .hero .hero-body{
+    height:64%!important;
+    flex:1 1 64%!important;
+    min-height:0!important;
+    grid-template-rows:auto auto 7px minmax(52px,1fr) auto 27px!important;
+    padding:7px 7px 7px!important;
+  }
+
+  html body.game-running #game .battlefield .hero .status{
+    min-height:52px!important;
+    margin:5px 0 4px!important;
+  }
+
+  html body.game-running #game .battlefield .hero .inspect-hero{
+    height:27px!important;
+    min-height:27px!important;
+    max-height:27px!important;
+    margin:0!important;
+  }
+}
