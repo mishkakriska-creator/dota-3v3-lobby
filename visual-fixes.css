@@ -1354,3 +1354,25 @@ html body #game .shop-info-buy{
     z-index:7!important;
   }
 }
+
+
+/* WEB MOBILE v8 — both portrait draft side panels use the full widened slot area */
+@media (orientation:portrait) and (max-width:720px){
+  html body #draft .draft-side-p1,
+  html body #draft .draft-side-p2{
+    width:min(92vw,430px)!important;
+    max-width:none!important;
+    justify-self:center!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+  }
+  html body #draft .draft-side-p1 .draft-slots,
+  html body #draft .draft-side-p2 .draft-slots{
+    width:100%!important;
+    grid-template-columns:1fr!important;
+  }
+  html body #draft .draft-side-p1 .draft-slot,
+  html body #draft .draft-side-p2 .draft-slot{
+    width:100%!important;
+  }
+}
