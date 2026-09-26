@@ -2985,3 +2985,88 @@ html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .ins
   max-height:25px!important;
   margin:0!important;
 }
+
+
+/* v1.86.110 — phone cards fully contained in team panel */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero,
+html.dota-landscape-mobile body.game-running #game .battlefield .team.has-extra .hero,
+html.dota-landscape-mobile body.game-running #game .battlefield .team.has-four .hero{
+  height:min(60%,260px)!important;
+  min-height:225px!important;
+  max-height:260px!important;
+  align-self:flex-end!important;
+  margin-top:auto!important;
+  margin-bottom:6px!important;
+  overflow:hidden!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero{
+  grid-template-rows:40% minmax(0,60%)!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero>.hero-portrait{
+  grid-row:1!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero>.hero-body{
+  grid-row:2!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  grid-template-rows:auto 29px 7px minmax(14px,1fr) auto 24px!important;
+  padding:4px 6px 5px!important;
+  overflow:hidden!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .hero-name-row{
+  min-height:15px!important;
+  margin:0 0 2px!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .hero-name{
+  font-size:9px!important;
+  line-height:1!important;
+  max-height:19px!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats{
+  height:29px!important;
+  min-height:29px!important;
+  max-height:29px!important;
+  margin:1px 0 3px!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats>.stat{
+  height:29px!important;
+  min-height:29px!important;
+  padding:4px 5px!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .status{
+  min-height:14px!important;
+  margin:3px 0 2px!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .item-inventory{
+  max-height:21px!important;
+  margin:0 0 2px!important;
+}
+
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .inspect-hero{
+  height:24px!important;
+  min-height:24px!important;
+  max-height:24px!important;
+  margin:0!important;
+}
+
+/* Keep cards visually inside the team box. */
+html.dota-landscape-mobile body.game-running #game .battlefield .side{
+  overflow:hidden!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team{
+  overflow:hidden!important;
+}
