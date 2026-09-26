@@ -121,6 +121,8 @@ function syncDotaViewport(){
  try{
   const vv=window.visualViewport;
   const vh=Math.max(1,Math.round(vv?.height||window.innerHeight||document.documentElement.clientHeight||0));
+  const vw=Math.max(1,Math.round(vv?.width||window.innerWidth||document.documentElement.clientWidth||0));
+  document.documentElement.classList.toggle('dota-landscape-mobile',vw>vh&&vh<=700);
   const header=document.querySelector('#app>header');
   const hh=Math.max(0,Math.round(header?.getBoundingClientRect?.().height||0));
   document.documentElement.style.setProperty('--dota-vh',vh+'px');
