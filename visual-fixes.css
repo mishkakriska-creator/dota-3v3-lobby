@@ -3820,12 +3820,11 @@ html.dota-landscape-mobile .lobby-leave-btn{
 }
 
 
-/* v1.86.118 — short landscape phones (iPhone 12/13 class, ~390px high)
-   Keep items + CARD button inside every hero card. Desktop and taller phones untouched. */
-@media (max-height:400px){
-  html.dota-landscape-mobile body.game-running #game .battlefield .team .hero,
-  html.dota-landscape-mobile body.game-running #game .battlefield .team.has-extra .hero,
-  html.dota-landscape-mobile body.game-running #game .battlefield .team.has-four .hero{
+/* v1.86.120 — JS-detected short landscape phones (iPhone 12/13/14 standard class)
+   Keep items + CARD button inside every hero card. Desktop and iPhone 11/taller layouts untouched. */
+  html.dota-landscape-mobile.dota-landscape-short body.game-running #game .battlefield .team .hero,
+  html.dota-landscape-mobile.dota-landscape-short body.game-running #game .battlefield .team.has-extra .hero,
+  html.dota-landscape-mobile.dota-landscape-short body.game-running #game .battlefield .team.has-four .hero{
     height:min(232px,calc(100% - 2px))!important;
     min-height:0!important;
     max-height:232px!important;
@@ -3835,14 +3834,14 @@ html.dota-landscape-mobile .lobby-leave-btn{
     overflow:hidden!important;
   }
 
-  html.dota-landscape-mobile body.game-running #game .battlefield .team .hero>.hero-portrait{
+  html.dota-landscape-mobile.dota-landscape-short body.game-running #game .battlefield .team .hero>.hero-portrait{
     grid-row:1!important;
     height:100%!important;
     min-height:0!important;
     max-height:none!important;
   }
 
-  html.dota-landscape-mobile body.game-running #game .battlefield .team .hero>.hero-body{
+  html.dota-landscape-mobile.dota-landscape-short body.game-running #game .battlefield .team .hero>.hero-body{
     grid-row:2!important;
     height:100%!important;
     min-height:0!important;
@@ -3856,7 +3855,7 @@ html.dota-landscape-mobile .lobby-leave-btn{
     overflow:hidden!important;
   }
 
-  html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .hero-name-row{
+  html.dota-landscape-mobile.dota-landscape-short body.game-running #game .battlefield .team .hero .hero-name-row{
     grid-column:1 / -1!important;
     grid-row:1!important;
     height:13px!important;
@@ -3867,7 +3866,7 @@ html.dota-landscape-mobile .lobby-leave-btn{
     align-items:flex-end!important;
     overflow:hidden!important;
   }
-  html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .hero-name{
+  html.dota-landscape-mobile.dota-landscape-short body.game-running #game .battlefield .team .hero .hero-name{
     height:10px!important;
     max-height:10px!important;
     margin:0!important;
@@ -3877,24 +3876,24 @@ html.dota-landscape-mobile .lobby-leave-btn{
     align-self:flex-end!important;
   }
 
-  html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats{
+  html.dota-landscape-mobile.dota-landscape-short body.game-running #game .battlefield .team .hero .stats{
     display:contents!important;
   }
-  html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats>.hpstat,
-  html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats>.atkstat{
+  html.dota-landscape-mobile.dota-landscape-short body.game-running #game .battlefield .team .hero .stats>.hpstat,
+  html.dota-landscape-mobile.dota-landscape-short body.game-running #game .battlefield .team .hero .stats>.atkstat{
     grid-row:2!important;
     height:27px!important;
     min-height:27px!important;
     padding:3px 4px!important;
   }
-  html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats>.hpstat{
+  html.dota-landscape-mobile.dota-landscape-short body.game-running #game .battlefield .team .hero .stats>.hpstat{
     grid-column:1!important;
   }
-  html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats>.atkstat{
+  html.dota-landscape-mobile.dota-landscape-short body.game-running #game .battlefield .team .hero .stats>.atkstat{
     grid-column:2!important;
   }
 
-  html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .hpbar{
+  html.dota-landscape-mobile.dota-landscape-short body.game-running #game .battlefield .team .hero .hpbar{
     grid-column:1 / -1!important;
     grid-row:3!important;
     height:5px!important;
@@ -3902,7 +3901,7 @@ html.dota-landscape-mobile .lobby-leave-btn{
     margin:0!important;
   }
 
-  html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats>.armorstat{
+  html.dota-landscape-mobile.dota-landscape-short body.game-running #game .battlefield .team .hero .stats>.armorstat{
     grid-column:1 / -1!important;
     grid-row:4!important;
     position:static!important;
@@ -3917,12 +3916,12 @@ html.dota-landscape-mobile .lobby-leave-btn{
     align-items:center!important;
     justify-content:center!important;
   }
-  html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats>.armorstat:empty{
+  html.dota-landscape-mobile.dota-landscape-short body.game-running #game .battlefield .team .hero .stats>.armorstat:empty{
     display:flex!important;
     visibility:hidden!important;
   }
 
-  html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .status{
+  html.dota-landscape-mobile.dota-landscape-short body.game-running #game .battlefield .team .hero .status{
     grid-column:1!important;
     grid-row:5!important;
     min-height:21px!important;
@@ -3932,7 +3931,7 @@ html.dota-landscape-mobile .lobby-leave-btn{
     overflow:hidden!important;
   }
 
-  html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .item-inventory{
+  html.dota-landscape-mobile.dota-landscape-short body.game-running #game .battlefield .team .hero .item-inventory{
     grid-column:2!important;
     grid-row:5!important;
     display:flex!important;
@@ -3949,17 +3948,17 @@ html.dota-landscape-mobile .lobby-leave-btn{
     overflow:hidden!important;
     visibility:visible!important;
   }
-  html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .item-inventory:empty{
+  html.dota-landscape-mobile.dota-landscape-short body.game-running #game .battlefield .team .hero .item-inventory:empty{
     display:none!important;
   }
-  html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .item-inventory .item-owned{
+  html.dota-landscape-mobile.dota-landscape-short body.game-running #game .battlefield .team .hero .item-inventory .item-owned{
     display:inline-grid!important;
     width:20px!important;
     height:20px!important;
     min-width:20px!important;
     min-height:20px!important;
   }
-  html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .item-inventory .item-owned img{
+  html.dota-landscape-mobile.dota-landscape-short body.game-running #game .battlefield .team .hero .item-inventory .item-owned img{
     display:block!important;
     width:19px!important;
     height:19px!important;
@@ -3967,7 +3966,7 @@ html.dota-landscape-mobile .lobby-leave-btn{
     min-height:19px!important;
   }
 
-  html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .inspect-hero{
+  html.dota-landscape-mobile.dota-landscape-short body.game-running #game .battlefield .team .hero .inspect-hero{
     grid-column:1 / -1!important;
     grid-row:6!important;
     position:static!important;
@@ -3986,4 +3985,4 @@ html.dota-landscape-mobile .lobby-leave-btn{
     overflow:hidden!important;
     box-sizing:border-box!important;
   }
-}
+
