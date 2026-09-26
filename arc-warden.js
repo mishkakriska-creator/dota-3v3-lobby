@@ -203,7 +203,7 @@
     clone.itemHpBonus=owner.itemHpBonus||0;
     clone.itemCd={};
     clone.cd={};
-    clone.portrait='assets/portraits/arcwarden.webm';
+    clone.portrait='assets/portraits/arcwarden_clone.webm';
     clone.img='assets/arcwarden.jpg';
     clone.staticPortrait=false;
     return clone;
