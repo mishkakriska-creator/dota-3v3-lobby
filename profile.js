@@ -192,11 +192,43 @@
  function openEditor(){
    const modal=document.createElement('div');modal.className='web-profile-editor';
    const p=getPublic();
-   modal.innerHTML=`<div class="web-profile-editor-box"><button class="web-profile-editor-close" type="button">×</button><h2>ПРОФИЛЬ</h2><div class="web-profile-editor-current"><span class="web-profile-editor-avatar">${p.avatar?`<img src="${p.avatar}" alt="">`:'?'}</span><div><b>${esc(p.nick)}</b><small>${esc(p.rank)} • ${p.rating} MMR • ${p.wins}–${p.losses}</small></div></div><label>Ник<input class="web-profile-nick" maxlength="24" value="${esc(p.nick)}"></label><label>Аватар<input class="web-profile-avatar-input" type="file" accept="image/png,image/jpeg,image/webp"></label><div class="web-profile-editor-actions"><button class="web-profile-remove-avatar" type="button">Убрать аватар</button><button class="web-profile-save" type="button">СОХРАНИТЬ</button></div></div>`;
-   const css=document.getElementById('webProfileEditorCss')||document.createElement('style');css.id='webProfileEditorCss';css.textContent='.web-profile-editor{position:fixed;inset:0;z-index:2147483647;background:#05080dbd;display:grid;place-items:center;padding:18px}.web-profile-editor-box{width:min(430px,94vw);padding:20px;border:1px solid #3a4a62;border-radius:16px;background:#0f1621;color:#f4f7fb;box-shadow:0 24px 80px #000a;font-family:Segoe UI,Arial,sans-serif;position:relative}.web-profile-editor-box h2{margin:0 0 16px}.web-profile-editor-close{position:absolute;right:12px;top:10px;border:0;background:#233147;color:white;width:34px;height:34px;border-radius:9px;font-size:20px}.web-profile-editor-current{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:10px;border:1px solid #28364a;border-radius:12px;background:#0a1018}.web-profile-editor-avatar{width:54px;height:54px;display:grid;place-items:center;overflow:hidden;border-radius:11px;background:#182235;font-weight:900}.web-profile-editor-avatar img{width:100%;height:100%;object-fit:cover}.web-profile-editor-current div{display:flex;flex-direction:column;gap:3px}.web-profile-editor-current small{color:#92a1b5}.web-profile-editor-box label{display:flex;flex-direction:column;gap:6px;margin:12px 0;font-weight:700}.web-profile-editor-box input{padding:10px;border:1px solid #35455e;border-radius:9px;background:#080d14;color:white}.web-profile-editor-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}.web-profile-editor-actions button{padding:9px 12px;border:1px solid #40526e;border-radius:9px;background:#1a2638;color:white;font-weight:800}.web-profile-save{background:#2f5fd1!important}';if(!css.isConnected)document.head.append(css);
+   modal.innerHTML=`<div class="web-profile-editor-box"><button class="web-profile-editor-close" type="button">×</button><h2>ПРОФИЛЬ</h2><div class="web-profile-editor-current"><span class="web-profile-editor-avatar">${p.avatar?`<img src="${p.avatar}" alt="">`:'?'}</span><div><b>${esc(p.nick)}</b><small>${esc(p.rank)} • ${p.rating} MMR • ${p.wins}–${p.losses}</small></div></div><label>Ник<input class="web-profile-nick" maxlength="24" value="${esc(p.nick)}"></label><label>Аватар<input class="web-profile-avatar-input" type="file" accept="image/png,image/jpeg,image/webp"></label><input class="web-profile-import-input" type="file" accept=".json,application/json" hidden><div class="web-profile-import-note">Старый профиль Windows: <code>%AppData%\\DotaCards\\profile.json</code></div><div class="web-profile-editor-actions"><button class="web-profile-import" type="button">ИМПОРТ profile.json</button><button class="web-profile-export" type="button">ЭКСПОРТ</button><button class="web-profile-remove-avatar" type="button">Убрать аватар</button><button class="web-profile-save" type="button">СОХРАНИТЬ</button></div></div>`;
+   const css=document.getElementById('webProfileEditorCss')||document.createElement('style');css.id='webProfileEditorCss';css.textContent='.web-profile-editor{position:fixed;inset:0;z-index:2147483647;background:#05080dbd;display:grid;place-items:center;padding:18px}.web-profile-editor-box{width:min(430px,94vw);padding:20px;border:1px solid #3a4a62;border-radius:16px;background:#0f1621;color:#f4f7fb;box-shadow:0 24px 80px #000a;font-family:Segoe UI,Arial,sans-serif;position:relative}.web-profile-editor-box h2{margin:0 0 16px}.web-profile-editor-close{position:absolute;right:12px;top:10px;border:0;background:#233147;color:white;width:34px;height:34px;border-radius:9px;font-size:20px}.web-profile-editor-current{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:10px;border:1px solid #28364a;border-radius:12px;background:#0a1018}.web-profile-editor-avatar{width:54px;height:54px;display:grid;place-items:center;overflow:hidden;border-radius:11px;background:#182235;font-weight:900}.web-profile-editor-avatar img{width:100%;height:100%;object-fit:cover}.web-profile-editor-current div{display:flex;flex-direction:column;gap:3px}.web-profile-editor-current small{color:#92a1b5}.web-profile-editor-box label{display:flex;flex-direction:column;gap:6px;margin:12px 0;font-weight:700}.web-profile-editor-box input{padding:10px;border:1px solid #35455e;border-radius:9px;background:#080d14;color:white}.web-profile-import-note{margin:10px 0 2px;color:#93a3b8;font-size:11px;line-height:1.35}.web-profile-import-note code{color:#c8d7eb;font-size:10px}.web-profile-editor-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin-top:16px}.web-profile-editor-actions button{padding:9px 12px;border:1px solid #40526e;border-radius:9px;background:#1a2638;color:white;font-weight:800}.web-profile-import{background:#243957!important}.web-profile-export{background:#202a3a!important}.web-profile-save{background:#2f5fd1!important}';if(!css.isConnected)document.head.append(css);
    let avatar=p.avatar||'';
    modal.querySelector('.web-profile-editor-close').onclick=()=>modal.remove();
    modal.addEventListener('click',e=>{if(e.target===modal)modal.remove()});
+   modal.querySelector('.web-profile-import').onclick=()=>modal.querySelector('.web-profile-import-input').click();
+   modal.querySelector('.web-profile-import-input').onchange=e=>{
+     const file=e.target.files?.[0];if(!file)return;
+     const reader=new FileReader();
+     reader.onload=()=>{
+       try{
+         const raw=JSON.parse(String(reader.result||'{}'));
+         const old=raw?.profile&&typeof raw.profile==='object'?raw.profile:raw;
+         const importedMastery=cleanMastery(old?.heroMastery||old?.mastery||{});
+         for(const id of HERO_IDS)localMastery[id]=Math.max(Number(localMastery[id])||0,Number(importedMastery[id])||0);
+         saveMastery();
+         const wins=Math.max(0,Math.floor(Number(old?.wins)||0)),losses=Math.max(0,Math.floor(Number(old?.losses)||0));
+         const imported={
+           globalId:String(old?.globalId||old?.profileId||'')||undefined,
+           nick:String(old?.nick||p.nick||'').trim().slice(0,24)||p.nick,
+           avatar:safeAvatar(old?.avatar)||avatar,
+           wins,losses,
+           rating:old?.rating!=null?Math.max(0,Math.floor(Number(old.rating)||0)):mmrFromWL(wins,losses),
+           heroMastery:localMastery
+         };
+         avatar=imported.avatar||'';
+         updateLocalProfile(imported);
+         modal.remove();
+         setTimeout(()=>alert('Старый профиль импортирован: ник, MMR, победы/поражения и мастерство героев.'),0);
+       }catch{alert('Не удалось прочитать profile.json. Выбери файл из %AppData%\\DotaCards\\profile.json');}
+     };
+     reader.readAsText(file,'utf-8');
+   };
+   modal.querySelector('.web-profile-export').onclick=()=>{
+     const blob=new Blob([JSON.stringify({...getPublic(),heroMastery:localMastery},null,2)],{type:'application/json'});
+     const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='dota_cards_web_profile.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+   };
    modal.querySelector('.web-profile-remove-avatar').onclick=()=>{avatar='';modal.querySelector('.web-profile-editor-avatar').textContent='?'};
    modal.querySelector('.web-profile-avatar-input').onchange=e=>{const file=e.target.files?.[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{const v=String(reader.result||'');if(v.length<900000){avatar=v;modal.querySelector('.web-profile-editor-avatar').innerHTML=`<img src="${v}" alt="">`}};reader.readAsDataURL(file)};
    modal.querySelector('.web-profile-save').onclick=()=>{const nick=modal.querySelector('.web-profile-nick').value.trim().slice(0,24)||p.nick;updateLocalProfile({nick,avatar});modal.remove()};
