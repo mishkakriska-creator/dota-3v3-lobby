@@ -458,7 +458,7 @@ function useItem(h,id){if(!G||G.resolving||G.winner!==null)return;if(!h||h.dead|
 function toggleShop(team){let el=document.getElementById(`shop${team}`);if(!el)return;el.classList.toggle('open')}
 function shopPriceLabel(id){let it=ITEMS[id];return`${it.cost} золота`}
 function shopRecipeHTML(id){let comps=recipeComponents(id),it=ITEMS[id];if(!comps.length||!it)return'';let bases=comps.map(c=>ITEMS[c]).filter(Boolean);if(!bases.length)return'';let nodes=bases.map(b=>`<div class="shop-recipe-node component"><img src="${b.img}" alt="${b.name}"></div>`).join('');return`<div class="shop-recipe multi-${bases.length}" aria-label="Сборка ${it.name} из ${bases.map(x=>x.name).join(' + ')}"><div class="shop-recipe-node result"><img src="${it.img}" alt="${it.name}"></div><svg class="shop-recipe-lines" viewBox="0 0 100 28" aria-hidden="true"><path d="M50 0V12 M50 12H${bases.length>1?'20 M50 12H80':'50'} M${bases.length>1?'20':'50'} 12V28${bases.length>1?' M80 12V28':''}"/></svg><div class="shop-recipe-components">${nodes}</div></div>`}
-function touchShopMode(){return !!window.matchMedia?.('(hover: none), (pointer: coarse)')?.matches}
+function touchShopMode(){return (Number(navigator.maxTouchPoints)||0)>0||('ontouchstart' in window)||!!window.matchMedia?.('(hover: none), (pointer: coarse)')?.matches}
 function showShopItemInfo(team,id){
  let box=document.querySelector(`[data-shop-info="${team}"]`),it=ITEMS[id];if(!box||!it)return;
  document.querySelectorAll(`#shop${team} .shop-item`).forEach(x=>x.classList.toggle('shop-item-selected',x.dataset.item===id));
@@ -479,7 +479,19 @@ function ensureShopCatalogDOM(){
  }
 }
 function bindShopItems(){
- document.querySelectorAll('.shop-item').forEach(b=>{if(b.dataset.shopBound==='1')return;b.dataset.shopBound='1';let t=Number(b.dataset.team),id=b.dataset.item;b.addEventListener('mouseenter',()=>showShopItemInfo(t,id));b.addEventListener('focus',()=>showShopItemInfo(t,id));b.onclick=e=>{showShopItemInfo(t,id);if(touchShopMode()){e.preventDefault();e.stopPropagation();return}buyItem(t,id)}});
+ document.querySelectorAll('.shop-item').forEach(b=>{
+  if(b.dataset.shopBound==='1')return;
+  b.dataset.shopBound='1';
+  let t=Number(b.dataset.team),id=b.dataset.item;
+  b.addEventListener('mouseenter',()=>showShopItemInfo(t,id));
+  b.addEventListener('focus',()=>showShopItemInfo(t,id));
+  b.addEventListener('pointerup',e=>{
+    if(e.pointerType==='touch'||touchShopMode()){
+      e.preventDefault();e.stopPropagation();showShopItemInfo(t,id);
+    }
+  });
+  b.onclick=e=>{showShopItemInfo(t,id);if(touchShopMode()){e.preventDefault();e.stopPropagation();return}buyItem(t,id)};
+ });
 }
 function renderShops(){if(!G)return;ensureItemState();for(let t=0;t<2;t++){let panel=document.getElementById(`shop${t}`);if(!panel)continue;let gold=G.gold[t]||0,turns=G.teamTurns[t]||0,next=4-(turns%4);let can=canUseShop(t),sig=`${gold}|${next}|${can?1:0}|${touchShopMode()?1:0}`;if(panel._shopRenderSig===sig)continue;panel._shopRenderSig=sig;let goldEl=panel.querySelector('.shop-gold'),nextEl=panel.querySelector('.shop-next');if(goldEl)goldEl.innerHTML=`${gold} ${goldIcon()}`;if(nextEl)nextEl.textContent=`+5 через ${next} ${next===1?'ход':'хода'}`;panel.classList.toggle('shop-disabled',!can);panel.querySelectorAll('[data-item]').forEach(b=>{let id=b.dataset.item,it=ITEMS[id];b.disabled=!can&&!touchShopMode();b.classList.toggle('shop-item-disabled',!can);b.setAttribute('aria-disabled',can?'false':'true');b.removeAttribute('title');let price=b.querySelector('b');if(price&&it)price.textContent=String(it.cost)})}}
 function breakTinkerMatrix(h,incoming=1){if(!h||h.id!=='tinker'||!h.tinkerMatrixShield)return Math.max(0,Number(incoming)||0);h.tinkerMatrixShield=false;h.tinkerMatrixShieldTurns=0;h.tinkerMatrixBoostTurns=2;h.tinkerMatrixBoostAppliedTurn=G?.turnSerial||0;if(G&&G.team===h.team&&active()===h&&G.actions>=0)G.actions=Math.min(3,G.actions+1);let left=Math.max(0,(Number(incoming)||0)-1);addLog(`🛡 Defense Matrix ${h.name} поглощает 1 урон и ломается${left>0?`; проходит ещё ${left}`:''}. Бонус третьего действия активен на 2 общих хода.`);render();return left}
