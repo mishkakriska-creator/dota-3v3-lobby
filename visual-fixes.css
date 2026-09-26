@@ -404,3 +404,311 @@ html body #game .battlefield .hero .broodling-summon-copy b{font-size:6px!import
  html body #game .shop-panel.open{width:calc(100vw - 14px)!important;left:7px!important;right:7px!important;top:48px!important;max-height:calc(100dvh - 58px)!important;overflow:auto!important}
  html body #game .shop-info-buy{position:sticky!important;bottom:0!important}
 }
+
+
+/* WEB MOBILE v3 — readable battle layout, fixed draft footer, non-collapsing portraits */
+@media (orientation:landscape) and (max-height:600px){
+ /* keep menu v2, rebuild draft/game only */
+ body:has(#draft:not(.hidden)) #webLifecycleBar,
+ body:has(#game:not(.hidden)) #webLifecycleBar{display:none!important}
+
+ body:has(#game:not(.hidden)) #app>header{display:none!important}
+ body:has(#game:not(.hidden)) #game.screen{height:100dvh!important;max-height:100dvh!important}
+
+ /* Draft footer is always visible */
+ html body #draft.screen{
+   display:grid!important;
+   grid-template-rows:20px minmax(0,1fr) 28px!important;
+   height:calc(100dvh - 34px)!important;
+   max-height:calc(100dvh - 34px)!important;
+   min-height:0!important;
+   gap:2px!important;
+   overflow:hidden!important;
+   padding:3px 5px!important;
+ }
+ html body #draft>h2{grid-row:1!important;align-self:center!important;font-size:10px!important;margin:0!important}
+ html body #draft>p{display:none!important}
+ html body #draft .draft-stage{
+   grid-row:2!important;
+   height:auto!important;
+   max-height:none!important;
+   min-height:0!important;
+   overflow:hidden!important;
+   grid-template-columns:86px minmax(0,1fr) 86px!important;
+   gap:3px!important;
+ }
+ html body #draft .draft-footer{
+   grid-row:3!important;
+   position:relative!important;
+   inset:auto!important;
+   z-index:20!important;
+   height:28px!important;
+   min-height:28px!important;
+   margin:0!important;
+   padding:2px 4px!important;
+   background:#111824!important;
+   border:1px solid #2d3a50!important;
+   border-radius:6px!important;
+   display:flex!important;
+   align-items:center!important;
+   justify-content:space-between!important;
+   overflow:hidden!important;
+ }
+ html body #draft .draft-footer #draftStatus{
+   min-width:0!important;
+   overflow:hidden!important;
+   white-space:nowrap!important;
+   text-overflow:ellipsis!important;
+   font-size:6px!important;
+ }
+ html body #draft .draft-footer #startBtn{
+   display:block!important;
+   flex:0 0 auto!important;
+   height:22px!important;
+   padding:3px 8px!important;
+   font-size:7px!important;
+ }
+ html body #draft .draft-grid{
+   grid-template-columns:repeat(6,minmax(0,1fr))!important;
+   grid-template-rows:repeat(3,minmax(0,1fr))!important;
+   min-height:0!important;
+ }
+ html body #draft .draft-card{
+   min-height:0!important;
+   height:100%!important;
+   grid-template-rows:minmax(0,1fr) 13px!important;
+ }
+ html body #draft .draft-card img{min-height:0!important;height:100%!important}
+ html body #draft .draft-card-name{height:13px!important;font-size:5.5px!important;padding:3px!important}
+
+ /* Game gets four explicit rows. Queue no longer sits on right shop. */
+ html body #game.screen{
+   display:grid!important;
+   grid-template-rows:24px 27px minmax(0,1fr) 38px!important;
+   gap:2px!important;
+   padding:2px 4px!important;
+   overflow:hidden!important;
+ }
+ html body #game .shop-docks{
+   position:absolute!important;
+   inset:0!important;
+   height:0!important;
+   margin:0!important;
+   z-index:60!important;
+   pointer-events:none!important;
+ }
+ html body #game .shop-docks .shop-panel{pointer-events:auto!important}
+ html body #game .shop-panel:not(.open){
+   top:2px!important;
+   width:92px!important;
+   z-index:62!important;
+ }
+ html body #game .shop-left{left:3px!important}
+ html body #game .shop-right{left:auto!important;right:3px!important}
+
+ html body #game .turn-queue{
+   grid-row:1!important;
+   position:relative!important;
+   top:auto!important;right:auto!important;left:auto!important;
+   justify-self:center!important;
+   align-self:start!important;
+   width:min(315px,46vw)!important;
+   max-width:46vw!important;
+   height:24px!important;
+   min-height:24px!important;
+   margin:0!important;
+   padding:2px 5px 4px!important;
+   z-index:30!important;
+   overflow:visible!important;
+   border-radius:6px!important;
+ }
+ html body #game .turn-queue-title{display:none!important}
+ html body #game .turn-queue-row{height:18px!important;justify-content:center!important;gap:2px!important}
+ html body #game .turn-token{width:17px!important;height:17px!important;min-width:17px!important;min-height:17px!important}
+ html body #game .turn-token.now{width:20px!important;height:20px!important;min-width:20px!important;min-height:20px!important}
+ html body #game .turn-token.now:after{font-size:4px!important;bottom:-5px!important}
+ html body #game .turn-arrow{font-size:7px!important}
+
+ html body #game .hud{
+   grid-row:2!important;
+   position:relative!important;
+   top:auto!important;
+   height:27px!important;
+   min-height:27px!important;
+   padding:3px 5px!important;
+   border-radius:6px!important;
+   z-index:25!important;
+   overflow:hidden!important;
+ }
+ html body #game .hud #turnLabel{
+   font-size:8px!important;
+   padding-right:0!important;
+   white-space:nowrap!important;
+   overflow:hidden!important;
+   text-overflow:ellipsis!important;
+ }
+ html body #game .hud #actionsLabel{font-size:6px!important}
+ html body #game .hud button{height:21px!important;padding:3px 6px!important;font-size:6px!important}
+
+ html body #game .battlefield{
+   grid-row:3!important;
+   height:auto!important;
+   min-height:0!important;
+   max-height:none!important;
+   grid-template-columns:minmax(0,1fr) clamp(145px,20vw,175px) minmax(0,1fr)!important;
+   gap:3px!important;
+   overflow:hidden!important;
+ }
+ html body #game .side{
+   height:100%!important;
+   min-height:0!important;
+   overflow:hidden!important;
+ }
+ html body #game .side-title{
+   height:17px!important;
+   min-height:17px!important;
+   margin:0 0 2px!important;
+ }
+ html body #game .battlefield .team{
+   height:calc(100% - 19px)!important;
+   min-height:0!important;
+   gap:3px!important;
+   padding:3px!important;
+   align-items:stretch!important;
+   overflow:visible!important;
+ }
+ html body #game .battlefield .hero,
+ html body #game .battlefield .team.has-four .hero{
+   width:calc((100% - 6px)/3)!important;
+   flex:0 0 calc((100% - 6px)/3)!important;
+   height:100%!important;
+   max-height:none!important;
+   min-height:0!important;
+   display:grid!important;
+   grid-template-rows:58% 42%!important;
+   overflow:hidden!important;
+   border-radius:6px!important;
+ }
+ html body #game .battlefield .hero.front{transform:translateY(-2px)!important}
+ html body #game .battlefield .hero .hero-portrait{
+   grid-row:1!important;
+   display:block!important;
+   width:100%!important;
+   height:100%!important;
+   min-height:0!important;
+   max-height:none!important;
+   flex:none!important;
+   overflow:hidden!important;
+   position:relative!important;
+ }
+ html body #game .battlefield .hero .hero-portrait>video,
+ html body #game .battlefield .hero .hero-portrait>.static-hero-portrait{
+   display:block!important;
+   width:100%!important;
+   height:100%!important;
+   min-height:100%!important;
+   object-fit:cover!important;
+   opacity:1!important;
+   visibility:visible!important;
+ }
+ html body #game .battlefield .hero.dead .hero-portrait>video,
+ html body #game .battlefield .hero.dead .hero-portrait>.static-hero-portrait{
+   opacity:.24!important;
+   visibility:visible!important;
+ }
+ html body #game .battlefield .hero .hero-body{
+   grid-row:2!important;
+   display:flex!important;
+   flex-direction:column!important;
+   min-height:0!important;
+   overflow:hidden!important;
+   padding:3px 4px!important;
+ }
+ html body #game .battlefield .hero .hero-name-row{min-height:9px!important}
+ html body #game .battlefield .hero .hero-name{font-size:6px!important;line-height:1!important}
+ html body #game .battlefield .hero .stats{margin:2px 0!important;gap:1px!important}
+ html body #game .battlefield .hero .stat{padding:2px 3px!important;font-size:5px!important}
+ html body #game .battlefield .hero .hpbar{height:3px!important;margin:0 0 2px!important}
+ html body #game .battlefield .hero .status{display:none!important}
+ html body #game .battlefield .hero .item-inventory{
+   display:flex!important;
+   flex:0 0 13px!important;
+   min-height:13px!important;
+   max-height:13px!important;
+   gap:1px!important;
+   overflow:hidden!important;
+ }
+ html body #game .battlefield .hero .item-inventory .item-owned{
+   width:12px!important;height:12px!important;min-width:12px!important;min-height:12px!important;
+ }
+ html body #game .battlefield .hero .item-inventory .item-owned img{width:11px!important;height:11px!important}
+ html body #game .battlefield .hero .inspect-hero{
+   margin-top:auto!important;
+   height:17px!important;
+   min-height:17px!important;
+   padding:2px!important;
+   font-size:5px!important;
+   line-height:1!important;
+ }
+ html body #game .battlefield .hero .hero-mastery{width:15px!important;height:15px!important}
+
+ html body #game .mid{
+   height:100%!important;
+   min-height:0!important;
+   grid-template-rows:18px 42% minmax(0,1fr)!important;
+   gap:2px!important;
+ }
+ html body #game .lane-title{height:18px!important;font-size:7px!important}
+ html body #game :is(#effects,.log){
+   min-height:0!important;
+   height:100%!important;
+   max-height:none!important;
+   padding:4px!important;
+   font-size:6px!important;
+   line-height:1.12!important;
+   overflow:auto!important;
+ }
+
+ html body #game .action-panel{
+   grid-row:4!important;
+   position:relative!important;
+   height:38px!important;
+   min-height:38px!important;
+   margin:0!important;
+   padding:3px 5px!important;
+   overflow:hidden!important;
+ }
+ html body #game .action-panel #actions{
+   margin-top:2px!important;
+   gap:3px!important;
+   flex-wrap:nowrap!important;
+   overflow-x:auto!important;
+   overflow-y:hidden!important;
+ }
+ html body #game .action-panel button{
+   min-height:24px!important;
+   height:24px!important;
+   padding:3px 7px!important;
+   font-size:6px!important;
+ }
+
+ /* open shop overlays the field, but leaves the top queue/shop buttons usable */
+ html body #game .shop-panel.open{
+   top:27px!important;
+   width:min(370px,78vw)!important;
+   height:calc(100dvh - 29px)!important;
+   max-height:calc(100dvh - 29px)!important;
+   z-index:90!important;
+   overflow:auto!important;
+ }
+
+ /* keep arena/summons visible but prevent them from forcing card height */
+ html body #game .battlefield .hero .broodlings-summons,
+ html body #game .battlefield .hero .forge-spirit-card{
+   pointer-events:none!important;
+ }
+
+ /* iPhone home-indicator safe areas */
+ html body #game.screen{padding-bottom:max(2px,env(safe-area-inset-bottom))!important}
+ html body #draft.screen{padding-bottom:max(3px,env(safe-area-inset-bottom))!important}
+}
