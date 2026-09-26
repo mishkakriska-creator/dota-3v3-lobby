@@ -108,3 +108,17 @@
   transform:none!important;
   border-radius:0!important;
 }
+
+
+/* v1.86.107 — phone landscape Tempest Double framing */
+html.dota-landscape-mobile body.game-running #game .hero.arc-tempest-card .hero-portrait>video{
+  inset:3%!important;
+  width:94%!important;
+  height:94%!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+}
