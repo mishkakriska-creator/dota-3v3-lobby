@@ -18,7 +18,7 @@
     'assets/turn_bane.png','assets/turn_tinker.png','assets/turn_lifestealer.png','assets/turn_morphling.png','assets/turn_shadowfiend.png','assets/turn_silencer.png','assets/turn_techies.png','assets/turn_io.png','assets/turn_broodmother_mini.png',
     'assets/enigma_portrait.png','assets/enigma_icon.png','assets/turn_enigma.png','assets/skills/enigma_midnight_pulse.png','assets/skills/enigma_black_hole.png',
     'assets/portraits/bane.webm','assets/portraits/tinker.webm','assets/portraits/lifestealer.webm','assets/portraits/morphling.webm','assets/portraits/shadowfiend.webm','assets/portraits/silencer.webm','assets/portraits/techies.webm','assets/portraits/io.webm',
-    'assets/arcwarden.jpg','assets/arcwarden_icon.png','assets/arcwarden_clone_icon.png','assets/skills/arcwarden_spark.png','assets/skills/arcwarden_field.png','assets/skills/arcwarden_tempest.png','assets/portraits/arcwarden.webm','assets/portraits/arcwarden_clone.webm',
+    'assets/arcwarden.jpg','assets/arcwarden_icon.png','assets/arcwarden_clone_icon.png','assets/skills/arcwarden_spark.png','assets/skills/arcwarden_field.png','assets/skills/arcwarden_tempest.png','assets/portraits/arcwarden.webm',
     'assets/abaddon_portrait.png','assets/abaddon_icon.png','assets/turn_abaddon.png','assets/portraits/abaddon.webm','assets/skills/abaddon_mist_coil.png','assets/skills/abaddon_aphotic_shield.png','assets/skills/abaddon_borrowed_time.png',
     'assets/axe.jpg','assets/axe_icon.png','assets/turn_axe.png','assets/skills/axe_call.png','assets/skills/axe_helix.png','assets/skills/axe_culling.png','assets/portraits/axe.webm'
   ];
