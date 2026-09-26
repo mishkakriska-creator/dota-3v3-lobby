@@ -51,7 +51,7 @@
   const arcCloneNode=team=>document.getElementById(`hero-${team}-${ARC_CLONE_ID}`);
   const removeArcCloneNode=team=>arcCloneNode(team)?.remove();
 
-  function playAudio(a,src){try{a.pause();a.currentTime=0;a.src=src+(src.includes('?')?'&':'?')+'v=148';a.load();a.play().catch(()=>{});}catch(e){}}
+  function playAudio(a,src){try{playFile(a,src)}catch(e){}}
   function playArcSparkCast(){playAudio(sparkCastAudio,'assets/audio/arcwarden_spark_wraith.mp3')}
   function playArcSparkHit(){try{sparkCastAudio.pause();sparkCastAudio.currentTime=0}catch(e){} playAudio(sparkHitAudio,'assets/audio/arcwarden_spark_wraith_target.mp3')}
   function playArcAttackCombo(){playAudio(arcAttackPre,'assets/audio/arcwarden_attack_pre.mp3'); setTimeout(()=>playAudio(arcAttackLaunch,'assets/audio/arcwarden_attack_launch.mp3'),90); setTimeout(()=>playAudio(arcAttackHit,'assets/audio/arcwarden_attack_hit.mp3'),170)}
@@ -262,7 +262,6 @@
       window.emitNetVfx?.('arc-double',h,{});
       addSkillLog(h,'tempest',`${h.name} создаёт Tempest Double. В следующий ход команды активируется двойник.`);
       spend();
-      render();
       return;
     }
     return baseSkill(id);
