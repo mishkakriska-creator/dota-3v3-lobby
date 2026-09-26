@@ -1,0 +1,16 @@
+#phantomFx{position:fixed;inset:0;z-index:90;pointer-events:none;overflow:hidden}
+.pl-projectile{position:absolute;width:0;height:0;filter:drop-shadow(0 0 7px #ffe34f)}
+.pl-projectile svg{position:absolute;width:150px;height:50px;left:-140px;top:-25px;overflow:visible}
+.pl-projectile path{stroke:#ffe769;stroke-width:3;fill:none;stroke-linejoin:round;animation:pl-electric .09s infinite alternate}
+.pl-projectile path+path{stroke:#fffbd1;stroke-width:1.5;animation-delay:.04s}
+.pl-projectile>i{position:absolute;width:25px;height:25px;border-radius:50%;left:-12px;top:-12px;background:radial-gradient(circle,#fff 0 20%,#fff4a1 33%,#ffd526 64%,#edaa00 80%);box-shadow:0 0 15px 5px #ffd32acc,0 0 34px #ffb300}
+.pl-clone{position:absolute;border:2px solid #ffe36d;border-radius:45% 45% 35% 35%;box-shadow:0 0 22px #ecca4a99;background:#302b10;isolation:isolate}
+.pl-clone>video{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit;opacity:.85}
+.pl-spear{position:absolute;left:50%;top:50%;width:90px;height:4px;background:linear-gradient(90deg,#936525,#fffbb1);transform-origin:0 50%;transform:rotate(var(--angle));box-shadow:0 0 5px #ffd43b;z-index:2}
+.pl-spear:after{content:'';position:absolute;right:-15px;top:-5px;border-left:19px solid #fff9b0;border-top:7px solid transparent;border-bottom:7px solid transparent;filter:drop-shadow(0 0 5px #ffcf24)}
+.pl-impact{position:absolute;width:55px;height:55px;margin:-28px;border:3px solid #ffe46d;border-radius:50%;background:radial-gradient(circle,#fff6bd99,transparent 70%);box-shadow:0 0 18px #ffd636;animation:pl-burst .4s ease-out forwards}
+@keyframes pl-electric{from{opacity:.6;translate:0 -2px}to{opacity:1;translate:0 2px}}
+@keyframes pl-burst{from{transform:scale(.25);opacity:1}to{transform:scale(1.7);opacity:0}}
+body.pl-resolving #actions{opacity:.65}
+.ability-base-stats{margin-top:6px;color:#b9cadf;font-size:14px}
+.battlefield .hero[data-hero="phantomlancer"] .hero-name{font-size:12px;white-space:normal;line-height:1.2}

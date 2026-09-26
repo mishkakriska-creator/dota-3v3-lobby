@@ -1,363 +1,43 @@
-<!doctype html>
-<html lang="ru">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b1018">
-<title>Dota Cards 3v3 — Web Prototype</title>
-<style>
-:root{--bg:#080c12;--panel:#111824;--panel2:#172131;--line:#2d3a50;--text:#edf3ff;--muted:#8d9ab0;--blue:#5b8dff;--red:#ff646c;--gold:#f3ba4d;--green:#5bd783}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 50% 0,#162033 0,#090d14 35%,#06090e 100%);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}button,input{font:inherit}
-button{cursor:pointer;border:1px solid #41516b;background:#1b2637;color:#eef4ff;border-radius:10px;padding:10px 14px;font-weight:800}button:hover{filter:brightness(1.12)}button:disabled{opacity:.38;cursor:not-allowed}
-.hidden{display:none!important}.app{max-width:1540px;margin:0 auto;padding:18px}.topbar{display:flex;align-items:center;gap:18px;padding:16px 18px;border:1px solid #202c3d;background:#0d131d;border-radius:14px;margin-bottom:16px;box-shadow:0 12px 35px #0006}.brand{font-size:26px;font-weight:950;letter-spacing:.4px}.brand b{color:#ff5964}.grow{flex:1}.status{font-size:13px;color:#93a4bc}.profile{display:flex;align-items:center;gap:8px}.profile input{width:180px;background:#070b11;color:white;border:1px solid #344259;border-radius:8px;padding:8px 10px}
-.screen{border:1px solid #233047;background:#0c121bda;border-radius:16px;padding:20px;box-shadow:0 16px 50px #0008}.menu-head{display:flex;align-items:flex-end;gap:16px;margin-bottom:18px}.menu-head h2{margin:0;font-size:24px}.menu-actions{margin-left:auto;display:flex;gap:8px}.lobby-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}.lobby{background:#121b28;border:1px solid #2d3c53;border-radius:13px;padding:14px;display:flex;gap:12px;align-items:center}.lobby strong{display:block;font-size:16px}.lobby small{color:var(--muted)}.lobby .join{margin-left:auto}.empty{color:var(--muted);padding:40px 10px;text-align:center}
-.draft-layout{display:grid;grid-template-columns:260px 1fr 260px;gap:18px}.slots{background:#0a0f17;border:1px solid #26344a;border-radius:14px;padding:12px}.slot-title{font-weight:900;margin-bottom:10px}.slot{height:128px;border:1px solid #3b4658;background:#262f3e;border-radius:12px;margin:10px 0;display:flex;align-items:center;justify-content:center;color:#8390a3;font-size:28px;font-weight:950;overflow:hidden}.slot.filled{padding:0;justify-content:flex-start;color:white;background:#111a27}.slot img{width:105px;height:100%;object-fit:cover}.slot span{padding:12px;font-size:14px}
-.pool{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:10px;align-content:start}.hero-pick{position:relative;background:#101827;border:1px solid #2c3a50;border-radius:10px;overflow:hidden;padding:0;text-align:left}.hero-pick img{width:100%;height:112px;object-fit:cover;display:block}.hero-pick .nm{padding:8px 9px;font-size:12px;font-weight:950}.hero-pick .st{padding:0 9px 9px;color:#a8b5c7;font-size:11px}.hero-pick.taken{filter:grayscale(.9);opacity:.42}.draft-foot{display:flex;align-items:center;gap:12px;margin-top:16px}.turn-pill{padding:8px 12px;border-radius:999px;background:#17243a;border:1px solid #32496d;color:#bed1f7;font-weight:800}
-.game-layout{display:grid;grid-template-columns:1fr 380px 1fr;gap:18px;align-items:stretch}.team{display:flex;gap:12px;align-items:end;justify-content:center;min-height:510px;border-radius:15px;padding:16px;background:#0a1018;border:1px solid #26344a}.team.blue{box-shadow:inset 3px 0 #4e83ff}.team.red{box-shadow:inset -3px 0 #ff5964}.card{width:180px;border:1px solid #35445c;border-radius:13px;overflow:hidden;background:#141c29;transition:.2s}.card.front{border-color:#f3ba4d;box-shadow:0 0 24px #f3ba4d33;transform:translateY(-9px)}.card.dead{filter:grayscale(1);opacity:.32}.card img{width:100%;height:220px;object-fit:cover;display:block}.card .name{font-size:13px;font-weight:950;padding:9px 10px}.card .stats{display:flex;justify-content:space-between;padding:0 10px 8px;font-size:13px}.hpbar{height:6px;margin:0 10px 12px;border-radius:9px;background:#3a2025;overflow:hidden}.hpbar i{display:block;height:100%;background:#54c978}
-.center{display:flex;flex-direction:column;min-width:0}.battle-head{text-align:center;font-size:22px;font-weight:950;color:#ffd069;margin:14px 0}.battle-meta{text-align:center;color:#9fb0c7;margin-bottom:10px}.log{flex:1;min-height:310px;max-height:420px;overflow:auto;background:#080d15;border:1px solid #2a3850;border-radius:12px;padding:12px}.log p{margin:0 0 8px;line-height:1.35}.actions{display:flex;gap:8px;margin-top:12px}.actions button{flex:1}.attack{background:#7e3039;border-color:#a84955}.end{background:#27344a}
-.winner{padding:12px;text-align:center;border-radius:10px;background:#193824;color:#7ff0a5;margin-bottom:10px;font-weight:950}
-.modal-wrap{position:fixed;inset:0;background:#000a;display:grid;place-items:center;padding:18px;z-index:40}.modal{width:min(980px,96vw);max-height:82vh;overflow:auto;background:#0b111a;border:1px solid #34445c;border-radius:18px;padding:20px;box-shadow:0 24px 80px #000}.modal-head{display:flex;align-items:center;margin-bottom:14px}.modal-head h3{margin:0}.close{margin-left:auto}.stat-row{display:flex;align-items:center;gap:14px;padding:11px;border:1px solid #2f3d54;border-radius:11px;background:#111a27;margin:8px 0}.stat-row img{width:74px;height:44px;object-fit:cover;border-radius:7px}.stat-row b:last-child{margin-left:auto}.rank{font-size:22px;color:#78a7ff;width:44px}.note{color:#8998ae;font-size:13px;margin-top:10px}
-/* Responsive sizing */
-html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
-.app{width:min(100%,1540px)}
-.menu-actions{flex-wrap:wrap}
-
-/* Tablets and narrow desktop */
-@media(max-width:1050px){
-  .app{padding:8px}
-  .topbar{padding:10px 12px;margin-bottom:8px}
-  .brand{font-size:clamp(18px,2.6vw,24px)}
-  .screen{padding:12px}
-  .menu-head{margin-bottom:10px;gap:10px}
-  .menu-head h2{font-size:clamp(18px,2.5vw,22px)}
-  button{padding:8px 10px;font-size:13px}
-
-  .draft-layout{grid-template-columns:clamp(125px,17vw,180px) minmax(0,1fr) clamp(125px,17vw,180px);gap:8px}
-  .slots{padding:7px}
-  .slot{height:clamp(72px,11vh,105px);margin:6px 0;font-size:22px}
-  .slot img{width:clamp(54px,7vw,78px)}
-  .slot span{padding:7px;font-size:11px}
-  .pool{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
-  .hero-pick img{height:clamp(72px,11vw,105px)}
-  .hero-pick .nm{font-size:10px;padding:5px 6px}
-  .hero-pick .st{font-size:9px;padding:0 6px 5px}
-  .draft-foot{margin-top:8px}
-
-  .game-layout{grid-template-columns:minmax(0,1fr) clamp(220px,28vw,320px) minmax(0,1fr);gap:7px}
-  .team{gap:5px;min-height:clamp(290px,55vh,480px);padding:7px}
-  .card{width:clamp(82px,10.5vw,128px)}
-  .card img{height:clamp(108px,15vw,158px)}
-  .card .name{font-size:10px;padding:6px 7px}
-  .card .stats{font-size:10px;padding:0 7px 6px}
-  .hpbar{margin:0 7px 8px}
-  .battle-head{font-size:clamp(15px,2vw,20px);margin:8px 0}
-  .battle-meta{font-size:11px;margin-bottom:6px}
-  .log{min-height:220px;max-height:44vh;padding:8px;font-size:11px}
-  .log p{margin-bottom:5px}
-  .actions{gap:5px;margin-top:6px}
-}
-
-/* Phones held horizontally: keep the real 3-column game layout,
-   just make everything proportionally smaller. */
-@media(max-width:950px) and (orientation:landscape){
-  body{overflow-x:hidden}
-  .app{padding:5px;max-width:none}
-  .topbar{padding:6px 8px;border-radius:9px;gap:8px}
-  .topbar .status{font-size:10px}
-  .profile{gap:5px}
-  .profile input{width:120px;padding:5px 7px;font-size:11px}
-  .profile button{padding:5px 7px;font-size:10px}
-  .brand{font-size:16px}
-  .brand small{font-size:8px!important}
-
-  .screen{padding:7px;border-radius:10px}
-  .menu-head{align-items:center;margin-bottom:6px}
-  .menu-head h2{font-size:16px}
-  .note{font-size:9px;margin-top:3px}
-  .menu-actions{gap:4px}
-  .menu-actions button{padding:5px 7px;font-size:9px;border-radius:7px}
-
-  .lobby-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-  .lobby{padding:7px;border-radius:8px}
-  .lobby strong{font-size:11px}
-  .lobby small{font-size:9px}
-
-  .draft-layout{grid-template-columns:120px minmax(0,1fr) 120px;gap:5px}
-  .slots{padding:5px}
-  .slot-title{font-size:10px;margin-bottom:4px}
-  .slot{height:clamp(58px,17vh,78px);margin:4px 0;border-radius:7px}
-  .slot img{width:46px}
-  .slot span{font-size:9px;padding:5px}
-  .pool{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
-  .hero-pick{border-radius:6px}
-  .hero-pick img{height:clamp(54px,14vh,74px)}
-  .hero-pick .nm{font-size:8px;padding:3px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .hero-pick .st{font-size:7px;padding:0 4px 3px}
-  .draft-foot{margin-top:5px;gap:5px}
-  .turn-pill{padding:5px 7px;font-size:9px}
-  #startBtn{padding:5px 8px;font-size:9px}
-
-  .game-layout{grid-template-columns:minmax(0,1fr) clamp(185px,25vw,250px) minmax(0,1fr);gap:5px}
-  .team{gap:3px;min-height:calc(100dvh - 145px);padding:5px;border-radius:9px;align-items:center}
-  .card{width:clamp(72px,9.5vw,102px);border-radius:8px}
-  .card.front{transform:translateY(-4px)}
-  .card img{height:clamp(92px,13vw,126px)}
-  .card .name{font-size:8px;padding:4px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .card .stats{font-size:8px;padding:0 5px 4px}
-  .hpbar{height:4px;margin:0 5px 5px}
-  .battle-head{font-size:13px;margin:4px 0}
-  .battle-meta{font-size:9px;margin-bottom:4px}
-  .log{min-height:0;height:calc(100dvh - 230px);max-height:none;padding:6px;font-size:9px;border-radius:7px}
-  .actions button{padding:6px 4px;font-size:9px}
-  .winner{padding:6px;font-size:10px;margin-bottom:4px}
-}
-
-/* Portrait phone UI: stack sections so nothing overflows horizontally. */
-@media(max-width:720px) and (orientation:portrait){
-  .topbar{flex-wrap:wrap}
-  .brand{font-size:19px}
-  .status{font-size:11px}
-  .profile{width:100%}
-  .profile input{flex:1;min-width:0}
-  .menu-head{display:block}
-  .menu-actions{margin:8px 0 0}
-  .menu-actions button{flex:1 1 45%}
-
-  .draft-layout{display:block}
-  .slots{display:flex;gap:5px;margin-bottom:7px}
-  .slot-title{display:none}
-  .slot{height:72px;flex:1;margin:0;min-width:0}
-  .slot img{width:52px}
-  .slot span{display:none}
-  .pool{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
-  .hero-pick img{height:90px}
-
-  .game-layout{display:flex;flex-direction:column;gap:7px}
-  .center{order:-1}
-  .team{min-height:auto;overflow-x:auto;justify-content:flex-start;margin:0;padding:7px}
-  .card{min-width:105px;width:105px}
-  .card img{height:125px}
-  .log{height:210px;min-height:210px;max-height:210px}
-}
-
-/* Very short landscape screens (small iPhones, browser chrome visible). */
-@media(max-height:500px) and (orientation:landscape){
-  .topbar{margin-bottom:4px}
-  .screen{padding:5px}
-  .menu-head{margin-bottom:4px}
-  .team{min-height:calc(100dvh - 125px)}
-  .card img{height:clamp(76px,22vh,108px)}
-  .log{height:calc(100dvh - 200px)}
-}
-</style>
-</head>
-<body>
-<div class="app">
-  <header class="topbar">
-    <div class="brand">DOTA CARDS <b>3v3</b> <small style="font-size:12px;color:#8090a5">WEB PROTOTYPE</small></div>
-    <div class="grow status" id="status">Подключение к серверу…</div>
-    <div class="profile"><input id="nick" maxlength="24"><button id="saveNick">Сохранить ник</button></div>
-  </header>
-
-  <section id="menu" class="screen">
-    <div class="menu-head"><div><h2>Публичные лобби</h2><div class="note">Первый браузерный прототип. Оба игрока должны играть через эту веб-версию.</div></div>
-      <div class="menu-actions"><button id="offlineBtn">Офлайн на этом устройстве</button><button id="topBtn">Топ мира</button><button id="heroesBtn">Винрейт героев</button><button id="refreshBtn">Обновить</button><button id="createBtn">Создать онлайн-лобби</button></div>
-    </div>
-    <div id="lobbies" class="lobby-grid"></div>
-  </section>
-
-  <section id="draft" class="screen hidden">
-    <div class="menu-head"><div><h2>Выбор команд</h2><div class="note" id="draftStatus"></div></div><div class="menu-actions"><button id="leaveDraft">Выйти</button></div></div>
-    <div class="draft-layout">
-      <div class="slots"><div class="slot-title">Игрок 1</div><div id="slots0"></div></div>
-      <div><div id="pool" class="pool"></div><div class="draft-foot"><div id="turnPill" class="turn-pill"></div><button id="startBtn" disabled>Начать бой</button></div></div>
-      <div class="slots"><div class="slot-title">Игрок 2</div><div id="slots1"></div></div>
-    </div>
-  </section>
-
-  <section id="game" class="screen hidden">
-    <div class="menu-head"><div><h2 id="turnTitle">Матч</h2><div class="note">Прототип боя: базовые атаки и смена хода. Полные способности будут переноситься после проверки веб-архитектуры.</div></div><div class="menu-actions"><button id="leaveGame">Выйти</button></div></div>
-    <div class="game-layout">
-      <div id="team0" class="team blue"></div>
-      <div class="center"><div class="battle-head">⚔ ЛИНИЯ БОЯ ⚔</div><div id="battleMeta" class="battle-meta"></div><div id="winner" class="winner hidden"></div><div id="log" class="log"></div><div class="actions"><button id="attackBtn" class="attack">Атака</button><button id="endBtn" class="end">Закончить ход</button></div></div>
-      <div id="team1" class="team red"></div>
-    </div>
-  </section>
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>Dota Cards — 3v3 v1.86.94</title><link href="dota_cards.ico" rel="icon"/><link href="style.css?v=18790" rel="stylesheet"/><link href="phantom-lancer.css?v=18790" rel="stylesheet"/><link href="economy.css?v=18790" rel="stylesheet"/><link href="combat-fx.css?v=18790" rel="stylesheet"/><link href="enigma.css?v=18790" rel="stylesheet"/><link href="arc-warden.css?v=18790" rel="stylesheet"/><link rel="stylesheet" href="visual-fixes.css?v=18790"></head><body><div class="asset-loader" id="assetLoader"><div class="asset-loader-box"><div class="asset-loader-title">Загрузка игры</div><div class="asset-loader-text" id="assetLoaderText">Подготавливаю ассеты… 0%</div><div class="asset-loader-track"><div class="asset-loader-bar" id="assetLoaderBar"></div></div></div></div>
+<div class="mp-menu" id="mpMenu">
+<div class="mp-menu-box">
+<div class="mp-logo">DOTA CARDS <span>3v3</span></div>
+<div class="mp-sub">ВЫБЕРИ РЕЖИМ ИГРЫ</div>
+<button class="mp-primary" id="createGameBtn">СОЗДАТЬ ЛОББИ</button>
+<button class="mp-secondary" id="connectGameBtn">СПИСОК ЛОББИ</button>
+<div class="mp-stats-buttons">
+<button class="mp-secondary" id="leaderboardBtn">ТОП МИРА</button>
+<button class="mp-secondary" id="heroStatsBtn">ВИНРЕЙТ ГЕРОЕВ</button>
 </div>
-
-<div id="modalWrap" class="modal-wrap hidden"><div class="modal"><div class="modal-head"><h3 id="modalTitle"></h3><button id="modalClose" class="close">✕</button></div><div id="modalBody"></div></div></div>
-
-<script>
-const API='https://dota-3v3-lobby.onrender.com';
-const WS='wss://dota-3v3-lobby.onrender.com';
-const GAME_VERSION='1.86.94-web-prototype';
-const PROTOCOL_VERSION=12;
-const $=s=>document.querySelector(s);
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-const uid=()=>crypto.randomUUID?.()||('web-'+Date.now()+'-'+Math.random().toString(16).slice(2));
-const playerId=localStorage.dotaWebPlayerId||(localStorage.dotaWebPlayerId=uid());
-let nickname=localStorage.dotaWebNick||('Игрок'+Math.floor(1000+Math.random()*9000));
-$('#nick').value=nickname;
-
-const IMG='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
-const HEROES={
- techies:['TECHIES',7,2,'techies.png'],morphling:['MORPHLING',7,1,'morphling.png'],bane:['BANE',6,1,'bane.png'],io:['IO',7,1,'wisp.png'],
- tinker:['TINKER',6,1,'tinker.png'],silencer:['SILENCER',6,2,'silencer.png'],shadowfiend:['SHADOW FIEND',8,1,'nevermore.png'],
- lifestealer:['LIFESTEALER',8,2,'life_stealer.png'],pudge:['PUDGE',10,2,'pudge.png'],abaddon:['ABADDON',7,1,'abaddon.png'],
- invoker:['INVOKER',7,1,'invoker.png'],arcwarden:['ARC WARDEN',7,1,'arc_warden.png'],axe:['AXE',8,1,'axe.png'],
- broodmother:['BROODMOTHER',8,1,'broodmother.png'],mars:['MARS',9,2,'mars.png'],phantomlancer:['PHANTOM LANCER',7,2,'phantom_lancer.png'],
- enigma:['ENIGMA',7,1,'enigma.png']
-};
-const heroImg=id=>IMG+(HEROES[id]?.[3]||'unknown.png');
-const heroName=id=>HEROES[id]?.[0]||id.toUpperCase();
-const profile=()=>({globalId:playerId,id:playerId,nick:nickname,rating:0,rank:'Без ранга',rankIndex:1});
-
-let ws=null,player=null,roomId='',chosen=[],G=null,connected=false,remoteProfiles=[null,null],sendTimer=null,offlineMode=false;
-
-function setStatus(s){$('#status').textContent=s}
-function show(id){['menu','draft','game'].forEach(x=>$('#'+x).classList.toggle('hidden',x!==id))}
-function api(path,opt){return fetch(API+path,{cache:'no-store',...opt})}
-function send(obj){if(offlineMode)return;if(ws&&ws.readyState===1)ws.send(JSON.stringify(obj))}
-function sendProfile(){send({type:'profile',player,profile:{...profile(),__gameVersion:GAME_VERSION,__protocolVersion:PROTOCOL_VERSION},gameVersion:GAME_VERSION,protocolVersion:PROTOCOL_VERSION})}
-function sendState(){send({type:'state',G,chosen,phase:G?'game':'draft'})}
-function queueState(){clearTimeout(sendTimer);sendTimer=setTimeout(sendState,30)}
-
-async function loadLobbies(){
- setStatus('Загружаем лобби…');
- try{
-   const r=await api('/api/lobbies'); const j=await r.json();
-   $('#lobbies').innerHTML=(j.lobbies||[]).length?(j.lobbies||[]).map(l=>`<div class="lobby"><div><strong>${esc(l.name)}</strong><small>${l.players}/2 игроков</small></div><button class="join" data-room="${esc(l.id)}" ${l.players>=2?'disabled':''}>Войти</button></div>`).join(''):'<div class="empty">Публичных лобби пока нет.</div>';
-   document.querySelectorAll('[data-room]').forEach(b=>b.onclick=()=>joinRoom(b.dataset.room));
-   setStatus('Render подключён');
- }catch(e){$('#lobbies').innerHTML='<div class="empty">Сервер просыпается или недоступен. Нажми «Обновить» через несколько секунд.</div>';setStatus('Render: '+e.message)}
-}
-
-async function createLobby(){
- const name='Лобби '+nickname;
- $('#createBtn').disabled=true;
- try{
-   const r=await api('/api/lobbies',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name,hostProfile:profile()})});
-   const j=await r.json(); if(!r.ok)throw new Error('HTTP '+r.status);
-   joinRoom(j.id);
- }catch(e){alert('Не удалось создать лобби: '+e.message);$('#createBtn').disabled=false}
-}
-function joinRoom(id){
- roomId=id;history.replaceState(null,'','?room='+encodeURIComponent(id));connect();
-}
-function disconnect(){try{ws?.close(1000,'leave')}catch{}ws=null;connected=false;player=null;roomId='';chosen=[];G=null;remoteProfiles=[null,null];offlineMode=false;history.replaceState(null,'',location.pathname);show('menu');loadLobbies()}
-
-function startOffline(){
- offlineMode=true;connected=true;player=0;roomId='';chosen=[];G=null;remoteProfiles=[profile(),{globalId:'offline-p2',id:'offline-p2',nick:'Игрок 2',rating:0,rank:'Без ранга',rankIndex:1}];
- history.replaceState(null,'',location.pathname);
- setStatus('Офлайн-режим • обе команды на этом устройстве');
- show('draft');
- renderDraft();
-}
-function connect(){
- show('draft');setStatus('Подключаемся к лобби…');roomId=roomId||new URLSearchParams(location.search).get('room')||'';
- ws=new WebSocket(WS+'/ws?room='+encodeURIComponent(roomId));
- ws.onopen=()=>setStatus('WebSocket подключён');
- ws.onerror=()=>setStatus('Ошибка WebSocket');
- ws.onclose=()=>{connected=false;setStatus('Соединение закрыто')};
- ws.onmessage=e=>{
-   let m;try{m=JSON.parse(e.data)}catch{return}
-   if(m.type==='hello'){
-     player=m.player;connected=true;remoteProfiles[player]=profile();setStatus('Ты — Игрок '+(player+1));
-     send({type:'version',gameVersion:GAME_VERSION,protocolVersion:PROTOCOL_VERSION});sendProfile();
-     if(m.state)applyState(m.state);else renderDraft();return;
-   }
-   if(m.type==='profile'&&Number.isInteger(m.player)){remoteProfiles[m.player]=m.profile;renderDraft()}
-   if(m.type==='info'){setStatus(m.message||m.text||'Сеть');sendProfile()}
-   if(m.type==='state')applyState(m);
- };
-}
-function applyState(m){
- if(m.phase==='draft'){G=null;chosen=Array.isArray(m.chosen)?m.chosen:[];show('draft');renderDraft();return}
- if(m.phase==='game'&&m.G){G=m.G;chosen=Array.isArray(m.chosen)?m.chosen:chosen;show('game');renderGame()}
-}
-function teamPicks(t){return chosen.filter((_,i)=>i%2===t).slice(0,3)}
-function renderSlots(t){
- const picks=teamPicks(t),root=$('#slots'+t);root.innerHTML='';
- for(let i=0;i<3;i++){
-   const id=picks[i];const d=document.createElement('div');d.className='slot'+(id?' filled':'');
-   d.innerHTML=id?`<img src="${heroImg(id)}"><span><b>${heroName(id)}</b><br><small>${HEROES[id][1]} HP • ${HEROES[id][2]} ATK</small></span>`:(i+1);
-   root.append(d);
- }
-}
-function renderDraft(){
- renderSlots(0);renderSlots(1);
- const turn=chosen.length%2;
- $('#draftStatus').textContent=chosen.length<6?`Сейчас выбирает Игрок ${turn+1}`:'Команды собраны.';
- $('#turnPill').textContent=chosen.length<6?(offlineMode?`ПИК ИГРОКА ${turn+1}`:(player===turn?'ТВОЙ ПИК':'ПИК СОПЕРНИКА')):'ДРАФТ ЗАВЕРШЁН';
- $('#pool').innerHTML=Object.keys(HEROES).map(id=>`<button class="hero-pick ${chosen.includes(id)?'taken':''}" data-hero="${id}" ${chosen.includes(id)||chosen.length>=6?'disabled':''}><img src="${heroImg(id)}"><div class="nm">${heroName(id)}</div><div class="st">♥ ${HEROES[id][1]} &nbsp; ⚔ ${HEROES[id][2]}</div></button>`).join('');
- document.querySelectorAll('[data-hero]').forEach(b=>b.onclick=()=>pickHero(b.dataset.hero));
- $('#startBtn').disabled=!((offlineMode||player===0)&&chosen.length===6);
-}
-function pickHero(id){
- if(!connected||chosen.length>=6||chosen.includes(id))return;
- const turn=chosen.length%2;if(!offlineMode&&player!==turn){alert('Сейчас выбирает Игрок '+(turn+1));return}
- chosen.push(id);renderDraft();if(!offlineMode)queueState();
-}
-function createGame(){
- const mk=(id,t)=>({id,name:heroName(id),team:t,hp:HEROES[id][1],maxHp:HEROES[id][1],atk:HEROES[id][2],dead:false});
- G={matchId:'web-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),teams:[teamPicks(0).map(id=>mk(id,0)),teamPicks(1).map(id=>mk(id,1))],front:[0,0],team:0,actions:2,winner:null,turn:1,log:['Матч начался.']};
- show('game');renderGame();if(!offlineMode)sendState();
-}
-function aliveIndex(t){
- const a=G.teams[t];let i=Math.max(0,Number(G.front?.[t])||0);
- while(i<a.length&&a[i].dead)i++;
- if(i>=a.length){i=a.findIndex(h=>!h.dead)}
- return i;
-}
-function front(t){const i=aliveIndex(t);return i>=0?G.teams[t][i]:null}
-function pushLog(s){G.log=Array.isArray(G.log)?G.log:[];G.log.push(s);if(G.log.length>60)G.log=G.log.slice(-60)}
-function checkWin(){
- for(let t=0;t<2;t++)if(G.teams[t].every(h=>h.dead||h.hp<=0)){G.winner=1-t;pushLog('Игрок '+(2-t)+' побеждает!');return true}
- return false;
-}
-function attack(){
- if(!G||G.winner!=null||(!offlineMode&&player!==G.team)||G.actions<=0)return;
- const a=front(G.team),b=front(1-G.team);if(!a||!b)return;
- b.hp=Math.max(0,b.hp-a.atk);pushLog(a.name+' наносит '+a.atk+' урона '+b.name+'.');G.actions--;
- if(b.hp<=0){b.dead=true;pushLog(b.name+' погибает.');G.front[1-G.team]=aliveIndex(1-G.team)}
- checkWin();renderGame();if(!offlineMode)sendState();
-}
-function endTurn(){
- if(!G||G.winner!=null||(!offlineMode&&player!==G.team))return;
- G.team=1-G.team;G.actions=2;G.turn++;pushLog('Ход переходит к Игроку '+(G.team+1)+'.');renderGame();if(!offlineMode)sendState();
-}
-function card(h,isFront){
- const pct=Math.max(0,Math.round(h.hp/h.maxHp*100));
- return `<div class="card ${isFront?'front':''} ${h.dead?'dead':''}"><img src="${heroImg(h.id)}"><div class="name">${esc(h.name)}</div><div class="stats"><span>♥ ${h.hp}/${h.maxHp}</span><span>⚔ ${h.atk}</span></div><div class="hpbar"><i style="width:${pct}%"></i></div></div>`;
-}
-function renderGame(){
- if(!G)return;
- for(let t=0;t<2;t++){const fi=aliveIndex(t);$('#team'+t).innerHTML=G.teams[t].map((h,i)=>card(h,i===fi)).join('')}
- $('#turnTitle').textContent=G.winner==null?`Ход Игрока ${G.team+1}`:'Матч завершён';
- $('#battleMeta').textContent=G.winner==null?`Действия: ${G.actions}/2 • общий ход ${G.turn}`:'';
- $('#log').innerHTML=(G.log||[]).slice().reverse().map(x=>'<p>'+esc(x)+'</p>').join('');
- $('#winner').classList.toggle('hidden',G.winner==null);if(G.winner!=null)$('#winner').textContent='Победил Игрок '+(G.winner+1);
- $('#attackBtn').disabled=G.winner!=null||(!offlineMode&&player!==G.team)||G.actions<=0;
- $('#endBtn').disabled=G.winner!=null||(!offlineMode&&player!==G.team);
-}
-async function openLeaderboard(){
- openModal('Топ мира','Загрузка…');
- try{const j=await api('/api/leaderboard').then(r=>r.json());$('#modalBody').innerHTML=(j.players||[]).length?(j.players||[]).map(p=>`<div class="stat-row"><span class="rank">#${p.place}</span><div><b>${esc(p.nick)}</b><div class="note">${esc(p.rank)} • ${p.rating} MMR</div></div></div>`).join(''):'<div class="empty">Рейтинг пока пуст.</div>'}catch(e){$('#modalBody').textContent=e.message}
-}
-async function openHeroStats(){
- openModal('Винрейт героев','Загрузка…');
- try{const j=await api('/api/heroes').then(r=>r.json());$('#modalBody').innerHTML=(j.heroes||[]).length?(j.heroes||[]).map(h=>`<div class="stat-row"><img src="${heroImg(h.heroId)}"><b>${heroName(h.heroId)}</b><b>${Number(h.winrate).toFixed(1)}%</b></div>`).join(''):'<div class="empty">Статистики пока нет.</div>'}catch(e){$('#modalBody').textContent=e.message}
-}
-function openModal(t,b){$('#modalTitle').textContent=t;$('#modalBody').innerHTML=b;$('#modalWrap').classList.remove('hidden')}
-
-$('#saveNick').onclick=()=>{nickname=$('#nick').value.trim().slice(0,24)||nickname;localStorage.dotaWebNick=nickname;sendProfile();loadLobbies()};
-$('#refreshBtn').onclick=loadLobbies;$('#createBtn').onclick=createLobby;$('#offlineBtn').onclick=startOffline;$('#topBtn').onclick=openLeaderboard;$('#heroesBtn').onclick=openHeroStats;
-$('#modalClose').onclick=()=>$('#modalWrap').classList.add('hidden');$('#modalWrap').onclick=e=>{if(e.target.id==='modalWrap')$('#modalWrap').classList.add('hidden')};
-$('#startBtn').onclick=createGame;$('#attackBtn').onclick=attack;$('#endBtn').onclick=endTurn;$('#leaveDraft').onclick=disconnect;$('#leaveGame').onclick=disconnect;
-window.addEventListener('beforeunload',()=>{try{ws?.close()}catch{}});
-
-const incomingRoom=new URLSearchParams(location.search).get('room');
-if(incomingRoom){roomId=incomingRoom;connect()}else{show('menu');loadLobbies();setInterval(()=>{if(!roomId)loadLobbies()},6000)}
-</script>
-</body>
-</html>
+<button class="mp-secondary mp-offline" id="offlineGameBtn">ОФЛАЙН ИГРА</button>
+<div class="mp-profile-stats" id="menuProfileStats"><span>Профиль загружается…</span></div>
+<div class="mp-panel hidden" id="hostPanel"><b id="hostLobbyTitle">Лобби создаётся…</b><div class="mp-help">Лобби появится в общем списке. Второму игроку достаточно нажать «Войти».</div><div class="mp-peer-status" id="hostPeerStatus">○ Ожидаем подключения Игрока 2</div><button class="mp-primary" disabled id="hostContinueBtn">ЖДЁМ ИГРОКА…</button></div>
+<div class="mp-panel hidden" id="connectPanel"><div class="mp-lobby-head"><b>Открытые лобби</b><div class="mp-head-actions"><button class="mp-refresh" id="refreshLobbiesBtn" type="button">ОБНОВИТЬ</button><button class="mp-panel-close" data-close-panel="connectPanel" type="button" aria-label="Закрыть">×</button></div></div><div class="mp-lobby-list" id="lobbyList"><div class="mp-help">Загрузка…</div></div><div class="mp-error" id="connectError"></div></div>
+<div class="mp-panel hidden mp-global-stats-panel" id="leaderboardPanel"><div class="mp-lobby-head"><b>Топ мира</b><div class="mp-head-actions"><button class="mp-refresh" id="refreshLeaderboardBtn" type="button">ОБНОВИТЬ</button><button class="mp-panel-close" data-close-panel="leaderboardPanel" type="button" aria-label="Закрыть">×</button></div></div><div class="mp-global-stats-list" id="leaderboardList"><div class="mp-help">Загрузка…</div></div><div class="mp-error" id="leaderboardError"></div></div>
+<div class="mp-panel hidden mp-global-stats-panel" id="heroStatsPanel"><div class="mp-lobby-head"><b>Винрейт героев</b><div class="mp-head-actions"><button class="mp-refresh" id="refreshHeroStatsBtn" type="button">ОБНОВИТЬ</button><button class="mp-panel-close" data-close-panel="heroStatsPanel" type="button" aria-label="Закрыть">×</button></div></div><div class="mp-global-stats-list" id="heroStatsList"><div class="mp-help">Загрузка…</div></div><div class="mp-error" id="heroStatsError"></div></div>
+<div class="mp-note">Онлайн работает через общий сервер — Radmin VPN и ввод IP не нужны.</div></div>
+</div>
+<div class="net-toast hidden" id="netToast"></div><div class="lobby-wait-overlay hidden" id="lobbyWaitOverlay">
+  <div class="lobby-wait-shell">
+    <div class="lobby-wait-title">ОЖИДАНИЕ ИГРОКА</div>
+    <div class="lobby-wait-subtitle" id="lobbyWaitSubtitle">Лобби создано. Ждём второго игрока…</div>
+    <div class="lobby-versus">
+      <div class="lobby-player-card" id="lobbyPlayer0"></div>
+      <div class="lobby-vs-mark">VS</div>
+      <div class="lobby-player-card" id="lobbyPlayer1"></div>
+    </div>
+    <div class="lobby-search-state" id="lobbySearchState">
+      <div class="lobby-search-ring"><span></span><span></span><span></span></div>
+      <div class="lobby-search-copy"><b>ПОИСК ИГРОКА</b><span class="lobby-search-dots"><i></i><i></i><i></i></span></div>
+    </div>
+    <div class="lobby-ready-state hidden" id="lobbyReadyState">Оба игрока подключены. Переходим к выбору героев…</div>
+    <button class="lobby-leave-btn" id="lobbyLeaveBtn" type="button">ВЫЙТИ ИЗ ЛОББИ</button>
+  </div>
+</div>
+<div id="app">
+<header><div><h1>DOTA CARDS <span>3v3</span></h1><p>v1.86.94</p><div class="net-status" id="netStatus">Сеть: локальный режим</div></div><button id="rulesBtn">Правила билда</button></header>
+<section class="screen" id="draft"><h2>Выбор команд</h2><p>Игроки выбирают героев по очереди: Игрок 1 → Игрок 2 → Игрок 1 → Игрок 2, пока у каждого не будет по 3 героя. Нажми на портрет, чтобы открыть полную карту.</p><div class="draft-stage"><aside class="draft-side draft-side-p1"><div class="draft-side-title side-profile" id="draftProfile0"></div><div class="draft-slots" id="draftSlots0"></div></aside><div class="draft-grid" id="draftCards"></div><aside class="draft-side draft-side-p2"><div class="draft-side-title side-profile" id="draftProfile1"></div><div class="draft-slots" id="draftSlots1"></div></aside></div><div class="draft-footer"><div id="draftStatus">Игрок 1: 0/3 • Игрок 2: 0/3</div><button disabled="" id="startBtn">Начать бой</button></div></section>
+<section class="screen hidden" id="game"><div class="shop-panel shop-left" id="shop0"><div class="shop-head"><button class="shop-toggle" data-team="0">МАГАЗИН</button><span class="shop-gold">0 <span aria-hidden="true" class="gold-icon"></span></span></div><div class="shop-next">+4 через 3 хода</div><div class="shop-items"><div class="shop-category shop-category-weapons"><div class="shop-category-head"><img alt="" src="assets/shop_categories/weapons.png"/><span>ОРУЖИЕ</span></div><div class="shop-category-grid"><button class="shop-item" data-item="crystalys" data-team="0"><img src="assets/items/crystalys.png"/><span>Crystalys <b>6</b></span></button><button class="shop-item" data-item="daedalus" data-team="0"><img src="assets/items/daedalus.png"/><span>Daedalus <b>10</b></span></button><button class="shop-item" data-item="bloodthorn" data-team="0"><img src="assets/items/bloodthorn.png"/><span>Bloodthorn <b>11</b></span></button><button class="shop-item" data-item="satanic" data-team="0"><img src="assets/items/satanic.png"/><span>Satanic <b>11</b></span></button><button class="shop-item" data-item="desolator" data-team="0"><img src="assets/items/desolator.png"/><span>Desolator <b>10</b></span></button><button class="shop-item" data-item="mkb" data-team="0"><img src="assets/items/monkey_king_bar.png"/><span>Monkey King Bar <b>8</b></span></button><button class="shop-item" data-item="radiance" data-team="0"><img src="assets/items/radiance.png"/><span>Radiance <b>10</b></span></button><button class="shop-item" data-item="yasha" data-team="0"><img src="assets/items/yasha.png"/><span>Yasha <b>10</b></span></button><button class="shop-item" data-item="yasha_kaya" data-team="0"><img src="assets/items/yasha_and_kaya.png"/><span>Yasha and Kaya <b>18</b></span></button></div></div><div class="shop-category shop-category-magic"><div class="shop-category-head"><img alt="" src="assets/shop_categories/magic.png"/><span>МАГИЯ</span></div><div class="shop-category-grid"><button class="shop-item" data-item="witch" data-team="0"><img src="assets/items/witch_blade.png"/><span>Witch Blade <b>3</b></span></button><button class="shop-item" data-item="parasma" data-team="0"><img src="assets/items/parasma.png"/><span>Parasma <b>7</b></span></button><button class="shop-item" data-item="orchid" data-team="0"><img src="assets/items/orchid.png"/><span>Orchid <b>6</b></span></button><button class="shop-item" data-item="refresher" data-team="0"><img src="assets/items/refresher.png"/><span>Refresher <b>12</b></span></button><button class="shop-item" data-item="dagon" data-team="0"><img src="assets/items/dagon.png"/><span>Dagon <b>9</b></span></button><button class="shop-item" data-item="kaya" data-team="0"><img src="assets/items/kaya.png"/><span>Kaya <b>8</b></span></button><button class="shop-item" data-item="kaya_sange" data-team="0"><img src="assets/items/kaya_and_sange.png"/><span>Kaya and Sange <b>16</b></span></button></div></div><div class="shop-category shop-category-support"><div class="shop-category-head"><img alt="" src="assets/shop_categories/support.png"/><span>ПОДДЕРЖКА</span></div><div class="shop-category-grid"><button class="shop-item" data-item="vladmir" data-team="0"><img src="assets/items/vladmir.png"/><span>Vladmir's Offering <b>6</b></span></button></div></div><div class="shop-category shop-category-armor"><div class="shop-category-head"><img alt="" src="assets/shop_categories/armor.png"/><span>БРОНЯ</span></div><div class="shop-category-grid"><button class="shop-item" data-item="heart" data-team="0"><img src="assets/items/heart_of_tarrasque.png"/><span>Heart of Tarrasque <b>8</b></span></button><button class="shop-item" data-item="assault" data-team="0"><img src="assets/items/assault.png"/><span>Assault Cuirass <b>12</b></span></button><button class="shop-item" data-item="sange" data-team="0"><img src="assets/items/sange.png"/><span>Sange <b>8</b></span></button><button class="shop-item" data-item="sange_yasha" data-team="0"><img src="assets/items/sange_and_yasha.png"/><span>Sange and Yasha <b>18</b></span></button></div></div><div class="shop-category shop-category-misc"><div class="shop-category-head"><img alt="" src="assets/shop_categories/misc.png"/><span>РАЗНОЕ</span></div><div class="shop-category-grid"><button class="shop-item" data-item="morbid" data-team="0"><img src="assets/items/morbid_mask.png"/><span>Morbid Mask <b>4</b></span></button><button class="shop-item" data-item="talisman" data-team="0"><img src="assets/items/talisman_of_evasion.png"/><span>Talisman of Evasion <b>5</b></span></button></div></div></div><div class="shop-info" data-shop-info="0"><div class="shop-info-empty">Наведи на предмет, чтобы увидеть описание.</div></div></div><div class="shop-panel shop-right" id="shop1"><div class="shop-head"><button class="shop-toggle" data-team="1">МАГАЗИН</button><span class="shop-gold">0 <span aria-hidden="true" class="gold-icon"></span></span></div><div class="shop-next">+4 через 3 хода</div><div class="shop-items"><div class="shop-category shop-category-weapons"><div class="shop-category-head"><img alt="" src="assets/shop_categories/weapons.png"/><span>ОРУЖИЕ</span></div><div class="shop-category-grid"><button class="shop-item" data-item="crystalys" data-team="1"><img src="assets/items/crystalys.png"/><span>Crystalys <b>6</b></span></button><button class="shop-item" data-item="daedalus" data-team="1"><img src="assets/items/daedalus.png"/><span>Daedalus <b>10</b></span></button><button class="shop-item" data-item="bloodthorn" data-team="1"><img src="assets/items/bloodthorn.png"/><span>Bloodthorn <b>11</b></span></button><button class="shop-item" data-item="satanic" data-team="1"><img src="assets/items/satanic.png"/><span>Satanic <b>11</b></span></button><button class="shop-item" data-item="desolator" data-team="1"><img src="assets/items/desolator.png"/><span>Desolator <b>10</b></span></button><button class="shop-item" data-item="mkb" data-team="1"><img src="assets/items/monkey_king_bar.png"/><span>Monkey King Bar <b>8</b></span></button><button class="shop-item" data-item="radiance" data-team="1"><img src="assets/items/radiance.png"/><span>Radiance <b>10</b></span></button><button class="shop-item" data-item="yasha" data-team="1"><img src="assets/items/yasha.png"/><span>Yasha <b>10</b></span></button><button class="shop-item" data-item="yasha_kaya" data-team="1"><img src="assets/items/yasha_and_kaya.png"/><span>Yasha and Kaya <b>18</b></span></button></div></div><div class="shop-category shop-category-magic"><div class="shop-category-head"><img alt="" src="assets/shop_categories/magic.png"/><span>МАГИЯ</span></div><div class="shop-category-grid"><button class="shop-item" data-item="witch" data-team="1"><img src="assets/items/witch_blade.png"/><span>Witch Blade <b>3</b></span></button><button class="shop-item" data-item="parasma" data-team="1"><img src="assets/items/parasma.png"/><span>Parasma <b>7</b></span></button><button class="shop-item" data-item="orchid" data-team="1"><img src="assets/items/orchid.png"/><span>Orchid <b>6</b></span></button><button class="shop-item" data-item="refresher" data-team="1"><img src="assets/items/refresher.png"/><span>Refresher <b>12</b></span></button><button class="shop-item" data-item="dagon" data-team="1"><img src="assets/items/dagon.png"/><span>Dagon <b>9</b></span></button><button class="shop-item" data-item="kaya" data-team="1"><img src="assets/items/kaya.png"/><span>Kaya <b>8</b></span></button><button class="shop-item" data-item="kaya_sange" data-team="1"><img src="assets/items/kaya_and_sange.png"/><span>Kaya and Sange <b>16</b></span></button></div></div><div class="shop-category shop-category-support"><div class="shop-category-head"><img alt="" src="assets/shop_categories/support.png"/><span>ПОДДЕРЖКА</span></div><div class="shop-category-grid"><button class="shop-item" data-item="vladmir" data-team="1"><img src="assets/items/vladmir.png"/><span>Vladmir's Offering <b>6</b></span></button></div></div><div class="shop-category shop-category-armor"><div class="shop-category-head"><img alt="" src="assets/shop_categories/armor.png"/><span>БРОНЯ</span></div><div class="shop-category-grid"><button class="shop-item" data-item="heart" data-team="1"><img src="assets/items/heart_of_tarrasque.png"/><span>Heart of Tarrasque <b>8</b></span></button><button class="shop-item" data-item="assault" data-team="1"><img src="assets/items/assault.png"/><span>Assault Cuirass <b>12</b></span></button><button class="shop-item" data-item="sange" data-team="1"><img src="assets/items/sange.png"/><span>Sange <b>8</b></span></button><button class="shop-item" data-item="sange_yasha" data-team="1"><img src="assets/items/sange_and_yasha.png"/><span>Sange and Yasha <b>18</b></span></button></div></div><div class="shop-category shop-category-misc"><div class="shop-category-head"><img alt="" src="assets/shop_categories/misc.png"/><span>РАЗНОЕ</span></div><div class="shop-category-grid"><button class="shop-item" data-item="morbid" data-team="1"><img src="assets/items/morbid_mask.png"/><span>Morbid Mask <b>4</b></span></button><button class="shop-item" data-item="talisman" data-team="1"><img src="assets/items/talisman_of_evasion.png"/><span>Talisman of Evasion <b>5</b></span></button></div></div></div><div class="shop-info" data-shop-info="1"><div class="shop-info-empty">Наведи на предмет, чтобы увидеть описание.</div></div></div><div aria-label="Очередность ходов" class="turn-queue" id="turnQueue"></div><div class="hud"><div id="turnLabel"></div><div id="actionsLabel"></div><button id="endTurnBtn">Закончить ход</button><button id="restartBtn">Новая игра</button></div><div class="battlefield"><div class="side side-left"><div class="side-title side-profile" id="playerProfile0"></div><div class="team" id="team0"></div></div><div class="mid"><div class="lane-title">⚔️ ЛИНИЯ БОЯ ⚔️</div><div id="effects"></div><div class="log" id="log"></div></div><div class="side side-right"><div class="side-title side-profile" id="playerProfile1"></div><div class="team" id="team1"></div></div></div><div class="action-panel" id="actionPanel"><div id="selectedInfo">Выберите действие активного героя</div><div id="actions"></div></div></section>
+<div class="inspect-modal hidden" id="inspectModal"><div class="ability-sheet"><button class="ability-sheet-close" id="closeInspect">×</button><div id="inspectSheet"></div></div></div><div class="hero-pick-modal hidden" id="heroPickModal"><div class="ability-sheet pick-sheet"><button class="ability-sheet-close" id="closeHeroPick">×</button><div id="heroPickSheet"></div><div class="hero-pick-controls"><button class="hero-pick-confirm" id="confirmHeroPick">ВЫБРАТЬ ГЕРОЯ</button></div></div></div><div class="modal hidden" id="modal"><div class="modal-box"><button id="closeModal">×</button><h2>Правила этого прототипа</h2><div class="rules"><p><b>Драфт:</b> перед матчем игроки по очереди выбирают по 3 героя. Один и тот же герой не может быть выбран дважды.</p><p><b>Профиль и ранг:</b> победа в сетевом матче даёт +40 MMR и +1 победу; поражение снимает 20 MMR (не ниже 0) и добавляет поражение. Офлайн-матчи рейтинг и статистику не меняют.</p><p><b>Мастерство героев:</b> в сетевых матчах каждый выбранный герой получает 100 XP за победу или 35 XP за поражение. Тиры: Бронза 1–5, Серебро 6–11, Золото 12–17, Платина 18–24, Мастер 25–29, Грандмастер 30.</p><p><b>Формат боя:</b> 3 героя против 3. Команды ходят по очереди. Активный передний герой обычно получает 2 действия. После завершения своего хода он уходит назад, а следующий живой герой становится передним. Если герой пропускает активацию из-за оглушения, он остаётся впереди.</p><p><b>Обычная атака:</b> стоит 1 действие и по умолчанию может быть направлена только в переднего героя противника. Некоторые способности и предметы имеют собственные правила выбора цели — ориентируйтесь на их описание.</p><p><b>Дополнительные тычки:</b> шанс повторной атаки может превышать 100%. Первые 100% гарантируют вторую тычку, остаток переносится на третью и последующие атаки. Каждая дополнительная тычка считается отдельным ударом.</p><p><b>Золото:</b> каждые 4 хода своей команды игрок получает 5 золота. Первая кровь приносит 6 золота; обычное убийство — 4 золота. За убийство героя со стриком добавляется бонус +2 золота за каждое его предыдущее убийство. Иллюзии и временные копии не дают отдельную награду.</p><p><b>Перезарядка:</b> КД способностей и предметов считается по активациям их владельца, если в описании прямо не указаны общие ходы или ходы команды. Использовать способность или предмет можно снова после полного окончания указанной перезарядки.</p><p><b>Общие ходы:</b> эффекты с формулировкой «общие ходы» уменьшаются при смене активаций команд. Эффекты, считающиеся по ходам команды или героя, уменьшаются только в соответствующие моменты.</p><p><b>Оглушение и безмолвие:</b> оглушённый герой пропускает активацию. Безмолвие запрещает использовать способности, но само по себе не отменяет обычную смену позиции в линии.</p><p><b>Невосприимчивость к эффектам:</b> блокирует отрицательные эффекты, если способность прямо не указана как проходящая сквозь невосприимчивость.</p><p><b>Развеивание:</b> нормальное развеивание снимает обычные снимаемые отрицательные эффекты. Сильное развеивание дополнительно снимает эффекты, для которых в описании прямо требуется сильное развеивание.</p><p><b>Броня:</b> уменьшает физический урон на указанное значение. Отрицательная броня, наоборот, увеличивает физический урон.</p><p><b>Магическое сопротивление:</b> уменьшает только магический урон. Щиты от магии поглощают магический урон до исчерпания своего запаса или окончания длительности.</p><p><b>Лечение:</b> восстановление HP не может поднять здоровье выше максимума. Эффекты снижения лечения применяются до восстановления здоровья.</p><p><b>Предметы:</b> один герой может носить максимум 3 предмета. Активные предметы обычно тратят 1 действие, если в описании не сказано обратное. Предмет можно продать за половину его базовой стоимости с округлением вниз.</p><p><b>Сборка предметов:</b> если улучшенный предмет собирается из уже купленного компонента, компонент заменяется улучшением, а игрок доплачивает только разницу стоимости. Доступные рецепты отображаются в магазине.</p><p><b>Щиты:</b> щит сначала поглощает подходящий тип входящего урона, и только остаток проходит в HP. Если у щита есть отдельный эффект при разрушении, он срабатывает в момент, когда запас щита падает до нуля.</p></div></div></div></div>
+</div><script src="profile.js?v=18645"></script><script src="game.js?v=18645"></script><script src="phantom-lancer.js?v=18790"></script><script src="economy.js?v=18790"></script><script src="combat-fx.js?v=18790"></script><script src="arc-warden.js?v=18790"></script><script src="axe.js?v=18790"></script><script src="pudge.js?v=18720"></script><script src="enigma.js?v=18790"></script><script src="visual-fixes.js?v=18790"></script><script src="network.js?v=18790"></script><script src="preload.js?v=18790"></script><script src="lifecycle.js?v=18790"></script></body></html>

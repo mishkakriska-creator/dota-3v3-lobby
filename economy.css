@@ -1,0 +1,21 @@
+/* Supplied transparent PNG, displayed without a screenshot background. */
+.gold-icon{display:inline-block;width:36px;height:23px;flex:0 0 36px;vertical-align:middle;background-image:url('assets/ui/gold.png');background-repeat:no-repeat;background-size:32px 32px;background-position:center}
+.shop-gold{display:inline-flex;align-items:center;gap:4px;color:#edcf67;font-weight:800}
+#killFeed{position:fixed;left:24px;bottom:24px;z-index:100;display:flex;flex-direction:column;gap:6px;pointer-events:none;max-width:calc(100vw - 48px)}
+.kill-notice{display:flex;align-items:center;gap:9px;padding:7px 13px;background:linear-gradient(90deg,#0b131bea,#172127e8);border:1px solid #48534a;border-left:3px solid #719ffa;border-radius:4px;box-shadow:0 5px 18px #0007;animation:kill-enter .25s ease-out}
+.kill-notice.killer-team-1{border-left-color:#ed6464}
+.kill-notice .kill-hero{width:34px;height:34px;object-fit:contain;border-radius:3px;border:1px solid #536069;background:#182028}
+.kill-notice .kill-sword{width:25px;height:29px;filter:drop-shadow(0 0 3px #d7e9b566)}
+.kill-notice strong{font-size:19px;color:#f2d572;margin-left:7px}
+.kill-notice.leaving{opacity:0;transform:translateX(-18px);transition:opacity .25s,transform .25s}
+@keyframes kill-enter{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
+/* Smaller bright head and a thin golden trail, like the in-game Lance. */
+.pl-projectile{filter:drop-shadow(0 0 5px #ffd72a)}
+.pl-projectile svg{width:145px;height:38px;left:-138px;top:-19px}
+.pl-projectile path{stroke:#ffd32f;stroke-width:1.4;opacity:.8}
+.pl-projectile path+path{stroke:#fff3a5;stroke-width:.7;opacity:.6}
+.pl-projectile svg circle{fill:#fff6a0;filter:drop-shadow(0 0 2px #ffe65b);animation:pl-electric .12s infinite alternate}
+.pl-projectile>i{width:16px;height:16px;left:-8px;top:-8px;background:radial-gradient(circle,#fff 0 25%,#ffffb8 40%,#ffe436 65%,#edbe00 90%);box-shadow:0 0 9px 5px #ffe141cc,0 0 22px 8px #ffce2666}
+
+.kill-notice .kill-hero[src$="turn_pudge.png"]{background:transparent!important;filter:none!important;box-shadow:none!important;border-color:#536069!important;image-rendering:auto!important}
+.turn-token img[src$="turn_pudge.png"]{background:transparent!important;filter:none!important;box-shadow:none!important;image-rendering:auto!important}

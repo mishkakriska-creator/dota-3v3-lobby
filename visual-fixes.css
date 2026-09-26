@@ -1,0 +1,113 @@
+/* v1.59 final portrait layout. */
+#game>.shop-docks{position:relative;height:66px;margin-bottom:10px}
+html body #game .shop-docks .shop-panel{position:absolute!important;top:0!important;left:0!important;right:auto!important}
+html body #game .shop-docks .shop-right{left:auto!important;right:0!important}
+#game .shop-panel:not(.open) .shop-info{display:none}
+#game .action-panel{position:relative!important;bottom:auto!important}
+html body #draft :is(.draft-card,.draft-slot) .hero-mastery,html body #game .battlefield .hero .hero-mastery,html body #game .battlefield .team.has-four .hero .hero-mastery{width:38px!important;height:38px!important;overflow:visible!important}
+html body #draft :is(.draft-card,.draft-slot) .hero-mastery{width:44px!important;height:44px!important}
+html body #draft :is(.draft-card,.draft-slot) .hero-mastery>img,html body #game .battlefield .hero .hero-mastery>img{position:static!important;inset:auto!important;display:block!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;object-fit:contain!important;border:0!important;border-radius:0!important;padding:0!important;background:none!important;transform:none!important}
+html body #draft :is(.draft-card,.draft-slot) .hero-mastery>b,html body #game .battlefield .hero .hero-mastery>b,html body #game .battlefield .team.has-four .hero .hero-mastery>b{position:absolute!important;left:50%!important;top:48%!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:auto!important;height:auto!important;min-width:0!important;min-height:0!important;padding:0!important;margin:0!important;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:#fff!important;font-size:14px!important;line-height:1!important;font-weight:900!important;text-shadow:0 1px 2px #382611,0 0 3px #000!important}
+html body #draft :is(.draft-card,.draft-slot) .hero-mastery>b{font-size:16px!important}
+html body #game .battlefield .team.has-four .hero .hero-mastery{width:30px!important;height:30px!important}
+html body #game .battlefield .team.has-four .hero .hero-mastery>b{font-size:12px!important}
+html body #game .battlefield .team.has-four .hero.front::after{font-size:7px!important;padding:3px 4px!important}
+html body .profile-mastery-tier>b,html body #profileMasteryPanel .pm-tier>b{top:20px!important;left:50%!important;transform:translate(-50%,-50%)!important;min-width:0!important;height:auto!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;font-size:16px!important;line-height:1!important;color:white!important;font-weight:900!important;text-shadow:0 1px 2px #000!important}
+html body .profile-mastery-tier>img,html body #profileMasteryPanel .pm-tier>img{width:42px!important;height:42px!important}
+html body #game .battlefield .hero .hero-portrait .hero-mastery-slot{top:2px!important}
+#game .portrait-statuses{position:absolute;top:48px;left:8px;right:8px;display:flex;flex-wrap:wrap;align-content:flex-start;align-items:flex-start;gap:6px;z-index:56;pointer-events:none}
+html body #game .battlefield .hero .portrait-statuses>:is(.silence-overlay,.sticky-bomb-overlay,.item-debuff-overlay,.sf-mark-overlay,.sf-presence-overlay,.tether-status-overlay,.axe-call-token),html body #game .battlefield .hero .portrait-statuses .invoker-effect-dot{position:relative!important;inset:auto!important;transform:none!important;flex:0 0 24px!important;width:24px!important;height:24px!important;min-width:24px!important;min-height:24px!important;max-width:24px!important;max-height:24px!important;margin:0!important;padding:0!important;object-fit:contain!important;border-radius:5px!important;pointer-events:auto!important}
+html body #game .battlefield .hero .portrait-statuses :is(.item-debuff-overlay,.sf-mark-overlay,.sf-presence-overlay,.tether-status-overlay,.invoker-effect-dot)>img{position:static!important;inset:auto!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;border-radius:5px!important;transform:none!important}
+html body #game .battlefield .hero .portrait-statuses .invoker-effect-overlays,html body #game .battlefield .hero .portrait-statuses .axe-call-token,html body #game .battlefield .hero:not(.silenced) .portrait-statuses .silence-overlay{display:none!important}
+html body #game .battlefield .hero .portrait-statuses .invoker-effect-overlays.show{display:contents!important}
+html body #game .battlefield .hero.axe-called .portrait-statuses .axe-call-token{display:block!important}
+html body #game .battlefield .hero .portrait-statuses b{font-size:9px!important;line-height:1!important;min-width:12px!important;height:12px!important}
+.axe-helix-meter{display:block;position:absolute;right:10px;bottom:44px;font-size:10px;color:#eac5a1;cursor:help}
+.axe-call-aura{z-index:18!important}
+.battlefield .hero .hero-portrait>video{pointer-events:none}
+.battlefield .hero video::-webkit-media-controls{display:none!important}
+.damage-flash{animation:damage-flash .48s ease-out forwards!important}
+.damage-flash.damage-block{background:#c9d5e433;box-shadow:inset 0 0 0 2px #b7ccde99;animation:damage-block .48s ease-out forwards!important}
+.damage-block .damage-number{font-size:13px;color:#e5edf8;text-shadow:0 1px 3px #000}
+@keyframes damage-block{from{opacity:.9}to{opacity:0}}
+@media(prefers-reduced-motion:reduce){.damage-flash{animation-duration:.2s!important}}
+
+/* v1.60: remove inherited draft-card div padding from medal hosts. */
+html body #draft :is(.draft-card,.draft-slot) .draft-mastery-host{position:absolute!important;left:0!important;top:-4px!important;right:auto!important;bottom:auto!important;padding:0!important;margin:0!important;line-height:0!important;width:44px!important;height:44px!important;background:none!important}
+
+/* v1.61 — battle status icons stack vertically; battle mastery medal has no level number. */
+html body #game .battlefield .hero .portrait-statuses{
+  top:34px!important;
+  right:auto!important;
+  bottom:auto!important;
+  width:24px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  flex-wrap:nowrap!important;
+  align-content:flex-start!important;
+  align-items:flex-start!important;
+  justify-content:flex-start!important;
+  gap:6px!important;
+}
+html body #game .battlefield .side-left .hero .portrait-statuses{
+  left:8px!important;
+  right:auto!important;
+}
+html body #game .battlefield .side-right .hero .portrait-statuses{
+  left:auto!important;
+  right:8px!important;
+}
+html body #game .battlefield .hero .hero-mastery>b{
+  display:none!important;
+}
+
+/* v1.83: reserve enough room for all spiderling statistics. */
+html body #game .battlefield .hero .broodling-summon-card{
+ box-sizing:border-box!important;width:112px!important;min-width:112px!important;
+ min-height:40px!important;padding:4px!important;gap:4px!important;overflow:hidden!important;
+}
+html body #game .battlefield .hero .broodling-summon-media{
+ box-sizing:border-box!important;width:24px!important;height:28px!important;flex:0 0 24px!important;
+}
+html body #game .battlefield .hero .broodling-summon-copy{
+ flex:1 1 0!important;min-width:0!important;gap:2px!important;
+}
+html body #game .battlefield .hero .broodling-summon-copy :is(b,span,small){
+ font-size:8px!important;line-height:1.15!important;white-space:normal!important;
+ overflow-wrap:anywhere!important;max-width:100%!important;
+}
+html body #game .battlefield .hero .broodlings-summons{top:auto!important;bottom:calc(100% + 8px)!important}
+html body #game .battlefield .hero:first-child .broodlings-summons{left:0!important;right:auto!important;transform:none!important}
+html body #game .battlefield .hero:last-child .broodlings-summons{left:auto!important;right:0!important;transform:none!important}
+
+/* v1.84: two compact summon cards stay inside the owner's width. */
+html body #game .battlefield .hero .broodlings-summons,
+html body #game .battlefield .hero:first-child .broodlings-summons,
+html body #game .battlefield .hero:last-child .broodlings-summons{
+ left:0!important;right:0!important;width:100%!important;max-width:100%!important;
+ transform:none!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:3px!important;
+}
+html body #game .battlefield .hero .broodling-summon-card{
+ width:100%!important;min-width:0!important;padding:3px!important;gap:2px!important;
+ display:flex!important;flex-direction:column!important;text-align:center!important;
+}
+html body #game .battlefield .hero .broodling-summon-copy{flex:0 1 auto!important;width:100%!important}
+html body #game .battlefield .hero .broodling-summon-copy :is(b,span,small){font-size:7px!important;line-height:1.1!important}
+
+html body #game .battlefield .hero .broodling-summon-copy b{font-size:6px!important;white-space:nowrap!important}
+
+/* v1.84.2 — drop the skills/action panel a little lower under the battlefield */
+#game .action-panel{margin-top:12px!important}
+
+
+/* v1.85 — Tinker */
+.tinker-projectile-layer{position:absolute;inset:0;pointer-events:none;overflow:visible;z-index:120}
+.tinker-laser-beam,.tinker-missile{position:absolute;pointer-events:none;z-index:121;will-change:transform,left,top,opacity}
+.tinker-laser-beam{height:8px;border-radius:999px;background:linear-gradient(90deg,rgba(64,190,255,.15) 0%,#67d7ff 14%,#d6ffff 48%,#ffffff 72%,rgba(255,255,255,.25) 100%);box-shadow:0 0 10px #52cbff,0 0 18px #41b8ff,0 0 34px rgba(131,234,255,.95);transform-origin:left center;opacity:1;animation:tinkerLaserFade .34s ease-out forwards}
+.tinker-laser-beam::after{content:'';position:absolute;right:-10px;top:50%;width:16px;height:16px;border-radius:50%;transform:translateY(-50%);background:#fff;box-shadow:0 0 12px #8fe8ff,0 0 26px #8fe8ff,0 0 38px rgba(255,255,255,.85)}
+@keyframes tinkerLaserFade{0%{opacity:0;filter:brightness(2.2)}10%{opacity:1}100%{opacity:0;filter:brightness(1)}}
+.tinker-missile{width:28px;height:12px;border-radius:12px 8px 8px 12px;background:linear-gradient(90deg,#d2d7e6,#ffffff 35%,#b6c3e8);box-shadow:0 0 12px #8fd0ff;transform:translate(-50%,-50%)}
+.tinker-missile::before{content:'';position:absolute;left:-15px;top:50%;width:24px;height:8px;transform:translateY(-50%);background:linear-gradient(90deg,rgba(255,178,77,0),rgba(255,178,77,.8),rgba(255,235,148,1));filter:blur(2px)}
+.tinker-missile::after{content:'';position:absolute;right:1px;top:50%;width:8px;height:8px;border-radius:50%;transform:translateY(-50%);background:#6a7bd1;box-shadow:0 0 8px #95a9ff}
+.hero .status{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.status-badge.bad-blind{background:rgba(36,58,98,.75);border:1px solid rgba(132,178,255,.45);color:#d7ebff}

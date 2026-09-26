@@ -1,0 +1,2195 @@
+:root{font-family:Inter,Segoe UI,Arial,sans-serif;color:#f4f5f7;background:#0b0d12}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 0,#22293a 0,#0b0d12 55%);min-height:100vh}button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:10px 15px;font-weight:700;background:#e9edf5;color:#10131a}button:disabled{opacity:.4;cursor:not-allowed}header{display:flex;justify-content:space-between;align-items:center;padding:20px 28px;border-bottom:1px solid #2b3040;background:#0b0d12dd;position:sticky;top:0;z-index:10}h1{margin:0;font-size:28px}h1 span{color:#e84d4d}header p{margin:3px 0 0;color:#8f98ad}.screen{max-width:1280px;margin:auto;padding:26px}.hidden{display:none!important}.draft-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.draft-card{background:#171b25;border:2px solid #303747;border-radius:16px;overflow:hidden;transition:.15s}.draft-card:hover{transform:translateY(-3px);border-color:#68738e}.draft-card.selected{border-color:#e84d4d;box-shadow:0 0 0 3px #e84d4d33}.draft-card img{width:100%;aspect-ratio:9/16;object-fit:cover;display:block}.draft-card div{padding:12px}.draft-footer{display:flex;justify-content:space-between;align-items:center;margin-top:20px}.hud{display:flex;gap:12px;align-items:center;background:#151923;border:1px solid #2c3343;border-radius:14px;padding:12px 16px;position:sticky;top:92px;z-index:8}.hud #turnLabel{font-size:20px;font-weight:800;margin-right:auto}.team{display:flex;justify-content:center;gap:22px;padding:22px}.team.enemy{border-bottom:1px solid #282e3d}.team.player{border-top:1px solid #282e3d}.hero{width:260px;background:#171b25;border:2px solid #303747;border-radius:16px;overflow:hidden;position:relative;transition:.15s}.hero.active{border-color:#ffd166;box-shadow:0 0 25px #ffd16633}.hero.dead{filter:grayscale(1);opacity:.35}.hero.front::after{content:'ПЕРЕДНИЙ';position:absolute;top:8px;right:8px;background:#ffd166;color:#17130a;padding:5px 8px;border-radius:8px;font-size:11px;font-weight:900}.hero img{width:100%;height:240px;object-fit:cover;object-position:top}.hero-body{padding:10px 12px}.hero-name{font-size:20px;font-weight:900}.stats{display:flex;gap:8px;margin:8px 0}.stat{padding:6px 9px;background:#0f1219;border-radius:8px}.status{font-size:12px;color:#ffd166;min-height:18px}.hpbar{height:8px;background:#3a2023;border-radius:5px;overflow:hidden}.hpbar i{display:block;height:100%;background:#55c86b}.mid{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:14px}.log,#effects{background:#11151e;border:1px solid #292f3e;border-radius:12px;padding:12px;min-height:130px;max-height:180px;overflow:auto}.log div{padding:3px 0;color:#bac2d3}.action-panel{background:#151923;border:1px solid #2c3343;border-radius:14px;padding:14px;position:sticky;bottom:10px}.action-panel #actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.action-panel button.skill{background:#2b3345;color:#fff}.action-panel button.attack{background:#b84444;color:#fff}.modal{position:fixed;inset:0;background:#000a;z-index:30;display:grid;place-items:center;padding:20px}.modal-box{max-width:850px;max-height:90vh;overflow:auto;background:#171b25;border:1px solid #3a4358;border-radius:18px;padding:24px;position:relative}.modal-box #closeModal{position:absolute;right:14px;top:14px}.rules p{line-height:1.5;color:#d1d6e2}.rules .note{padding:12px;background:#232a38;border-radius:10px}@media(max-width:900px){.draft-grid{grid-template-columns:repeat(2,1fr)}.hero{width:44vw}.mid{grid-template-columns:1fr}.hud{top:84px}.team{gap:10px;padding:12px}.hero img{height:180px}}
+/* v0.2: горизонтальная линия боя */
+.battlefield{display:grid;grid-template-columns:minmax(260px,1fr) minmax(300px,.9fr) minmax(260px,1fr);gap:18px;align-items:center;min-height:610px;padding:18px 0}.side{height:100%;border:1px solid #282e3d;border-radius:18px;background:#10141c88;padding:14px}.side-left{border-right:3px solid #4d7ee8}.side-right{border-left:3px solid #e84d4d}.side-title{text-align:center;font-size:20px;font-weight:900;letter-spacing:1px;margin:4px 0 12px}.side-left .side-title{color:#7fa7ff}.side-right .side-title{color:#ff8585}.battlefield .team{display:flex;flex-direction:column;align-items:center;gap:14px;padding:0}.battlefield .hero{width:min(100%,300px)}.battlefield .hero img{height:220px}.battlefield .mid{display:flex;flex-direction:column;gap:12px;padding:0}.lane-title{text-align:center;font-weight:1000;color:#ffd166;font-size:19px;padding:10px;border-bottom:1px solid #343b4d}.hero.targetable{cursor:crosshair;border-color:#e84d4d;box-shadow:0 0 22px #e84d4d55;animation:pulseTarget .8s infinite alternate}.hero.targetable:hover{transform:scale(1.025)}@keyframes pulseTarget{to{box-shadow:0 0 35px #e84d4d99}}.target-hint{color:#ffd166;font-weight:800}.field-mine{padding:8px 10px;background:#6f2929;border-radius:9px;margin-top:8px;font-weight:800}.field-bomb{padding:6px 9px;background:#4a3b20;border-radius:8px;margin-top:6px}.action-panel{z-index:12}@media(max-width:1000px){.battlefield{grid-template-columns:1fr 240px 1fr;gap:8px}.battlefield .hero img{height:170px}.battlefield .hero{width:100%}}@media(max-width:720px){.battlefield{grid-template-columns:1fr 1fr}.battlefield .mid{grid-column:1/3;grid-row:2}.battlefield .hero img{height:150px}}
+
+/* v0.4: окно описания героя во время пика */
+.draft-info{position:sticky;top:92px;z-index:7;margin:16px 0 20px;min-height:145px;background:linear-gradient(135deg,#171b25,#10141d);border:1px solid #343d50;border-radius:16px;padding:16px;box-shadow:0 12px 30px #0005}.draft-info-empty{display:grid;place-items:center;min-height:110px;color:#8f98ad;text-align:center;font-weight:700}.draft-info-head{display:flex;align-items:center;gap:14px;margin-bottom:12px}.draft-info-head img{width:64px;height:64px;object-fit:cover;object-position:top;border-radius:12px;border:1px solid #465069}.draft-info-name{font-size:24px;font-weight:1000}.draft-info-stats{margin-top:5px;color:#cfd5e2;font-weight:800}.draft-skills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.draft-skill{background:#0d1118;border:1px solid #2c3445;border-radius:11px;padding:10px 12px}.draft-skill-title{font-weight:900;color:#ffd166;margin-bottom:5px}.draft-skill-desc{font-size:13px;line-height:1.35;color:#c4cada}@media(max-width:800px){.draft-skills{grid-template-columns:1fr}.draft-info{position:relative;top:auto}}
+/* v0.5 draft redesign */
+#draft{max-width:1100px}.draft-grid{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:14px;margin-top:22px}.draft-card{padding:0;background:#111722;border:2px solid #303b4e;border-radius:5px;overflow:hidden;color:#fff;text-align:left;box-shadow:inset 0 0 0 1px #0a0d13;transition:.12s}.draft-card:hover{transform:none;border-color:#8395ad;filter:brightness(1.12)}.draft-card.selected{border-color:#d7b45b;box-shadow:0 0 0 2px #d7b45b44}.draft-card img{width:100%;height:112px;aspect-ratio:auto;object-fit:cover;display:block}.draft-card-name{padding:8px 10px!important;background:linear-gradient(#29374a,#172131);font-size:14px;font-weight:900;letter-spacing:.5px}.hero-pick-modal{position:fixed;inset:0;background:#05080dcc;z-index:40;display:grid;place-items:center;padding:24px}.hero-pick-box{position:relative;display:grid;grid-template-columns:minmax(280px,430px) 280px;gap:18px;align-items:end;max-height:94vh}.hero-pick-card-wrap{background:#0e141d;border:2px solid #44546a;padding:8px;box-shadow:0 20px 60px #000b;max-height:88vh;overflow:auto}.hero-pick-card-wrap img{width:100%;display:block}.hero-pick-controls{align-self:end;background:linear-gradient(#35465c,#1b2736);border:1px solid #52657c;padding:8px;box-shadow:0 8px 30px #0008}.hero-pick-label{font-size:11px;letter-spacing:1.5px;color:#b9c4d2}.hero-pick-name{font-size:24px;font-weight:500;margin:2px 0 10px;text-transform:uppercase}.hero-pick-confirm{width:100%;border-radius:2px;background:linear-gradient(#667c95,#394b61);color:white;border:1px solid #7e91a8;padding:13px 10px}.hero-pick-confirm:hover{filter:brightness(1.15)}.hero-pick-close{position:absolute;right:-14px;top:-14px;width:38px;height:38px;padding:0;border-radius:50%;z-index:2}.hero-pick-modal.hidden{display:none!important}@media(max-width:800px){.draft-grid{grid-template-columns:repeat(2,1fr)}.draft-card img{height:95px}.hero-pick-box{grid-template-columns:1fr;max-width:430px;overflow:auto}.hero-pick-controls{position:sticky;bottom:0}.hero-pick-card-wrap{max-height:68vh}}
+/* v0.6: line formation + draft button below card */
+.hero-pick-box{display:block;width:min(94vw,470px);max-height:94vh;overflow:auto;align-items:initial}
+.hero-pick-preview{display:flex;flex-direction:column;gap:10px}
+.hero-pick-card-wrap{width:100%;max-height:none;overflow:visible}
+.hero-pick-controls{width:100%;align-self:auto;margin-top:0}
+.hero-pick-close{right:-12px;top:-12px}
+.battlefield{grid-template-columns:minmax(360px,1fr) minmax(280px,.7fr) minmax(360px,1fr);overflow:hidden}
+.battlefield .side{overflow:visible;min-width:0}
+.battlefield .team{position:relative;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:22px;min-height:500px;padding:20px 8px}
+.battlefield .hero{width:min(46%,270px);flex:0 1 270px;transition:transform .55s cubic-bezier(.2,.85,.2,1),border-color .2s,box-shadow .2s,opacity .2s;will-change:transform}
+.battlefield .hero img{height:210px}
+.side-left .team .hero.front{transform:translateX(8px)}
+.side-left .team .hero:not(.front){transform:translateX(-8px) scale(.94)}
+.side-right .team .hero.front{transform:translateX(-8px)}
+.side-right .team .hero:not(.front){transform:translateX(8px) scale(.94)}
+.side-left .team .hero.front{order:2}.side-left .team .hero:not(.front){order:1}
+.side-right .team .hero.front{order:1}.side-right .team .hero:not(.front){order:2}
+.hero.swap-pop{animation:swapPop .55s ease}
+@keyframes swapPop{0%{filter:brightness(1)}45%{filter:brightness(1.45)}100%{filter:brightness(1)}}
+@media(max-width:1000px){.battlefield{grid-template-columns:minmax(300px,1fr) 220px minmax(300px,1fr)}.battlefield .team{gap:10px}.battlefield .hero{width:48%}.battlefield .hero img{height:170px}}
+
+/* v0.7: compact hero preview without visible white scrollbars */
+.hero-pick-modal{overflow:hidden}
+.hero-pick-box{width:min(92vw,410px);height:auto;max-height:96vh;overflow:visible}
+.hero-pick-preview{max-height:96vh;overflow:visible}
+.hero-pick-card-wrap{width:100%;padding:6px;max-height:calc(96vh - 112px);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.hero-pick-card-wrap img{display:block;width:auto;max-width:100%;height:auto;max-height:calc(96vh - 126px);object-fit:contain}
+.hero-pick-controls{flex:0 0 auto}
+.hero-pick-close{right:-16px;top:-16px}
+@media(max-height:760px){.hero-pick-box{width:min(88vw,340px)}.hero-pick-card-wrap{max-height:calc(96vh - 104px)}.hero-pick-card-wrap img{max-height:calc(96vh - 116px)}.hero-pick-controls{padding:6px}.hero-pick-name{font-size:20px;margin-bottom:6px}.hero-pick-confirm{padding:9px}}
+/* v0.8: animated Dota portrait videos in battle */
+.battlefield .hero .hero-portrait{width:100%;height:210px;overflow:hidden;background:#080b10;position:relative}
+.battlefield .hero .hero-portrait video{width:100%;height:100%;display:block;object-fit:cover;object-position:center;pointer-events:none}
+.battlefield .hero.dead .hero-portrait video{filter:grayscale(1)}
+@media(max-width:1000px){.battlefield .hero .hero-portrait{height:170px}}
+/* v0.9: persistent animated portraits + card viewer + real skill icons */
+.hero .inspect-hero{margin-top:8px;width:100%;padding:6px 8px;border-radius:7px;background:#242c3b;color:#cbd4e4;border:1px solid #3a465c;font-size:11px;font-weight:900;letter-spacing:.7px}
+.hero .inspect-hero:hover{filter:brightness(1.18)}
+.action-panel button.skill{display:inline-flex;align-items:center;gap:8px;padding:7px 11px}
+.skill-icon{width:34px;height:34px;object-fit:cover;border-radius:4px;box-shadow:0 0 0 1px #0008;flex:none}
+.inspect-modal{position:fixed;inset:0;background:#05080ddd;z-index:60;display:grid;place-items:center;padding:18px}.inspect-modal.hidden{display:none!important}.inspect-box{position:relative;max-height:94vh;display:flex;flex-direction:column;align-items:center}.inspect-title{width:100%;background:#182131;border:1px solid #46566d;border-bottom:0;padding:8px 12px;color:#dce5f1;font-weight:900}.inspect-box img{display:block;max-height:84vh;max-width:min(92vw,430px);width:auto;object-fit:contain;background:white;border:1px solid #46566d}.inspect-close{position:absolute;right:-14px;top:-14px;width:38px;height:38px;border-radius:50%;padding:0;z-index:2}
+.log-skill-icon{width:24px;height:24px;object-fit:cover;vertical-align:middle;border-radius:4px;margin-right:7px;box-shadow:0 0 0 1px #53627a}.log>div{display:flex;align-items:flex-start;gap:2px;margin-bottom:5px}
+
+/* v0.15: visible silence + proximity mine presentation */
+.hero .silence-overlay{position:absolute;z-index:6;left:50%;top:50%;width:42%!important;height:auto!important;aspect-ratio:1/1;object-fit:contain!important;transform:translate(-50%,-50%) rotate(-4deg);opacity:0;pointer-events:none;filter:drop-shadow(0 5px 8px #000a);transition:opacity .18s}
+.hero.silenced .silence-overlay{opacity:.92;animation:silenceSway 1.8s ease-in-out infinite alternate}
+@keyframes silenceSway{0%{transform:translate(-50%,-50%) rotate(-6deg) translateY(-2px)}100%{transform:translate(-50%,-50%) rotate(6deg) translateY(3px)}}
+.hero .lane-mine{display:none;position:absolute;z-index:7;width:58px!important;height:58px!important;object-fit:cover!important;border-radius:50%;bottom:102px;filter:drop-shadow(0 6px 7px #000b);animation:mineIdle 1.35s ease-in-out infinite alternate;pointer-events:none}
+.hero.has-lane-mine .lane-mine{display:block}
+.side-left .hero.has-lane-mine .lane-mine{right:6px}.side-right .hero.has-lane-mine .lane-mine{left:6px}
+@keyframes mineIdle{from{transform:translateY(0) scale(.96)}to{transform:translateY(-4px) scale(1.04)}}
+.hero .mine-explosion{position:absolute;z-index:9;left:50%;top:52%;width:20px;height:20px;border-radius:50%;opacity:0;pointer-events:none;background:radial-gradient(circle,#fff 0 8%,#ffe36b 9% 22%,#ff8a2b 23% 45%,#e93618 46% 58%,transparent 60%);box-shadow:0 0 20px 8px #ff9a31,0 0 45px 18px #e6421b88}
+.hero.mine-boom .mine-explosion{animation:mineBlast .68s cubic-bezier(.15,.8,.25,1)}
+.hero.mine-boom .hero-portrait{animation:mineShake .48s ease-out}
+@keyframes mineBlast{0%{opacity:0;transform:translate(-50%,-50%) scale(.15)}12%{opacity:1}55%{opacity:.95;transform:translate(-50%,-50%) scale(7)}100%{opacity:0;transform:translate(-50%,-50%) scale(10)}}
+@keyframes mineShake{0%,100%{transform:translate(0)}20%{transform:translate(-5px,2px)}40%{transform:translate(5px,-2px)}60%{transform:translate(-3px,-1px)}80%{transform:translate(3px,1px)}}
+
+/* v0.16: centered transparent status overlays */
+.hero .lane-mine{
+  display:none;position:absolute;z-index:7;left:50%!important;right:auto!important;top:50%;bottom:auto;
+  width:44%!important;height:auto!important;max-width:118px;aspect-ratio:1/1;object-fit:contain!important;border-radius:0;
+  transform:translate(-50%,-50%);filter:drop-shadow(0 7px 9px #000b);pointer-events:none;
+}
+.hero.has-lane-mine .lane-mine{display:block;animation:mineCenterShake 1.25s ease-in-out infinite}
+@keyframes mineCenterShake{
+  0%,100%{transform:translate(-50%,-50%) rotate(-2deg) scale(.98)}
+  25%{transform:translate(calc(-50% - 2px),calc(-50% + 1px)) rotate(2deg) scale(1.01)}
+  50%{transform:translate(calc(-50% + 2px),calc(-50% - 2px)) rotate(-1deg) scale(1.03)}
+  75%{transform:translate(calc(-50% - 1px),calc(-50% - 1px)) rotate(2deg) scale(1)}
+}
+.hero .silence-overlay{width:39%!important;max-width:112px}
+
+/* v0.17: compact live turn-order preview */
+#game{position:relative}
+.turn-queue{position:fixed;z-index:45;top:12px;right:16px;min-width:250px;max-width:390px;padding:7px 10px 8px;border:1px solid #334057;border-radius:11px;background:#0c111bd9;box-shadow:0 8px 28px #0008;backdrop-filter:blur(8px);pointer-events:auto}
+.turn-queue-title{font-size:10px;font-weight:900;letter-spacing:1.2px;color:#9eabc0;margin:0 0 5px 2px}
+.turn-queue-row{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.turn-token{width:31px;height:31px;border-radius:7px;position:relative;overflow:visible;flex:none;border:2px solid #56647a;background:#111827;box-shadow:0 2px 8px #0008;transition:transform .22s ease,opacity .22s ease,border-color .22s ease}
+.turn-token img{display:block;width:100%;height:100%;object-fit:cover;border-radius:5px}
+.turn-token.team-0{border-color:#4d83ff}.turn-token.team-1{border-color:#ff5959}
+.turn-token.now{width:38px;height:38px;transform:translateY(1px);box-shadow:0 0 0 2px #ffd65a55,0 3px 12px #000a}
+.turn-token.now:after{content:'СЕЙЧАС';position:absolute;left:50%;bottom:-12px;transform:translateX(-50%);font-size:7px;font-weight:1000;color:#ffd65a;letter-spacing:.5px}
+.turn-arrow{color:#6d788b;font-size:17px;font-weight:900;line-height:1}
+.turn-token.skipped{opacity:.38;filter:grayscale(.65)}
+.skip-mark{position:absolute;right:-6px;top:-7px;font-size:12px;filter:none;z-index:2;text-shadow:0 1px 3px #000}
+@media(max-width:900px){.turn-queue{top:8px;right:8px;max-width:310px}.turn-token{width:27px;height:27px}.turn-token.now{width:33px;height:33px}.turn-queue-row{gap:2px}.turn-arrow{font-size:14px}}
+
+/* v0.20: keep the current-turn label inside the queue card */
+.turn-queue{padding-bottom:13px}
+.turn-token.now:after{bottom:-10px;font-size:6px;line-height:1;letter-spacing:.25px;white-space:nowrap}
+
+/* v0.21: Techies sticky bomb marker + detonation feedback */
+.hero .sticky-bomb-overlay{
+  display:none;position:absolute;z-index:8;left:10px;top:10px;
+  width:46px!important;height:46px!important;object-fit:cover!important;
+  border-radius:50%;border:2px solid #89d45a;background:#111;
+  box-shadow:0 0 0 3px #111b,0 0 12px #8ce85c88;
+  pointer-events:none;
+}
+.hero.has-sticky-bomb .sticky-bomb-overlay{display:block;animation:stickyBombPulse 1.05s ease-in-out infinite alternate}
+@keyframes stickyBombPulse{from{transform:rotate(-4deg) scale(.96)}to{transform:rotate(4deg) scale(1.06)}}
+.hero.bomb-boom .mine-explosion{animation:mineBlast .68s cubic-bezier(.15,.8,.25,1)}
+.hero.bomb-boom .hero-portrait{animation:mineShake .48s ease-out}
+
+/* v0.24: 3v3 + Shadow Fiend / Lifestealer */
+.draft-grid{grid-template-columns:repeat(3,minmax(150px,1fr))}
+.battlefield .team{gap:10px;padding:20px 4px}
+.battlefield .hero{width:31%;min-width:0}
+.battlefield .hero .hero-portrait{height:190px}
+.battlefield .hero .static-hero-portrait{width:100%;height:100%;display:block;object-fit:cover;object-position:center}
+.hero.infested{opacity:.18;filter:grayscale(.6);pointer-events:none;transform:scale(.9)!important}
+.hero.infested::before{content:'ВНУТРИ СОЮЗНИКА';position:absolute;z-index:12;left:50%;top:42%;transform:translate(-50%,-50%);font-size:10px;font-weight:1000;color:#ff6b6b;background:#0b0d12dd;padding:5px 7px;border-radius:7px;white-space:nowrap}
+@media(max-width:1000px){.battlefield .hero{width:32%}.battlefield .hero .hero-portrait{height:145px}.hero-name{font-size:15px}.hero-body{padding:8px}.stat{padding:5px 6px;font-size:12px}}
+/* v0.29 fixes: draft portraits keep heads visible; Infest never leaves card scaled down */
+.draft-card img{object-position:center top}
+.side-left .team .hero:not(.front){transform:translateX(-8px)}
+.side-right .team .hero:not(.front){transform:translateX(8px)}
+.hero.infested{opacity:.18;filter:grayscale(.6);pointer-events:none;transform:none!important}
+/* v0.30: show the complete draft artwork instead of cropping it */
+.draft-card{background:#0b1018}
+.draft-card img{
+  width:100%;
+  height:150px;
+  object-fit:contain;
+  object-position:center;
+  background:#0b1018;
+}
+@media(max-width:800px){.draft-card img{height:125px}}
+/* v0.31+: show all 7 heroes on the draft screen without forcing a third desktop row */
+#draft{max-width:1180px}
+.draft-grid{
+  grid-template-columns:repeat(4,minmax(0,240px));
+  justify-content:center;
+  gap:14px;
+}
+.draft-card{width:100%}
+.draft-card img{
+  width:100%;
+  height:158px;
+  object-fit:contain;
+  object-position:center;
+  background:#0b1018;
+}
+@media(max-width:1000px){
+  .draft-grid{grid-template-columns:repeat(3,minmax(0,240px))}
+}
+@media(max-width:760px){
+  .draft-grid{grid-template-columns:repeat(2,minmax(0,240px))}
+}
+@media(max-width:620px){
+  .draft-grid{grid-template-columns:minmax(0,280px)}
+}
+
+/* v0.32 multiplayer */
+.net-status{margin-top:6px;font-size:13px;opacity:.82}.net-locked #actions,.net-locked #endTurnBtn{pointer-events:none;opacity:.42}.net-locked .hero{pointer-events:none}.net-guest #draftCards,.net-guest #startBtn{pointer-events:none;opacity:.42}
+
+
+/* v0.33 portable multiplayer menu */
+.mp-menu{position:fixed;z-index:9999;inset:0;background:#080b11f2;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(10px)}
+.mp-menu.hidden{display:none}.mp-menu-box{width:min(520px,100%);padding:30px;border:1px solid #344056;border-radius:18px;background:#101620;box-shadow:0 22px 70px #000b;text-align:center}
+.mp-logo{font-size:34px;font-weight:1000;letter-spacing:1px}.mp-logo span{opacity:.6}.mp-sub{margin:5px 0 24px;color:#aab4c5;font-weight:800;letter-spacing:2px;font-size:12px}
+.mp-primary,.mp-secondary{width:100%;min-height:52px;margin:7px 0;border-radius:11px;font-size:15px;font-weight:1000;letter-spacing:.7px;cursor:pointer}.mp-primary{border:1px solid #6e8eff;background:#496ee5;color:white}.mp-secondary{border:1px solid #46546b;background:#182231;color:#e9eef7}
+.mp-panel{margin-top:16px;padding:16px;border:1px solid #303c50;border-radius:12px;background:#0b1018;text-align:left}.mp-panel.hidden{display:none}.mp-panel label{display:block;margin-bottom:7px;font-weight:800}.mp-panel input{box-sizing:border-box;width:100%;min-height:48px;padding:10px 12px;border:1px solid #46546b;border-radius:9px;background:#111927;color:#fff;font-size:16px;outline:none}.mp-panel input:focus{border-color:#7894ff}
+.mp-help,.mp-note{font-size:12px;color:#9ba7b8;line-height:1.45}.mp-help{margin:7px 0}.mp-note{margin-top:18px}.mp-addresses{margin:10px 0}.mp-address{padding:9px 10px;margin:6px 0;border-radius:8px;background:#161f2d;font-family:monospace;font-size:14px;word-break:break-all}.mp-error{min-height:20px;padding-top:5px;color:#ff8181;font-size:12px}
+
+/* v0.35 asset preload screen */
+.asset-loader{position:fixed;inset:0;z-index:99999;background:#0b0f17;display:flex;align-items:center;justify-content:center;transition:opacity .3s ease}
+.asset-loader.asset-loader-done{opacity:0;pointer-events:none}
+.asset-loader-box{width:min(460px,calc(100vw - 40px));padding:24px;border:1px solid #334155;border-radius:16px;background:#111827;box-shadow:0 20px 60px #0008}
+.asset-loader-title{font-size:22px;font-weight:800;margin-bottom:9px;color:#f8fafc}
+.asset-loader-text{font-size:14px;color:#aeb9ca;margin-bottom:13px}
+.asset-loader-track{height:10px;border-radius:999px;background:#202b3d;overflow:hidden}
+.asset-loader-bar{height:100%;width:0;background:#4f73e8;border-radius:inherit;transition:width .12s linear}
+
+/* v0.37 host peer notification */
+.net-toast{position:fixed;top:18px;left:50%;transform:translate(-50%,-12px);z-index:99999;padding:12px 18px;border:1px solid #4f6f5b;border-radius:10px;background:#14231b;color:#d9ffe5;font-weight:800;box-shadow:0 12px 35px #0009;opacity:0;transition:opacity .25s ease,transform .25s ease;pointer-events:none}.net-toast.show{opacity:1;transform:translate(-50%,0)}.net-toast.hidden{display:none}
+/* v0.40 — compact ability-card window used in draft and battle */
+.ability-sheet{position:relative;width:min(92vw,620px);max-height:90vh;overflow:auto;background:linear-gradient(180deg,#151d2a 0,#0c1119 100%);border:1px solid #46566d;border-radius:14px;box-shadow:0 24px 80px #000c;padding:20px;color:#eef3fb}
+.ability-sheet-close{position:absolute;right:12px;top:12px;width:38px;height:38px;border-radius:50%;padding:0;z-index:3}
+.ability-head{display:flex;align-items:center;gap:16px;padding:2px 54px 18px 2px;border-bottom:1px solid #344156}
+.ability-hero-icon{width:112px;height:72px;object-fit:cover;object-position:center;border:2px solid #52627a;border-radius:8px;background:#090d13}
+.ability-kicker{font-size:11px;letter-spacing:1.7px;color:#8f9caf;font-weight:800;margin-bottom:4px}
+.ability-hero-name{font-size:28px;line-height:1;font-weight:950;letter-spacing:.5px}
+.ability-list{display:flex;flex-direction:column;gap:0}
+.ability-row{display:grid;grid-template-columns:86px 1fr;gap:16px;padding:18px 2px;border-bottom:1px solid #2d3748;align-items:start}
+.ability-row:last-child{border-bottom:0}
+.ability-icon{width:78px;height:78px;object-fit:cover;border-radius:7px;border:1px solid #56647a;box-shadow:0 5px 18px #0007}
+.ability-name{font-size:20px;font-weight:900;margin:1px 0 7px;color:#fff}
+.ability-desc{font-size:15px;line-height:1.45;color:#cbd5e4}
+.hero-pick-modal,.inspect-modal{background:#05080ddd;place-items:center;padding:18px}
+.hero-pick-box{all:unset}.hero-pick-preview,.hero-pick-card-wrap{all:unset}
+.pick-sheet{padding-bottom:14px}.pick-sheet .hero-pick-controls{width:auto;background:transparent;border:0;box-shadow:none;padding:14px 2px 0;margin:0;border-top:1px solid #344156}
+.pick-sheet .hero-pick-confirm{width:100%;border-radius:8px;padding:13px}
+.inspect-box{display:contents}.inspect-title,.inspect-box>img{display:none!important}
+@media(max-width:600px){.ability-sheet{padding:14px}.ability-hero-icon{width:90px;height:60px}.ability-hero-name{font-size:23px}.ability-row{grid-template-columns:68px 1fr;gap:12px;padding:14px 0}.ability-icon{width:64px;height:64px}.ability-name{font-size:17px}.ability-desc{font-size:13px}}
+
+/* v0.41 — uniform, larger battle cards */
+.battlefield .team{gap:12px;padding-left:2px;padding-right:2px}
+.battlefield .hero{
+  width:calc((100% - 24px)/3);
+  flex:0 0 calc((100% - 24px)/3);
+  height:430px;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+}
+.battlefield .hero .hero-portrait{height:230px;flex:0 0 230px}
+.battlefield .hero-body{display:flex;flex:1;min-height:0;flex-direction:column;padding:10px}
+.battlefield .hero-name{
+  height:24px;min-height:24px;line-height:24px;
+  font-size:15px;font-weight:900;letter-spacing:-.35px;
+  white-space:nowrap;overflow:visible;
+}
+.battlefield .stats{margin:7px 0}
+.battlefield .status{min-height:18px}
+.battlefield .inspect-hero-btn{margin-top:auto}
+@media(max-width:1000px){
+ .battlefield .hero{height:370px}
+ .battlefield .hero .hero-portrait{height:185px;flex-basis:185px}
+ .battlefield .hero-name{font-size:12px;letter-spacing:-.55px}
+}
+
+
+/* v0.42 — hero ability status VFX */
+/* Shadowraze: short impact burst only — a dark vertical smoke/soul column at the moment the raze lands. */
+.shadowraze-impact{position:absolute;display:none;z-index:10;left:0;right:0;top:0;height:100%;pointer-events:none;overflow:hidden}
+.hero.shadowraze-hit .shadowraze-impact{display:block}
+.shadowraze-impact::before{content:"";position:absolute;left:50%;bottom:22%;width:54%;height:84%;transform:translateX(-50%) scale(.45,.15);transform-origin:50% 100%;border-radius:48% 48% 22% 22%;background:radial-gradient(ellipse at 50% 88%,rgba(255,48,20,.88) 0 7%,rgba(120,8,5,.78) 8% 19%,rgba(24,4,7,.94) 35%,rgba(5,3,7,.82) 58%,transparent 75%);filter:blur(5px) drop-shadow(0 0 11px #8f0b06);animation:shadowrazeColumn .68s cubic-bezier(.12,.65,.2,1) both}
+.shadowraze-impact::after{content:"";position:absolute;left:50%;bottom:19%;width:78%;height:26%;transform:translateX(-50%) scale(.3);border-radius:50%;background:radial-gradient(circle,rgba(255,62,22,.75) 0 5%,rgba(86,5,7,.7) 18%,rgba(9,4,7,.88) 38%,transparent 68%);filter:blur(4px);animation:shadowrazeGround .68s ease-out both}
+.shadowraze-impact i{position:absolute;left:50%;bottom:25%;width:13%;height:58%;border-radius:50%;background:linear-gradient(to top,rgba(110,8,8,.82),rgba(14,5,9,.92) 50%,transparent);filter:blur(6px);transform-origin:50% 100%;animation:shadowrazeWisp .68s ease-out both}
+.shadowraze-impact i:nth-child(1){margin-left:-31%;transform:rotate(-19deg);animation-delay:.01s}.shadowraze-impact i:nth-child(2){margin-left:-17%;transform:rotate(-8deg);animation-delay:.04s}.shadowraze-impact i:nth-child(3){margin-left:-6%;height:72%;animation-delay:0s}.shadowraze-impact i:nth-child(4){margin-left:10%;transform:rotate(10deg);animation-delay:.03s}.shadowraze-impact i:nth-child(5){margin-left:24%;transform:rotate(21deg);animation-delay:.06s}
+@keyframes shadowrazeColumn{0%{opacity:0;transform:translateX(-50%) scale(.35,.08)}22%{opacity:1;transform:translateX(-50%) scale(1.08,1.04)}62%{opacity:.82;transform:translateX(-50%) scale(.92,1.18)}100%{opacity:0;transform:translateX(-50%) scale(1.15,1.32) translateY(-8%)}}
+@keyframes shadowrazeGround{0%{opacity:0;transform:translateX(-50%) scale(.15)}28%{opacity:1;transform:translateX(-50%) scale(1)}100%{opacity:0;transform:translateX(-50%) scale(1.35)}}
+@keyframes shadowrazeWisp{0%{opacity:0;scale:.25 .12}30%{opacity:.95;scale:1 1}100%{opacity:0;translate:0 -32%;scale:.65 1.35}}
+
+/* Fiend's Grip: pale spectral hands claw upward from the bottom of the portrait. */
+.bane-grip-hands{display:none;position:absolute;z-index:8;left:0;right:0;bottom:-2px;height:48%;pointer-events:none;overflow:hidden;filter:drop-shadow(0 0 7px #e8efffaa)}
+.hero.bane-gripped .bane-grip-hands{display:block}
+.bane-grip-hands i{position:absolute;bottom:-16px;width:17px;height:92px;border-radius:55% 55% 35% 35%;background:linear-gradient(90deg,#8790a6 0,#f7f8ff 38%,#b8c0d1 72%,#72798b 100%);opacity:.86;transform-origin:50% 100%;animation:gripClaw 1.15s ease-in-out infinite alternate}
+.bane-grip-hands i::before,.bane-grip-hands i::after{content:"";position:absolute;top:-18px;width:7px;height:35px;border-radius:70% 70% 25% 25%;background:#eef1fa;box-shadow:0 0 5px #fff8;transform-origin:50% 100%}
+.bane-grip-hands i::before{left:-5px;transform:rotate(-20deg)}.bane-grip-hands i::after{right:-5px;transform:rotate(20deg)}
+.bane-grip-hands i:nth-child(1){left:6%;transform:rotate(-22deg);animation-delay:-.3s}.bane-grip-hands i:nth-child(2){left:27%;transform:rotate(13deg);animation-delay:-.8s}.bane-grip-hands i:nth-child(3){left:48%;transform:rotate(-8deg);animation-delay:-.5s}.bane-grip-hands i:nth-child(4){left:69%;transform:rotate(18deg);animation-delay:-.95s}.bane-grip-hands i:nth-child(5){left:88%;transform:rotate(-18deg);animation-delay:-.15s}
+@keyframes gripClaw{0%{translate:0 14px;scale:.92;opacity:.55}100%{translate:0 -7px;scale:1.05;opacity:.96}}
+
+/* Infest: Dota-like red indicator above the HOST card while Lifestealer is inside. */
+.infest-indicator{display:none;position:absolute;z-index:11;left:50%;top:5px;width:72px;height:42px;transform:translateX(-50%);pointer-events:none;filter:drop-shadow(0 0 7px #ff391d)}
+.hero.infest-host .infest-indicator{display:block;animation:infestPulse .9s ease-in-out infinite alternate}
+.infest-indicator::before,.infest-indicator::after{content:"";position:absolute;top:6px;width:34px;height:25px;border-top:7px solid #f34b2f;border-radius:55% 55% 0 0}
+.infest-indicator::before{left:4px;transform:rotate(25deg);border-left:5px solid #c72819}.infest-indicator::after{right:4px;transform:rotate(-25deg);border-right:5px solid #c72819}
+.infest-indicator i{position:absolute;left:50%;top:8px;width:8px;height:29px;background:linear-gradient(#ff6a43,#a90f0b);transform:translateX(-50%) rotate(45deg);border-radius:2px;box-shadow:0 0 5px #ff2d18}
+.infest-indicator b{position:absolute;left:50%;bottom:1px;width:18px;height:7px;border-radius:50%;background:#f0472b;transform:translateX(-50%);box-shadow:0 0 8px #ff351e}
+@keyframes infestPulse{from{transform:translateX(-50%) scale(.94);opacity:.76}to{transform:translateX(-50%) scale(1.08);opacity:1}}
+@media(prefers-reduced-motion:reduce){.bane-grip-hands i,.hero.infest-host .infest-indicator{animation:none}}
+
+/* v0.44 corrected combat FX -------------------------------------------------- */
+/* Shadowraze is a momentary impact ON THE ENEMY CARD, not a persistent mark aura. */
+.hero{overflow:visible}
+.shadowraze-impact{position:absolute!important;display:none;z-index:40!important;left:-8%!important;right:-8%!important;top:-10%!important;height:112%!important;pointer-events:none;overflow:visible!important}
+.hero.shadowraze-hit .shadowraze-impact{display:block!important}
+.shadowraze-impact::before{bottom:2%!important;width:62%!important;height:108%!important;background:radial-gradient(ellipse at 50% 92%,rgba(125,8,10,.88) 0 8%,rgba(38,3,7,.97) 28%,rgba(7,4,8,.96) 52%,rgba(3,2,5,.72) 68%,transparent 78%)!important;filter:blur(6px) drop-shadow(0 0 10px rgba(120,0,0,.65))!important}
+.shadowraze-impact::after{bottom:-2%!important;width:92%!important;background:radial-gradient(circle,rgba(104,7,8,.82),rgba(12,3,5,.9) 38%,transparent 70%)!important}
+.shadowraze-impact i{bottom:5%!important;height:76%!important;background:linear-gradient(to top,rgba(83,4,7,.95),rgba(11,4,8,.96) 48%,rgba(2,2,4,.18))!important;filter:blur(7px)!important}
+
+/* Fiend's Grip: hands rise from the LOWER PART OF THE WHOLE CARD (stats/button area),
+   matching the user's marked placement rather than sitting inside the portrait. */
+.bane-grip-hands{display:none!important;position:absolute!important;z-index:35!important;left:5%!important;right:5%!important;bottom:-9px!important;height:43%!important;pointer-events:none;overflow:visible!important;filter:drop-shadow(0 0 5px rgba(255,255,255,.72))!important}
+.hero.bane-gripped .bane-grip-hands{display:block!important}
+.bane-grip-hands i{position:absolute!important;bottom:-22px!important;width:38px!important;height:64px!important;border-radius:52% 52% 42% 42%!important;background:radial-gradient(ellipse at 50% 28%,#fff 0 25%,#e5e8f0 48%,#9ba1ae 78%,rgba(80,85,98,.35) 100%)!important;opacity:.9!important;transform-origin:50% 100%!important;animation:gripHand44 .72s ease-in-out infinite alternate!important}
+.bane-grip-hands i::before{content:""!important;position:absolute!important;left:-8px!important;top:-33px!important;width:52px!important;height:42px!important;background:linear-gradient(90deg,transparent 0 3px,#f7f8fb 4px 9px,transparent 10px 12px,#fff 13px 19px,transparent 20px 22px,#eef0f5 23px 29px,transparent 30px 32px,#fff 33px 39px,transparent 40px 42px,#e6e9ef 43px 49px,transparent 50px)!important;clip-path:polygon(0 100%,4% 28%,12% 0,21% 4%,25% 58%,30% 8%,40% 0,47% 8%,49% 60%,55% 12%,65% 4%,72% 13%,70% 65%,78% 20%,88% 17%,96% 29%,90% 100%)!important;filter:drop-shadow(0 0 2px white)!important}
+.bane-grip-hands i::after{content:""!important;position:absolute!important;left:7px!important;top:5px!important;width:24px!important;height:40px!important;border-radius:45%!important;border-left:3px solid rgba(110,115,128,.5)!important;border-right:2px solid rgba(255,255,255,.7)!important}
+.bane-grip-hands i:nth-child(1){left:7%!important;transform:rotate(-20deg)!important;animation-delay:-.18s!important}.bane-grip-hands i:nth-child(2){left:43%!important;transform:rotate(4deg)!important;animation-delay:-.48s!important}.bane-grip-hands i:nth-child(3){right:6%!important;left:auto!important;transform:rotate(19deg)!important;animation-delay:-.31s!important}
+@keyframes gripHand44{from{translate:0 22px;scale:.9;opacity:.55}to{translate:0 -7px;scale:1.06;opacity:.96}}
+
+/* Infest host marker: angular red Dota-like infestation glyph from the supplied screenshots:
+   a broken ring / hooked jaw with three lower teeth, centered ABOVE the host card. */
+.infest-indicator{display:none!important;position:absolute!important;z-index:45!important;left:50%!important;top:-36px!important;width:72px!important;height:66px!important;transform:translateX(-50%)!important;pointer-events:none!important;filter:drop-shadow(0 0 5px rgba(255,55,35,.9))!important}
+.hero.infest-host .infest-indicator{display:block!important;animation:infestPulse44 .85s ease-in-out infinite alternate!important}
+.infest-indicator::before{content:""!important;position:absolute!important;left:10px!important;top:5px!important;width:50px!important;height:47px!important;border:7px solid #e33a24!important;border-bottom-color:transparent!important;border-radius:50% 50% 44% 44%!important;transform:rotate(-5deg)!important;box-sizing:border-box!important;background:none!important}
+.infest-indicator::after{content:""!important;position:absolute!important;left:17px!important;bottom:4px!important;width:39px!important;height:28px!important;background:#e33a24!important;clip-path:polygon(0 0,22% 18%,29% 100%,43% 43%,51% 100%,65% 40%,75% 100%,82% 17%,100% 0,91% 42%,9% 42%)!important}
+.infest-indicator i{position:absolute!important;left:13px!important;top:11px!important;width:45px!important;height:31px!important;background:#0a0a0d!important;clip-path:polygon(0 30%,19% 4%,49% 20%,78% 0,100% 30%,79% 63%,51% 48%,21% 69%)!important;transform:none!important;border-radius:0!important;box-shadow:none!important}
+.infest-indicator b{display:none!important}
+@keyframes infestPulse44{from{transform:translateX(-50%) scale(.94);opacity:.78}to{transform:translateX(-50%) scale(1.07);opacity:1}}
+
+/* v0.45 — Fiend's Grip hands: compact white clawing hands, fully clipped inside the hero card. */
+.hero{overflow:hidden}
+.bane-grip-hands{display:none!important;position:absolute!important;z-index:36!important;left:9%!important;right:9%!important;bottom:3px!important;height:92px!important;pointer-events:none!important;overflow:hidden!important;filter:drop-shadow(0 0 3px rgba(255,255,255,.7))!important}
+.hero.bane-gripped .bane-grip-hands{display:block!important}
+.bane-grip-hands i{position:absolute!important;bottom:-30px!important;width:27px!important;height:47px!important;border-radius:48% 48% 36% 36%!important;background:linear-gradient(90deg,#aeb4c1,#fafbff 42%,#d9dde6 72%,#8d94a3)!important;opacity:.92!important;transform-origin:50% 100%!important;animation:gripHand45 .78s ease-in-out infinite alternate!important}
+.bane-grip-hands i::before{content:""!important;position:absolute!important;left:-7px!important;top:-28px!important;width:42px!important;height:34px!important;background:#f5f6fa!important;clip-path:polygon(2% 100%,5% 38%,10% 4%,18% 0,21% 58%,28% 10%,36% 0,43% 5%,44% 62%,51% 13%,59% 3%,66% 9%,65% 64%,72% 22%,80% 14%,87% 22%,83% 68%,91% 43%,98% 46%,92% 100%)!important;filter:drop-shadow(0 0 2px #fff)!important}
+.bane-grip-hands i::after{content:""!important;position:absolute!important;left:5px!important;top:5px!important;width:17px!important;height:31px!important;border-radius:45%!important;border-left:2px solid rgba(90,96,110,.45)!important}
+.bane-grip-hands i:nth-child(1){left:10%!important;transform:rotate(-15deg)!important;animation-delay:-.16s!important}.bane-grip-hands i:nth-child(2){left:43%!important;transform:rotate(3deg)!important;animation-delay:-.43s!important}.bane-grip-hands i:nth-child(3){right:9%!important;left:auto!important;transform:rotate(14deg)!important;animation-delay:-.27s!important}
+@keyframes gripHand45{from{translate:0 20px;opacity:.58}to{translate:0 -2px;opacity:.98}}
+
+/* v0.45 — Infest host marker: reshape to the user's sketch: broad hooked red crest, dark center, three downward teeth. */
+.infest-indicator{display:none!important;position:absolute!important;z-index:45!important;left:50%!important;top:5px!important;width:68px!important;height:54px!important;transform:translateX(-50%)!important;pointer-events:none!important;filter:drop-shadow(0 0 6px rgba(255,54,30,.9))!important}
+.hero.infest-host .infest-indicator{display:block!important;animation:infestPulse45 .85s ease-in-out infinite alternate!important}
+.infest-indicator::before{content:""!important;position:absolute!important;inset:0!important;background:linear-gradient(#ff6040,#c52217)!important;clip-path:polygon(4% 16%,25% 3%,43% 18%,57% 18%,76% 2%,96% 16%,83% 34%,72% 31%,79% 49%,69% 43%,63% 92%,51% 54%,39% 92%,33% 43%,22% 50%,28% 31%,17% 35%)!important}
+.infest-indicator::after{content:""!important;position:absolute!important;left:14px!important;right:14px!important;top:14px!important;height:19px!important;background:#09090c!important;clip-path:polygon(0 24%,23% 0,50% 28%,77% 0,100% 24%,77% 72%,50% 52%,23% 72%)!important}
+.infest-indicator i{display:none!important}.infest-indicator b{display:none!important}
+@keyframes infestPulse45{from{transform:translateX(-50%) scale(.94);opacity:.8}to{transform:translateX(-50%) scale(1.06);opacity:1}}
+
+/* v0.46 — Fiend's Grip: elongated dirty spectral hands, white fingers fading into black at the bottom. */
+.bane-grip-hands{display:none!important;position:absolute!important;z-index:36!important;left:0!important;right:0!important;bottom:0!important;height:118px!important;pointer-events:none!important;overflow:hidden!important;filter:none!important}
+.hero.bane-gripped .bane-grip-hands{display:block!important}
+.bane-grip-hands i{position:absolute!important;bottom:-39px!important;width:25px!important;height:72px!important;border-radius:48% 48% 28% 28%!important;background:linear-gradient(to bottom,#f8f8f5 0%,#deded8 25%,#92928d 52%,#343434 76%,#050505 100%)!important;box-shadow:inset 4px 0 5px rgba(255,255,255,.24),inset -4px 0 5px rgba(0,0,0,.38)!important;opacity:.94!important;transform-origin:50% 100%!important;animation:gripHand46 .82s ease-in-out infinite alternate!important}
+.bane-grip-hands i::before{content:""!important;position:absolute!important;left:-8px!important;top:-43px!important;width:43px!important;height:49px!important;background:linear-gradient(to bottom,#fff 0%,#eeeeea 48%,#a8a8a3 100%)!important;clip-path:polygon(1% 100%,3% 43%,7% 5%,14% 0,18% 3%,20% 64%,26% 16%,31% 1%,38% 0,42% 4%,43% 65%,49% 17%,55% 3%,62% 3%,66% 9%,65% 68%,72% 26%,79% 14%,85% 17%,89% 24%,84% 70%,91% 48%,97% 49%,100% 57%,92% 100%)!important;filter:drop-shadow(0 0 2px rgba(255,255,255,.7))!important}
+.bane-grip-hands i::after{content:""!important;position:absolute!important;inset:4px 4px 9px 4px!important;border-radius:45%!important;background:repeating-linear-gradient(105deg,transparent 0 7px,rgba(28,28,28,.18) 8px 9px)!important;border-left:2px solid rgba(60,60,60,.34)!important}
+.bane-grip-hands i:nth-child(1){left:17%!important;transform:rotate(-11deg)!important;animation-delay:-.14s!important}.bane-grip-hands i:nth-child(2){left:46%!important;transform:rotate(2deg)!important;animation-delay:-.46s!important}.bane-grip-hands i:nth-child(3){left:auto!important;right:16%!important;transform:rotate(11deg)!important;animation-delay:-.29s!important}
+@keyframes gripHand46{from{translate:0 22px;opacity:.65}to{translate:0 -4px;opacity:.98}}
+
+/* v0.46 — Infest: restore visible pulsing host effect and keep the sketched hooked crest shape. */
+.infest-indicator{display:none!important;position:absolute!important;z-index:50!important;left:50%!important;top:8px!important;width:76px!important;height:61px!important;transform:translateX(-50%)!important;pointer-events:none!important;overflow:visible!important;filter:drop-shadow(0 0 4px #ff4a2f) drop-shadow(0 0 11px rgba(255,47,24,.82))!important}
+.hero.infest-host .infest-indicator{display:block!important;visibility:visible!important;opacity:1;animation:infestPulse46 .72s ease-in-out infinite alternate!important}
+.infest-indicator::before{content:""!important;position:absolute!important;inset:0!important;background:linear-gradient(#ff7654 0%,#f0442b 38%,#a8120d 100%)!important;clip-path:polygon(2% 19%,22% 3%,42% 18%,50% 12%,58% 18%,78% 3%,98% 19%,84% 37%,72% 32%,79% 51%,68% 44%,62% 96%,50% 57%,38% 96%,32% 44%,21% 51%,28% 32%,16% 37%)!important}
+.infest-indicator::after{content:""!important;position:absolute!important;left:15px!important;right:15px!important;top:16px!important;height:20px!important;background:#08090b!important;clip-path:polygon(0 25%,23% 0,50% 28%,77% 0,100% 25%,79% 77%,50% 53%,21% 77%)!important;box-shadow:0 0 7px rgba(0,0,0,.8)!important}
+.infest-indicator i,.infest-indicator b{display:none!important}
+@keyframes infestPulse46{from{transform:translateX(-50%) scale(.92);filter:brightness(.85)}to{transform:translateX(-50%) scale(1.08);filter:brightness(1.25)}}
+
+/* v0.47 — redraw Fiend's Grip as actual five-finger spectral hands. */
+.bane-grip-hands{left:4%!important;right:4%!important;bottom:0!important;height:112px!important;overflow:hidden!important}
+.bane-grip-hands i{bottom:-23px!important;width:46px!important;height:105px!important;border-radius:0!important;background:none!important;box-shadow:none!important;opacity:.96!important;background-repeat:no-repeat!important;background-size:100% 100%!important;background-position:center bottom!important;animation:gripHand47 .82s ease-in-out infinite alternate!important;
+background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffffff'/%3E%3Cstop offset='.42' stop-color='%23dedede'/%3E%3Cstop offset='.68' stop-color='%23777777'/%3E%3Cstop offset='1' stop-color='%23060606'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg fill='url(%23g)' stroke='%23cfcfcf' stroke-width='1.5' stroke-linejoin='round'%3E%3Cpath d='M28 174 C25 150 22 132 22 111 C22 94 24 81 27 69 L28 28 C28 20 34 16 39 21 L41 64 L45 14 C46 5 54 5 56 14 L54 66 L61 25 C63 17 70 18 71 26 L64 73 L71 47 C73 39 80 42 79 50 L70 91 C68 103 66 112 65 122 C63 143 62 159 60 174 Z'/%3E%3Cpath d='M28 91 L15 68 C11 60 4 64 7 72 L21 105 C24 113 27 118 31 122 Z'/%3E%3C/g%3E%3Cpath d='M24 125 C35 120 50 120 65 126' fill='none' stroke='%23505050' stroke-width='3' opacity='.45'/%3E%3Cpath d='M27 140 C38 136 49 137 62 142' fill='none' stroke='%23262626' stroke-width='4' opacity='.55'/%3E%3C/svg%3E")!important}
+.bane-grip-hands i::before,.bane-grip-hands i::after{display:none!important}
+.bane-grip-hands i:nth-child(1){left:11%!important;right:auto!important;transform:rotate(-13deg)!important;animation-delay:-.12s!important}
+.bane-grip-hands i:nth-child(2){left:42%!important;right:auto!important;transform:rotate(1deg)!important;animation-delay:-.44s!important}
+.bane-grip-hands i:nth-child(3){left:auto!important;right:10%!important;transform:rotate(13deg)!important;animation-delay:-.27s!important}
+@keyframes gripHand47{from{translate:0 18px;opacity:.64}to{translate:0 -2px;opacity:1}}
+
+/* v0.47 — Infest marker follows the user's drawn silhouette: broad horned top, narrow waist, long three-prong lower mark. */
+.infest-indicator{top:7px!important;width:78px!important;height:64px!important}
+.infest-indicator::before{inset:0!important;background:linear-gradient(#ff6d4b,#e63823 48%,#a40f0b)!important;clip-path:polygon(1% 18%,18% 3%,39% 15%,50% 7%,61% 15%,82% 3%,99% 18%,84% 37%,69% 32%,74% 44%,61% 42%,58% 67%,50% 98%,42% 67%,39% 42%,26% 44%,31% 32%,16% 37%)!important}
+.infest-indicator::after{left:15px!important;right:15px!important;top:15px!important;height:22px!important;background:#08090b!important;clip-path:polygon(0 30%,22% 2%,42% 20%,50% 10%,58% 20%,78% 2%,100% 30%,79% 76%,61% 58%,50% 73%,39% 58%,21% 76%)!important}
+
+
+/* v0.48 — sharper, less cartoonish Fiend's Grip hands. */
+.bane-grip-hands i{width:42px!important;height:108px!important;
+background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 190'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23fff'/%3E%3Cstop offset='.34' stop-color='%23ececf0'/%3E%3Cstop offset='.66' stop-color='%2386878c'/%3E%3Cstop offset='1' stop-color='%23070708'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg fill='url(%23g)' stroke='%23d8d8dc' stroke-width='1.1' stroke-linejoin='miter'%3E%3Cpath d='M27 186 C25 157 22 132 24 108 L27 69 L26 24 L32 2 L38 23 L40 67 L44 14 L50 0 L55 15 L53 68 L60 27 L66 8 L70 29 L64 75 L71 47 L77 31 L79 51 L70 95 C68 108 66 121 65 137 L62 186 Z'/%3E%3Cpath d='M28 96 L16 71 L8 55 L9 78 L21 111 C24 120 28 126 32 131 Z'/%3E%3C/g%3E%3Cpath d='M25 133 C36 128 51 129 64 135' fill='none' stroke='%2358585d' stroke-width='2.5' opacity='.42'/%3E%3Cpath d='M26 151 C38 146 50 148 63 154' fill='none' stroke='%23242427' stroke-width='3.5' opacity='.55'/%3E%3C/svg%3E")!important}
+
+/* v0.48 — Infest marker floats ABOVE the host card instead of covering it. */
+.hero{overflow:visible!important}
+.hero-portrait,.hero-body{overflow:hidden}
+.infest-indicator{top:-72px!important;width:78px!important;height:64px!important;z-index:80!important}
+.hero.infest-host .infest-indicator{display:block!important;visibility:visible!important}
+
+/* v0.49 — Infest marker sits lower so it does not cover the PLAYER heading. */
+.infest-indicator{top:-50px!important}
+
+/* v0.49 — black smoky haze at the roots of Fiend's Grip hands. */
+.bane-grip-hands::before{
+  content:""!important;position:absolute!important;z-index:-1!important;
+  left:1%!important;right:1%!important;bottom:-3px!important;height:54px!important;
+  pointer-events:none!important;
+  background:
+    radial-gradient(ellipse at 16% 100%,rgba(3,4,7,.95) 0 19%,rgba(11,12,17,.72) 35%,transparent 67%),
+    radial-gradient(ellipse at 48% 100%,rgba(0,0,0,.98) 0 23%,rgba(12,13,18,.72) 42%,transparent 72%),
+    radial-gradient(ellipse at 82% 100%,rgba(2,3,6,.96) 0 20%,rgba(12,13,18,.68) 38%,transparent 68%)!important;
+  filter:blur(4px)!important;opacity:.92!important;
+  animation:gripSmoke49 1.15s ease-in-out infinite alternate!important;
+}
+.bane-grip-hands::after{
+  content:""!important;position:absolute!important;z-index:-1!important;
+  left:7%!important;right:7%!important;bottom:7px!important;height:38px!important;
+  background:linear-gradient(to top,rgba(0,0,0,.88),rgba(10,11,15,.46) 45%,transparent 100%)!important;
+  filter:blur(7px)!important;opacity:.8!important;pointer-events:none!important;
+}
+@keyframes gripSmoke49{from{transform:translateY(5px) scaleX(.96);opacity:.72}to{transform:translateY(-3px) scaleX(1.05);opacity:.98}}
+@media(prefers-reduced-motion:reduce){.bane-grip-hands::before{animation:none!important}}
+
+/* v0.50 — Fiend's Grip smoke is in FRONT of the hands, partially obscuring their lower sections. */
+.bane-grip-hands::before{
+  z-index:12!important;
+  bottom:-1px!important;
+  height:58px!important;
+  opacity:.94!important;
+}
+.bane-grip-hands::after{
+  z-index:13!important;
+  bottom:2px!important;
+  height:42px!important;
+  opacity:.84!important;
+}
+.bane-grip-hands i{z-index:5!important}
+
+
+/* v0.51 — compact persistent status badges */
+.hero .sticky-bomb-overlay{width:34px!important;height:34px!important;right:7px!important;top:7px!important;border-radius:50%!important;object-fit:cover!important;z-index:22!important;box-shadow:0 0 0 2px rgba(8,10,14,.9),0 0 8px rgba(255,122,28,.7)!important}
+.sf-mark-overlay{display:none;position:absolute;right:7px;top:7px;width:34px;height:34px;border-radius:50%;overflow:visible;z-index:23;pointer-events:none;background:#090a0d;box-shadow:0 0 0 2px rgba(8,10,14,.92),0 0 8px rgba(140,18,18,.7)}
+.sf-mark-overlay.show{display:block}
+.sf-mark-overlay img{display:block;width:100%;height:100%;border-radius:50%;object-fit:cover}
+.sf-mark-overlay b{position:absolute;right:-4px;bottom:-4px;min-width:18px;height:18px;padding:0 4px;border-radius:10px;background:#11151d;border:1px solid #e9edf5;color:#fff;font-size:12px;line-height:16px;text-align:center;font-weight:900;text-shadow:0 1px 2px #000;box-shadow:0 1px 4px #000}
+/* Shadowraze no longer uses the temporary smoke/column hit effect. */
+.hero.shadowraze-hit .shadowraze-impact{display:none!important}
+
+/* v0.52 — status/readability fixes */
+.hero.front::after{font-size:8px!important;padding:3px 5px!important;top:6px!important;right:6px!important;letter-spacing:.15px!important;border-radius:6px!important;z-index:30!important}
+.hero .sticky-bomb-overlay{width:40px!important;height:40px!important;right:7px!important;top:31px!important;z-index:24!important;border-radius:50%!important;clip-path:circle(50%)!important}
+.sf-mark-overlay{right:7px!important;top:31px!important;width:40px!important;height:40px!important;z-index:25!important;overflow:visible!important;border-radius:50%!important;background:#090a0d!important}
+.sf-mark-overlay img{width:40px!important;height:40px!important;border-radius:50%!important;clip-path:circle(50%)!important;object-fit:cover!important}
+.sf-mark-overlay b{right:-3px!important;bottom:-3px!important;min-width:18px!important;height:18px!important;font-size:12px!important;line-height:16px!important;z-index:3!important}
+/* Keep the Fiend's Grip smoke visibly moving in front of the hands. */
+.hero.bane-gripped .bane-grip-hands::before{animation:gripSmoke52 .78s ease-in-out infinite alternate!important;will-change:transform,opacity!important}
+.hero.bane-gripped .bane-grip-hands::after{animation:gripSmoke52b 1.05s ease-in-out infinite alternate-reverse!important;will-change:transform,opacity!important}
+@keyframes gripSmoke52{0%{transform:translate3d(-4px,6px,0) scaleX(.93) scaleY(.9);opacity:.70}100%{transform:translate3d(5px,-5px,0) scaleX(1.08) scaleY(1.08);opacity:.98}}
+@keyframes gripSmoke52b{0%{transform:translate3d(5px,3px,0) scaleX(1.05);opacity:.58}100%{transform:translate3d(-6px,-4px,0) scaleX(.94);opacity:.9}}
+
+/* v0.53 — front label, portrait corners, restored Shadowraze impact */
+.hero.front::after{font-size:9px!important;line-height:1!important;padding:4px 6px!important;top:6px!important;right:6px!important;letter-spacing:0!important}
+.side-left .hero.front::after{left:6px!important;right:auto!important}
+/* hero itself must stay overflow-visible for Infest, so round/clip the portrait separately */
+.battlefield .hero .hero-portrait{border-radius:14px 14px 0 0!important;overflow:hidden!important;border:0!important;outline:0!important;background-clip:padding-box!important}
+.battlefield .hero .hero-portrait video,.battlefield .hero .hero-portrait .static-hero-portrait{border-radius:13px 13px 0 0!important;width:100%!important;max-width:100%!important;outline:0!important;border:0!important;box-shadow:none!important}
+/* restore the short smoke/coil impact animation while keeping the persistent stack badge */
+.hero.shadowraze-hit .shadowraze-impact{display:block!important}
+.shadowraze-impact{overflow:hidden!important;left:0!important;right:0!important;top:0!important;height:100%!important;border-radius:14px!important}
+
+/* v0.54 — equal status badges + less aggressively cropped hero portraits */
+.hero .sticky-bomb-overlay,
+.sf-mark-overlay{
+  width:40px!important;
+  height:40px!important;
+  box-sizing:border-box!important;
+  border-radius:50%!important;
+}
+.hero .sticky-bomb-overlay{object-fit:cover!important}
+.sf-mark-overlay img{width:100%!important;height:100%!important;display:block!important;object-fit:cover!important;border-radius:50%!important}
+/* Pull every battle portrait slightly back so faces/heads are not pushed into the frame edges. */
+.battlefield .hero .hero-portrait{background:#080a0f!important;position:relative!important}
+.battlefield .hero .hero-portrait video,
+.battlefield .hero .hero-portrait .static-hero-portrait{
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:center center!important;
+  transform:scale(.92)!important;
+  transform-origin:center center!important;
+  border-radius:13px 13px 0 0!important;
+}
+
+/* v0.55 — portraits fill their frame cleanly: no black inset lines/gaps. */
+.battlefield .hero .hero-portrait{
+  overflow:hidden!important;
+  border-radius:14px 14px 0 0!important;
+  background:transparent!important;
+}
+.battlefield .hero .hero-portrait video,
+.battlefield .hero .hero-portrait .static-hero-portrait{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:100%!important;
+  min-height:100%!important;
+  object-fit:cover!important;
+  object-position:center center!important;
+  transform:none!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  outline:0!important;
+  border-radius:13px 13px 0 0!important;
+  box-shadow:none!important;
+}
+
+
+/* v0.56 — slightly wider battle cards */
+#game.screen{max-width:1440px!important}
+#game .battlefield{grid-template-columns:minmax(410px,1.08fr) minmax(270px,.62fr) minmax(410px,1.08fr)!important;gap:16px!important}
+#game .side{padding-left:10px!important;padding-right:10px!important}
+#game .battlefield .team{gap:10px!important}
+#game .battlefield .hero{width:calc((100% - 20px)/3)!important;flex-basis:calc((100% - 20px)/3)!important}
+@media(max-width:1100px){#game.screen{max-width:100%!important}#game .battlefield{grid-template-columns:minmax(320px,1fr) 220px minmax(320px,1fr)!important}}
+
+
+/* v0.58 — techies badge scale + a bit more breathing room near side borders */
+.hero .sticky-bomb-overlay{
+  width:44px!important;
+  height:44px!important;
+  left:9px!important;
+  top:29px!important;
+}
+.sf-mark-overlay{
+  width:40px!important;
+  height:40px!important;
+}
+/* keep side cards slightly away from the colored side borders */
+#game .side{padding-left:16px!important;padding-right:16px!important}
+#game .battlefield .team{padding:20px 10px!important}
+.side-left .team .hero.front{transform:translateX(4px)!important}
+.side-left .team .hero:not(.front){transform:translateX(-4px) scale(.94)!important}
+.side-right .team .hero.front{transform:translateX(-4px)!important}
+.side-right .team .hero:not(.front){transform:translateX(4px) scale(.94)!important}
+
+/* v0.68 external profile display */
+.side-profile{display:flex!important;align-items:center;justify-content:center;gap:9px;min-height:38px;letter-spacing:0!important}
+.side-profile-avatar{width:34px;height:34px;border-radius:6px;overflow:hidden;display:grid;place-items:center;background:#1b2330;border:1px solid #46566d;flex:none}
+.side-profile-avatar img{width:100%!important;height:100%!important;object-fit:cover!important;display:block}
+.side-profile-fallback{font-size:18px;color:#aab4c5}.side-profile-name{font-size:17px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+.side-left .side-profile-name{color:#7fa7ff}.side-right .side-profile-name{color:#ff8585}
+
+
+/* v0.72 — economy, shops and item effects */
+.shop-panel{position:fixed;z-index:42;top:135px;width:205px;padding:8px;border:1px solid #344057;border-radius:12px;background:#0c111be8;box-shadow:0 10px 32px #0008;backdrop-filter:blur(8px);transition:.18s}
+.shop-left{left:10px}.shop-right{right:10px}.shop-head{display:flex;gap:7px;align-items:center}.shop-toggle{flex:1;padding:8px 9px;border-radius:8px;background:#29344a;color:#fff;font-size:11px;letter-spacing:.7px}.shop-gold{font-weight:900;color:#ffd166;white-space:nowrap}.shop-next{font-size:9px;color:#98a5b9;margin:4px 2px 1px}.shop-items{display:none;margin-top:7px;gap:5px}.shop-panel.open .shop-items{display:grid}.shop-item{display:grid;grid-template-columns:38px 1fr;align-items:center;gap:7px;text-align:left;padding:5px;border-radius:8px;background:#161e2b;color:#eaf0fa;border:1px solid #2f3a4d}.shop-item img{width:38px!important;height:38px!important;object-fit:cover!important;border-radius:6px}.shop-item span{font-size:10px;line-height:1.2}.shop-item b{color:#ffd166}.shop-disabled{opacity:.66}.shop-disabled .shop-toggle{filter:saturate(.4)}
+.item-inventory{display:flex;gap:4px;min-height:22px;margin-top:5px}.item-inventory img{width:22px!important;height:22px!important;object-fit:cover!important;border-radius:4px;border:1px solid #56647a}
+.item-debuff-overlay{display:none;position:absolute;z-index:26;left:7px;top:31px;width:40px;height:40px;border-radius:50%;background:#090a0d;box-shadow:0 0 0 2px rgba(8,10,14,.92),0 0 9px rgba(130,95,255,.72);pointer-events:none}.item-debuff-overlay.show{display:block}.item-debuff-overlay img{width:100%!important;height:100%!important;object-fit:cover!important;border-radius:50%!important;clip-path:circle(50%)}
+.action-panel .item-action{background:#4a3a62!important}
+@media(max-width:1180px){.shop-panel{width:168px;top:128px}.shop-item{grid-template-columns:30px 1fr}.shop-item img{width:30px!important;height:30px!important}.shop-item span{font-size:9px}}
+
+/* v0.73 — integrated offline mode */
+.mp-offline{border-color:#58616f!important;background:#111923!important;color:#dfe6ef!important}
+.mp-offline::before{content:'◉ ';opacity:.7}
+.offline-mode .net-status{color:#b9e3c4}
+
+/* v0.74 — item descriptions + cooldown/readiness in action panel */
+.shop-info{margin-top:8px;padding:9px;border:1px solid #2d394d;border-radius:9px;background:#101722;min-height:76px}
+.shop-info-empty{font-size:10px;line-height:1.35;color:#8795aa;text-align:center;padding:13px 5px}
+.shop-info-head{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.shop-info-head img{width:38px!important;height:38px!important;object-fit:cover!important;border-radius:6px;border:1px solid #56647a}
+.shop-info-head>div{min-width:0;display:flex;flex-direction:column;gap:2px}
+.shop-info-head b{font-size:11px;line-height:1.15;color:#f2f5fa}
+.shop-info-head small{font-size:9px;color:#ffd166;line-height:1.25}
+.shop-info-desc{font-size:10px;line-height:1.38;color:#c8d0df}
+.action-panel .item-passive{background:#283343!important;opacity:1!important;cursor:default!important}
+.action-panel .item-passive:disabled{color:#dce5f3!important;filter:none!important}
+.action-panel .item-action span{white-space:nowrap}
+
+/* v0.78 — lobby presence + alternating draft */
+.mp-peer-status{margin:12px 0 4px;padding:10px 12px;border:1px solid #46546a;background:#101722;color:#aeb9c9;font-weight:800;border-radius:8px}
+.mp-peer-status.connected{border-color:#4d8a62;color:#8fe0a6;background:#102018}
+.draft-card.picked-p1{border-color:#5d9cff!important;box-shadow:0 0 0 2px #5d9cff44!important}
+.draft-card.picked-p2{border-color:#e05b5b!important;box-shadow:0 0 0 2px #e05b5b44!important}
+.draft-card:disabled{opacity:.58;cursor:default}
+.draft-card:disabled:hover{filter:none}
+/* Guests participate in the draft; game.js itself enforces whose pick it is. */
+.net-guest #draftCards{pointer-events:auto!important;opacity:1!important}
+.net-guest #startBtn{pointer-events:none;opacity:.42}
+
+
+/* v0.79 — team pick slots around the central hero pool */
+#draft{max-width:1420px!important}
+.draft-stage{display:grid;grid-template-columns:190px minmax(0,1fr) 190px;gap:22px;align-items:start;margin-top:18px}
+.draft-stage .draft-grid{margin-top:0!important}
+.draft-side{position:sticky;top:96px;background:#111722;border:1px solid #303b4e;border-radius:10px;padding:12px;box-shadow:0 12px 30px #0005}
+.draft-side-title{text-align:center;font-size:12px;font-weight:1000;letter-spacing:1.4px;margin-bottom:10px;color:#bcc8d8}
+.draft-side-p1{border-color:#3d5f91}.draft-side-p1 .draft-side-title{color:#72a8ff}
+.draft-side-p2{border-color:#85464b}.draft-side-p2 .draft-side-title{color:#ef7d84}
+.draft-slots{display:flex;flex-direction:column;gap:10px}
+.draft-slot{height:150px;background:linear-gradient(#414650,#2a2e35);border:2px solid #5a606a;border-radius:8px;overflow:hidden;position:relative;display:grid;place-items:center;color:#9aa1ac;box-shadow:inset 0 0 0 1px #1b1e24}
+.draft-slot-empty{width:54px;height:54px;border:2px dashed #747b86;border-radius:7px;display:grid;place-items:center;font-size:22px;font-weight:900;color:#8c939d}
+.draft-slot.filled{background:#0c1119}
+.draft-slot.filled img{width:100%;height:116px;object-fit:cover;object-position:center top;display:block}
+.draft-slot-name{position:absolute;left:0;right:0;bottom:0;padding:8px 6px;background:linear-gradient(transparent,#0b0f16 32%);padding-top:22px;text-align:center;font-size:11px;font-weight:1000;letter-spacing:.5px;color:#fff}
+.draft-side-p1 .draft-slot.filled{border-color:#5d9cff}.draft-side-p2 .draft-slot.filled{border-color:#e05b5b}
+@media(max-width:1050px){.draft-stage{grid-template-columns:135px minmax(0,1fr) 135px;gap:12px}.draft-slot{height:118px}.draft-slot.filled img{height:90px}.draft-side{padding:8px}.draft-side-title{font-size:10px}}
+@media(max-width:760px){.draft-stage{grid-template-columns:1fr}.draft-side{position:relative;top:auto}.draft-slots{display:grid;grid-template-columns:repeat(3,1fr)}.draft-slot{height:105px}.draft-side-p1{order:0}.draft-stage .draft-grid{order:1}.draft-side-p2{order:2}}
+
+/* v0.80 — profiles + ranks visible during draft */
+.side-profile-text{display:flex;flex-direction:column;min-width:0;line-height:1.05}
+.side-profile-rank{margin-top:4px;font-size:10px;font-weight:800;letter-spacing:.25px;color:#9cabc0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+.draft-side .side-profile{margin-bottom:10px;padding:7px 5px;border-radius:8px;background:#0c121c;min-height:48px!important}
+.draft-side-p1 .side-profile-name{color:#72a8ff}.draft-side-p2 .side-profile-name{color:#ef7d84}
+.draft-side .side-profile-avatar{width:38px;height:38px}
+.draft-side .side-profile-name{font-size:13px;max-width:110px}
+.draft-side .side-profile-rank{font-size:9px;max-width:110px}
+
+
+/* v0.82 — compact one-line profile + image ranks */
+.side-profile{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  flex-wrap:nowrap!important;
+  white-space:nowrap!important;
+  min-width:0;
+}
+.side-profile-text,.side-profile-rank{display:none!important}
+.side-profile-name{
+  display:block!important;
+  min-width:0!important;
+  max-width:170px!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  flex:0 1 auto!important;
+  line-height:1!important;
+}
+.side-profile-rank-icon{
+  width:42px!important;
+  height:42px!important;
+  flex:0 0 42px!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:hidden!important;
+}
+.side-profile-rank-icon img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  display:block!important;
+  filter:drop-shadow(0 2px 4px #0008);
+}
+.draft-side .side-profile{
+  min-height:48px!important;
+  padding:6px 5px!important;
+  margin-bottom:10px!important;
+}
+.draft-side .side-profile-avatar{width:36px!important;height:36px!important}
+.draft-side .side-profile-name{font-size:13px!important;max-width:82px!important}
+.draft-side .side-profile-rank-icon{width:38px!important;height:38px!important;flex-basis:38px!important}
+.battlefield .side-profile-rank-icon{width:38px!important;height:38px!important;flex-basis:38px!important}
+@media(max-width:1050px){
+  .draft-side .side-profile{gap:5px!important}
+  .draft-side .side-profile-avatar{width:30px!important;height:30px!important}
+  .draft-side .side-profile-name{font-size:11px!important;max-width:62px!important}
+  .draft-side .side-profile-rank-icon{width:32px!important;height:32px!important;flex-basis:32px!important}
+}
+
+/* v0.82 — persistent profile rating + W/L summary in main menu */
+.mp-profile-stats{margin:12px 0 4px;padding:10px 12px;border:1px solid #314057;border-radius:11px;background:#0c121b;display:flex;align-items:center;justify-content:center;gap:10px;text-align:left;min-height:44px}
+.mp-profile-stats>span:last-child{display:flex;flex-direction:column;min-width:0}
+.mp-profile-stats b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+.mp-profile-stats small{margin-top:3px;color:#98a8bd;font-size:10px;white-space:nowrap}
+.mp-profile-rank{width:36px;height:36px;flex:none;display:grid;place-items:center}
+.mp-profile-rank img{width:100%;height:100%;object-fit:contain;display:block}
+
+/* v0.84 — multiplayer protocol compatibility gate */
+.mp-peer-status.incompatible{color:#ff7777!important;border-color:#8c3434!important;background:#2a1114!important}
+.version-mismatch-overlay{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;background:rgba(3,6,10,.86);backdrop-filter:blur(6px);padding:20px}
+.version-mismatch-overlay.show{display:flex}
+.version-mismatch-card{width:min(520px,calc(100vw - 32px));padding:24px;border-radius:16px;border:1px solid #813b43;background:#131922;box-shadow:0 24px 80px rgba(0,0,0,.55);text-align:center}
+.version-mismatch-card h2{margin:0 0 14px;color:#ff7c86;font-size:22px;letter-spacing:.8px}
+.version-mismatch-card p{margin:8px 0;color:#dce5f1;line-height:1.45}
+.version-mismatch-card .version-mismatch-hint{font-size:13px;color:#97a6b8}
+.version-mismatch-card button{margin-top:16px;width:100%;min-height:46px;border-radius:10px;border:1px solid #55677f;background:#1c2736;color:#fff;font-weight:900;cursor:pointer}
+
+
+
+/* v0.89 IO */
+#game .battlefield{position:relative}
+#tetherFxLayer{position:absolute;inset:0;pointer-events:none;z-index:18}
+.tether-beam{position:absolute;height:8px;transform-origin:0 50%;border-radius:999px;background:linear-gradient(90deg,rgba(120,210,255,.15),rgba(156,238,255,.95),rgba(120,210,255,.15));box-shadow:0 0 10px rgba(120,220,255,.9),0 0 22px rgba(90,160,255,.65);animation:tetherPulse 1.2s ease-in-out infinite alternate}
+@keyframes tetherPulse{from{opacity:.72;filter:hue-rotate(0deg)}to{opacity:1;filter:hue-rotate(20deg)}}
+.hero.tether-target{box-shadow:0 0 22px rgba(104,198,255,.48),0 0 38px rgba(74,132,255,.28)!important}.hero.tether-target .hero-portrait{box-shadow:0 0 22px rgba(90,192,255,.32) inset}
+.io-tether-anchor{display:none;position:absolute;left:50%;top:50%;width:34px;height:34px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.95) 0%,rgba(120,211,255,.8) 25%,rgba(45,111,255,.18) 60%,transparent 75%);box-shadow:0 0 18px rgba(125,210,255,.95)}
+.hero.tether-source .io-tether-anchor{display:block;animation:tetherAnchor 1.2s ease-in-out infinite alternate}.hero.tether-target .io-tether-anchor{display:none!important}
+@keyframes tetherAnchor{from{transform:translate(-50%,-50%) scale(.92)}to{transform:translate(-50%,-50%) scale(1.08)}}
+.io-spirits{display:none;position:absolute;inset:0;pointer-events:none}
+.io-spirits.show{display:block}
+.io-spirits i{position:absolute;left:50%;top:50%;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;background:radial-gradient(circle,#fff 0%,#aff6ff 30%,#4493ff 60%,transparent 72%);box-shadow:0 0 16px #7ad7ff,0 0 28px rgba(89,156,255,.75);animation:ioOrbit 2.2s linear infinite}
+.io-spirits i:nth-child(2){animation-delay:-.73s}.io-spirits i:nth-child(3){animation-delay:-1.46s}
+.io-spirits[data-count='1'] i:nth-child(2),.io-spirits[data-count='1'] i:nth-child(3){display:none}
+.io-spirits[data-count='2'] i:nth-child(3){display:none}
+@keyframes ioOrbit{from{transform:rotate(0deg) translateX(66px) rotate(0deg)}to{transform:rotate(360deg) translateX(66px) rotate(-360deg)}}
+.hero.spirits-active .hero-portrait::after{content:'';position:absolute;inset:10px;border:2px solid rgba(135,205,255,.32);border-radius:50%;box-shadow:0 0 24px rgba(73,138,255,.38) inset}
+
+
+/* v0.93 — clean borderless draft */
+#draft .draft-card,#draft .draft-card:hover,#draft .draft-card.selected,#draft .draft-card.picked-p1,#draft .draft-card.picked-p2{border:0!important;box-shadow:none!important;outline:0!important}
+#draft .draft-side,#draft .draft-slot,#draft .draft-slot.filled,#draft .draft-slot-empty,#draft .draft-side-p1,#draft .draft-side-p2{border:0!important;box-shadow:none!important;outline:0!important}
+#draft .draft-card:hover{filter:brightness(1.12)}
+#draft .draft-card.picked-p1{filter:brightness(.82) saturate(.9)}
+#draft .draft-card.picked-p2{filter:brightness(.82) saturate(.9)}
+
+
+/* v0.95 — draft polish: no frames, team glow restored, icons fill their tile */
+#draft .draft-card,
+#draft .draft-card:hover,
+#draft .draft-card.selected,
+#draft .draft-card.picked-p1,
+#draft .draft-card.picked-p2{border:0!important;outline:0!important}
+#draft .draft-card{overflow:hidden;background:#0b1018!important}
+#draft .draft-card img{width:100%!important;height:158px!important;object-fit:cover!important;object-position:center!important;display:block!important;background:transparent!important}
+#draft .draft-card.picked-p1{box-shadow:0 0 24px 6px rgba(73,137,255,.72)!important;filter:brightness(.9) saturate(1.05)!important}
+#draft .draft-card.picked-p2{box-shadow:0 0 24px 6px rgba(255,76,76,.68)!important;filter:brightness(.9) saturate(1.05)!important}
+#draft .draft-slot.filled[data-team='0'],#draft .draft-side-p1 .draft-slot.filled{box-shadow:0 0 18px 3px rgba(73,137,255,.45)!important}
+#draft .draft-slot.filled[data-team='1'],#draft .draft-side-p2 .draft-slot.filled{box-shadow:0 0 18px 3px rgba(255,76,76,.42)!important}
+.action-panel .skill-icon{width:34px!important;height:34px!important;object-fit:cover!important;display:block!important;margin:0!important;padding:0!important;border:0!important}
+
+
+/* v0.96 — cleaner draft portraits + filled team slots + readable status badges */
+#draft .draft-card{border-radius:4px!important;overflow:hidden!important;background:#090d14!important}
+#draft .draft-card img{height:146px!important;object-fit:cover!important;object-position:center center!important;display:block!important}
+#draft .draft-card .draft-card-name{padding:9px 10px!important;background:linear-gradient(180deg,#1d2940 0%,#111925 100%)!important}
+#draft .draft-slot{padding:0!important;display:block!important;place-items:unset!important;overflow:hidden!important;background:#0b1018!important;position:relative!important}
+#draft .draft-slot.filled img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center center!important;display:block!important}
+#draft .draft-slot-name{position:absolute!important;left:0;right:0;bottom:0;padding:10px 7px 8px!important;background:linear-gradient(180deg,rgba(8,12,18,0) 0%,rgba(8,12,18,.82) 40%,rgba(8,12,18,.97) 100%)!important;font-size:12px!important;line-height:1.05!important;text-shadow:0 1px 2px rgba(0,0,0,.85)!important}
+#draft .draft-slot.filled::before{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 32%)}
+.status{display:flex!important;flex-wrap:wrap!important;gap:4px!important;align-items:flex-start!important;min-height:22px!important;margin-top:6px!important;color:#d8deea!important;font-size:11px!important;line-height:1.2!important}
+.status-badge{display:inline-flex;align-items:center;gap:5px;max-width:100%;padding:3px 7px;border-radius:999px;background:rgba(20,28,40,.92);border:1px solid rgba(70,82,104,.75);color:#dce3ee;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.status-badge span{display:block;white-space:normal;word-break:break-word}
+.battlefield .hero .status-badge img{width:16px!important;height:16px!important;min-width:16px!important;max-width:16px!important;min-height:16px!important;max-height:16px!important;display:block;flex:0 0 16px;object-fit:contain!important;align-self:center;border-radius:50%;padding:2px;background:rgba(80,92,115,.28);border:1px solid rgba(141,154,177,.35)}
+.status-badge.tether{background:rgba(17,48,28,.9);border-color:rgba(82,210,133,.44);color:#d8ffe4}
+.status-badge.tether img{background:rgba(67,204,109,.28);border-color:rgba(129,248,165,.52);box-shadow:0 0 0 2px rgba(69,182,103,.12)}
+.status-badge.spirits{background:rgba(15,33,62,.9);border-color:rgba(92,153,255,.42);color:#dce9ff}
+.status-badge.spirits img{background:rgba(92,153,255,.24);border-color:rgba(148,192,255,.55)}
+.status-badge.warn{background:rgba(59,42,16,.92);border-color:rgba(255,208,97,.45);color:#ffe5a4}
+.status-badge.bad{background:rgba(58,22,28,.92);border-color:rgba(255,123,123,.42);color:#ffd5d5}
+.status-badge.muted{background:rgba(29,34,43,.92);border-color:rgba(99,110,126,.5);color:#e3e6ec}
+
+
+/* v0.97 — wider draft portraits, filled pick slots, visible tether effect badges */
+#draft{max-width:1360px!important}
+#draft .draft-stage{grid-template-columns:170px minmax(0,1fr) 170px!important;gap:18px!important}
+#draft .draft-grid{grid-template-columns:repeat(4,minmax(185px,1fr))!important;gap:14px!important;align-items:start!important}
+#draft .draft-card{border-radius:5px!important;overflow:hidden!important;background:#0a0f17!important}
+#draft .draft-card img{height:122px!important;object-fit:cover!important;object-position:center 22%!important;display:block!important}
+#draft .draft-card-name{padding:9px 10px!important}
+#draft .draft-slot{height:148px!important;padding:0!important;overflow:hidden!important;position:relative!important;background:#0b1018!important;border-radius:12px!important}
+#draft .draft-slot.filled img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center 22%!important;display:block!important}
+#draft .draft-slot-name{left:0!important;right:0!important;bottom:0!important;padding:20px 8px 8px!important;background:linear-gradient(180deg,rgba(8,12,18,0) 0%,rgba(8,12,18,.64) 36%,rgba(8,12,18,.98) 100%)!important;font-size:12px!important}
+#draft .draft-slot.filled::before{content:none!important}
+#draft .draft-side{padding:10px!important;border-radius:12px!important}
+#draft .draft-side-p1{box-shadow:0 0 32px rgba(73,137,255,.16)!important}
+#draft .draft-side-p2{box-shadow:0 0 32px rgba(255,76,76,.15)!important}
+#draft .draft-card.picked-p1{box-shadow:0 0 26px 5px rgba(73,137,255,.62)!important;filter:brightness(.88) saturate(1.02)!important}
+#draft .draft-card.picked-p2{box-shadow:0 0 26px 5px rgba(255,76,76,.58)!important;filter:brightness(.88) saturate(1.02)!important}
+#draft .draft-slot.filled[data-team='0'],#draft .draft-side-p1 .draft-slot.filled{box-shadow:0 0 18px 3px rgba(73,137,255,.44)!important}
+#draft .draft-slot.filled[data-team='1'],#draft .draft-side-p2 .draft-slot.filled{box-shadow:0 0 18px 3px rgba(255,76,76,.42)!important}
+@media(max-width:1180px){#draft .draft-grid{grid-template-columns:repeat(4,minmax(150px,1fr))!important}#draft .draft-card img{height:110px!important}#draft .draft-slot{height:132px!important}}
+@media(max-width:880px){#draft .draft-grid{grid-template-columns:repeat(2,minmax(145px,1fr))!important}#draft .draft-stage{grid-template-columns:1fr!important}}
+
+/* Hero card corner effect badges */
+.tether-status-overlay{display:none;position:absolute;z-index:26;right:7px;top:74px;width:40px;height:40px;border-radius:50%;background:#090a0d;box-shadow:0 0 0 2px rgba(8,10,14,.92),0 0 9px rgba(89,235,136,.55);border:2px solid rgba(104,255,154,.78);pointer-events:none;overflow:visible}
+.tether-status-overlay.show{display:block}
+.tether-status-overlay img{width:100%!important;height:100%!important;display:block!important;object-fit:cover!important;border-radius:50%!important;clip-path:circle(50%)!important}
+/* Keep all top-corner effects visible together */
+.hero .sticky-bomb-overlay{left:7px!important;top:31px!important}
+.item-debuff-overlay{left:7px!important;top:74px!important}
+.sf-mark-overlay{right:7px!important;top:31px!important}
+.tether-status-overlay::after,.sf-mark-overlay b{position:absolute;display:grid;place-items:center;min-width:18px;height:18px;right:-3px;bottom:-3px;border-radius:50%;background:#10151f;border:2px solid currentColor;font-size:0;line-height:1;box-shadow:0 0 8px rgba(0,0,0,.48)}
+.tether-status-overlay::after{content:'1';font-size:12px;font-weight:900;color:#91ffb7;border-color:#5fe08b;background:#0f1c13}
+
+/* status row a bit roomier when multiple effects are active */
+.status{display:flex!important;flex-wrap:wrap!important;gap:4px!important;align-items:flex-start!important;min-height:26px!important}
+
+
+/* v0.99 final draft/gameplay fixes */
+#draft{max-width:1500px!important}
+#draft .draft-stage{grid-template-columns:210px minmax(0,1fr) 210px!important;gap:14px!important;align-items:start!important}
+#draft .draft-grid{grid-template-columns:repeat(4,minmax(185px,1fr))!important;gap:10px!important;align-items:start!important}
+#draft .draft-card{border-radius:6px!important;overflow:hidden!important;background:#0b1018!important}
+#draft .draft-card img{height:138px!important;object-fit:cover!important;object-position:center 20%!important;display:block!important}
+#draft .draft-card-name{padding:9px 10px!important}
+/* selected side picks should be WIDE, not vertical */
+#draft .draft-side{padding:10px!important;border-radius:14px!important}
+#draft .draft-slots{gap:12px!important}
+#draft .draft-slot{height:108px!important;padding:0!important;overflow:hidden!important;position:relative!important;display:block!important;background:linear-gradient(#424751,#2b3037)!important;border-radius:10px!important}
+#draft .draft-slot-empty{position:absolute!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important}
+#draft .draft-slot.filled{background:#0b1018!important}
+#draft .draft-slot.filled img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center 20%!important;display:block!important}
+#draft .draft-slot-name{position:absolute!important;left:0!important;right:0!important;bottom:0!important;padding:16px 8px 8px!important;background:linear-gradient(180deg,rgba(8,12,18,0) 0%,rgba(8,12,18,.62) 42%,rgba(8,12,18,.97) 100%)!important;font-size:12px!important;line-height:1.05!important;text-shadow:0 1px 2px rgba(0,0,0,.88)!important}
+#draft .draft-slot.filled::before{content:none!important}
+#draft .draft-side-p1{box-shadow:0 0 30px rgba(73,137,255,.14)!important}
+#draft .draft-side-p2{box-shadow:0 0 30px rgba(255,76,76,.14)!important}
+#draft .draft-card.picked-p1{box-shadow:0 0 24px 4px rgba(73,137,255,.60)!important;filter:brightness(.86) saturate(1)!important}
+#draft .draft-card.picked-p2{box-shadow:0 0 24px 4px rgba(255,76,76,.58)!important;filter:brightness(.86) saturate(1)!important}
+#draft .draft-slot.filled[data-team='0'],#draft .draft-side-p1 .draft-slot.filled{box-shadow:0 0 18px 3px rgba(73,137,255,.42)!important}
+#draft .draft-slot.filled[data-team='1'],#draft .draft-side-p2 .draft-slot.filled{box-shadow:0 0 18px 3px rgba(255,76,76,.40)!important}
+@media(max-width:1260px){#draft .draft-stage{grid-template-columns:190px minmax(0,1fr) 190px!important}#draft .draft-grid{grid-template-columns:repeat(4,minmax(160px,1fr))!important}#draft .draft-card img{height:126px!important}}
+@media(max-width:980px){#draft .draft-stage{grid-template-columns:1fr!important}#draft .draft-side{position:relative!important;top:auto!important}#draft .draft-slots{display:grid!important;grid-template-columns:repeat(3,1fr)!important}#draft .draft-slot{height:104px!important}}
+
+/* gameplay tether corner effect: always visible for both source and target */
+.hero.tether-source .tether-status-overlay,
+.hero.tether-target .tether-status-overlay,
+.tether-status-overlay.show{display:block!important}
+.tether-status-overlay{display:none;position:absolute!important;z-index:29!important;right:7px!important;top:74px!important;width:40px!important;height:40px!important;border-radius:50%!important;background:#0f1c13!important;border:2px solid rgba(104,255,154,.95)!important;box-shadow:0 0 0 2px rgba(8,10,14,.92),0 0 10px rgba(95,224,139,.65)!important;pointer-events:none!important;overflow:visible!important}
+.tether-status-overlay img{width:100%!important;height:100%!important;display:block!important;object-fit:cover!important;border-radius:50%!important;clip-path:circle(50%)!important}
+.tether-status-overlay::after{content:'1'!important;position:absolute!important;right:-3px!important;bottom:-3px!important;min-width:18px!important;height:18px!important;display:grid!important;place-items:center!important;border-radius:50%!important;font-size:12px!important;font-weight:900!important;line-height:1!important;color:#91ffb7!important;border:2px solid #5fe08b!important;background:#0f1c13!important;box-shadow:0 0 8px rgba(0,0,0,.48)!important}
+.status{display:flex!important;flex-wrap:wrap!important;gap:4px!important;align-items:flex-start!important;min-height:28px!important}
+.status-badge.tether{background:rgba(24,60,34,.55)!important;border-color:rgba(95,224,139,.45)!important}
+.status-badge.tether img{border-radius:50%!important}
+
+
+/* v0.99 — enforce true wide 16:9 hero portraits everywhere in draft */
+#draft{max-width:1580px!important}
+#draft .draft-stage{grid-template-columns:260px minmax(0,1fr) 260px!important;gap:16px!important;align-items:start!important}
+#draft .draft-grid{grid-template-columns:repeat(4,minmax(190px,1fr))!important;gap:12px!important;align-items:start!important}
+#draft .draft-card{padding:0!important;overflow:hidden!important;border-radius:6px!important;background:#0b1018!important}
+#draft .draft-card img{display:block!important;width:100%!important;height:auto!important;aspect-ratio:16/9!important;object-fit:cover!important;object-position:center center!important;background:transparent!important}
+#draft .draft-card-name{padding:8px 10px!important}
+#draft .draft-side{padding:10px!important;border-radius:14px!important}
+#draft .draft-slots{display:flex!important;flex-direction:column!important;gap:12px!important}
+#draft .draft-slot{position:relative!important;width:100%!important;height:auto!important;aspect-ratio:16/9!important;padding:0!important;overflow:hidden!important;display:block!important;border-radius:10px!important;background:linear-gradient(#414650,#2a2e35)!important}
+#draft .draft-slot.filled{background:#0b1018!important}
+#draft .draft-slot.filled img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center center!important;display:block!important;margin:0!important;padding:0!important}
+#draft .draft-slot-name{position:absolute!important;left:0!important;right:0!important;bottom:0!important;padding:17px 8px 7px!important;background:linear-gradient(180deg,rgba(8,12,18,0) 0%,rgba(8,12,18,.64) 40%,rgba(8,12,18,.97) 100%)!important;font-size:12px!important;line-height:1!important;text-shadow:0 1px 2px rgba(0,0,0,.9)!important}
+#draft .draft-slot.filled::before{content:none!important}
+#draft .draft-slot-empty{position:absolute!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important}
+#draft .draft-card.picked-p1{box-shadow:0 0 26px 5px rgba(73,137,255,.68)!important;filter:brightness(.88) saturate(1.04)!important}
+#draft .draft-card.picked-p2{box-shadow:0 0 26px 5px rgba(255,76,76,.64)!important;filter:brightness(.88) saturate(1.04)!important}
+#draft .draft-side-p1{box-shadow:0 0 32px rgba(73,137,255,.14)!important}
+#draft .draft-side-p2{box-shadow:0 0 32px rgba(255,76,76,.14)!important}
+#draft .draft-slot.filled[data-team='0'],#draft .draft-side-p1 .draft-slot.filled{box-shadow:0 0 18px 3px rgba(73,137,255,.48)!important}
+#draft .draft-slot.filled[data-team='1'],#draft .draft-side-p2 .draft-slot.filled{box-shadow:0 0 18px 3px rgba(255,76,76,.46)!important}
+@media(max-width:1260px){#draft .draft-stage{grid-template-columns:220px minmax(0,1fr) 220px!important}#draft .draft-grid{grid-template-columns:repeat(4,minmax(155px,1fr))!important}}
+@media(max-width:980px){#draft .draft-stage{grid-template-columns:1fr!important}#draft .draft-side{position:relative!important;top:auto!important}#draft .draft-slots{display:grid!important;grid-template-columns:repeat(3,1fr)!important}}
+
+/* Tether is a proper corner status effect, matching the other circular effects. */
+.tether-status-overlay{display:none;position:absolute!important;z-index:30!important;right:7px!important;top:74px!important;width:40px!important;height:40px!important;border-radius:50%!important;background:#0f1c13!important;border:2px solid #62e890!important;box-shadow:0 0 0 2px rgba(8,10,14,.92),0 0 10px rgba(95,224,139,.72)!important;pointer-events:none!important;overflow:visible!important}
+.hero.tether-source .tether-status-overlay,.hero.tether-target .tether-status-overlay,.tether-status-overlay.show{display:block!important}
+.tether-status-overlay img{width:100%!important;height:100%!important;display:block!important;object-fit:cover!important;border-radius:50%!important;clip-path:circle(50%)!important}
+.tether-status-overlay::after{content:'1'!important;position:absolute!important;right:-3px!important;bottom:-3px!important;min-width:18px!important;height:18px!important;display:grid!important;place-items:center!important;border-radius:50%!important;background:#0f1c13!important;border:2px solid #5fe08b!important;color:#91ffb7!important;font-size:12px!important;font-weight:900!important;line-height:1!important;box-shadow:0 0 8px rgba(0,0,0,.5)!important}
+/* Four independent corner status slots so effects never cover each other. */
+.hero .sticky-bomb-overlay{left:7px!important;right:auto!important;top:31px!important}
+.item-debuff-overlay{left:7px!important;right:auto!important;top:74px!important}
+.sf-mark-overlay{right:7px!important;left:auto!important;top:31px!important}
+.tether-status-overlay{right:7px!important;left:auto!important;top:74px!important}
+.status{display:flex!important;flex-wrap:wrap!important;gap:4px!important;min-height:24px!important}
+
+
+/* v1.01 — tether badge cleanup + HP bar restore */
+.hero.tether-source .tether-status-overlay,
+.hero.tether-target .tether-status-overlay,
+.tether-status-overlay.show{
+  display:block!important;
+}
+.tether-status-overlay{
+  position:absolute!important;
+  z-index:31!important;
+  right:8px!important;
+  top:8px!important;
+  left:auto!important;
+  bottom:auto!important;
+  width:34px!important;
+  height:34px!important;
+  border-radius:50%!important;
+  background:#102116!important;
+  border:2px solid rgba(104,255,154,.95)!important;
+  box-shadow:0 0 0 2px rgba(8,10,14,.92),0 0 10px rgba(95,224,139,.72)!important;
+  pointer-events:none!important;
+  overflow:hidden!important;
+}
+.tether-status-overlay::after{
+  content:none!important;
+  display:none!important;
+}
+.tether-status-overlay img{
+  width:100%!important;
+  height:100%!important;
+  display:block!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  border-radius:50%!important;
+  clip-path:circle(50%)!important;
+}
+/* keep all corner effects separate */
+.hero .sticky-bomb-overlay{left:8px!important;right:auto!important;top:8px!important;}
+.item-debuff-overlay{left:8px!important;right:auto!important;top:50px!important;}
+.sf-mark-overlay{right:50px!important;left:auto!important;top:8px!important;}
+/* force visible HP line again */
+.hero .hpbar{
+  display:block!important;
+  width:100%!important;
+  height:8px!important;
+  min-height:8px!important;
+  margin:8px 0 6px!important;
+  background:#3a2023!important;
+  border-radius:999px!important;
+  overflow:hidden!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+.hero .hpbar i{
+  display:block!important;
+  height:100%!important;
+  background:#55c86b!important;
+  border-radius:999px!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+
+
+/* v1.02 — offline build parity + final IO/Tether fixes */
+/* Tether badge: same size and visual weight as SF mark, no number bubble. */
+.hero.tether-source .tether-status-overlay,
+.hero.tether-target .tether-status-overlay,
+.tether-status-overlay.show{
+  display:block!important;
+}
+.tether-status-overlay{
+  position:absolute!important;
+  z-index:31!important;
+  right:7px!important;
+  top:31px!important;
+  left:auto!important;
+  bottom:auto!important;
+  width:40px!important;
+  height:40px!important;
+  border-radius:50%!important;
+  background:#0f1c13!important;
+  border:2px solid rgba(104,255,154,.96)!important;
+  box-shadow:0 0 0 2px rgba(8,10,14,.92),0 0 10px rgba(95,224,139,.72)!important;
+  pointer-events:none!important;
+  overflow:hidden!important;
+}
+.tether-status-overlay::after{
+  content:none!important;
+  display:none!important;
+}
+.tether-status-overlay img{
+  width:100%!important;
+  height:100%!important;
+  display:block!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  border-radius:50%!important;
+  clip-path:circle(50%)!important;
+}
+/* Keep all corner effects separated and predictable. */
+.hero .sticky-bomb-overlay{left:7px!important;right:auto!important;top:31px!important;}
+.item-debuff-overlay{left:7px!important;right:auto!important;top:74px!important;}
+.sf-mark-overlay{right:7px!important;left:auto!important;top:31px!important;}
+
+/* HP green bar must always be visible. */
+.hero .hpbar{
+  display:block!important;
+  width:100%!important;
+  height:8px!important;
+  min-height:8px!important;
+  margin:8px 0 6px!important;
+  background:#3a2023!important;
+  border-radius:999px!important;
+  overflow:hidden!important;
+  visibility:visible!important;
+  opacity:1!important;
+  flex:0 0 auto!important;
+}
+.hero .hpbar i{
+  display:block!important;
+  height:100%!important;
+  min-height:100%!important;
+  background:#55c86b!important;
+  border-radius:999px!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+
+/* IO Spirits: restore clean orbiting balls, remove broken giant oval/glitches. */
+.hero.spirits-active .hero-portrait::after{
+  content:none!important;
+  display:none!important;
+}
+.io-spirits{
+  display:none;
+  position:absolute!important;
+  inset:0!important;
+  overflow:hidden!important;
+  clip-path:inset(0 round 13px 13px 0 0)!important;
+  pointer-events:none!important;
+  z-index:12!important;
+}
+.io-spirits.show{display:block!important;}
+.io-spirits i{
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  width:18px!important;
+  height:18px!important;
+  margin:-9px 0 0 -9px!important;
+  border-radius:50%!important;
+  background:radial-gradient(circle at 35% 35%,#ffffff 0 18%,#c9f7ff 32%,#5db1ff 62%,rgba(93,177,255,0) 74%)!important;
+  box-shadow:0 0 10px rgba(122,215,255,.95),0 0 20px rgba(89,156,255,.58)!important;
+  animation:ioOrbitFixed 2.35s linear infinite!important;
+  will-change:transform!important;
+}
+.io-spirits i:nth-child(2){animation-delay:-.78s!important;}
+.io-spirits i:nth-child(3){animation-delay:-1.56s!important;}
+.io-spirits[data-count='1'] i:nth-child(2),.io-spirits[data-count='1'] i:nth-child(3){display:none!important;}
+.io-spirits[data-count='2'] i:nth-child(3){display:none!important;}
+@keyframes ioOrbitFixed{
+  from{transform:rotate(0deg) translateX(52px) rotate(0deg);}
+  to{transform:rotate(360deg) translateX(52px) rotate(-360deg);}
+}
+/* Safety clipping for any portrait VFX so nothing leaks below the card body. */
+.battlefield .hero .hero-portrait{
+  overflow:hidden!important;
+}
+
+
+/* v1.03 — keep CARD button attached to hero info */
+.battlefield .hero-body{
+  display:block!important;
+  flex:1 1 auto!important;
+  min-height:0!important;
+}
+.battlefield .hero .inspect-hero{
+  display:block!important;
+  width:100%!important;
+  margin:6px 0 0!important;
+  position:relative!important;
+  bottom:auto!important;
+  top:auto!important;
+}
+
+
+/* v1.04 — CARD button sits directly under HP/effects with no empty placeholder rows */
+.battlefield .hero-body{
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:flex-start!important;
+  align-items:stretch!important;
+  flex:1 1 auto!important;
+  min-height:0!important;
+}
+.battlefield .hero .status{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:4px!important;
+  align-items:flex-start!important;
+  min-height:0!important;
+  margin-top:6px!important;
+}
+.battlefield .hero .status:empty{
+  display:none!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+}
+.battlefield .hero .item-inventory{
+  display:flex!important;
+  gap:4px!important;
+  min-height:0!important;
+  margin-top:4px!important;
+}
+.battlefield .hero .item-inventory:empty{
+  display:none!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+}
+.battlefield .hero .inspect-hero{
+  display:block!important;
+  width:100%!important;
+  margin:8px 0 0!important;
+  position:relative!important;
+  inset:auto!important;
+  align-self:stretch!important;
+}
+
+/* v1.05 — offline parity: CARD button under HP bar + stable Io spirit ring */
+.battlefield .hero-body{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  justify-content:flex-start!important;
+  gap:0!important;
+}
+.battlefield .hero .hero-name,
+.battlefield .hero .stats,
+.battlefield .hero .hpbar,
+.battlefield .hero .inspect-hero,
+.battlefield .hero .status,
+.battlefield .hero .item-inventory{
+  order:initial!important;
+}
+.battlefield .hero .stats{margin:8px 0!important;}
+.battlefield .hero .hpbar{
+  display:block!important;
+  width:100%!important;
+  height:8px!important;
+  min-height:8px!important;
+  margin:8px 0 0!important;
+  background:#3a2023!important;
+  border-radius:999px!important;
+  overflow:hidden!important;
+  visibility:visible!important;
+  opacity:1!important;
+  flex:0 0 auto!important;
+}
+.battlefield .hero .hpbar i{
+  display:block!important;
+  height:100%!important;
+  min-height:100%!important;
+  background:#55c86b!important;
+  border-radius:999px!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+.battlefield .hero .inspect-hero{
+  display:block!important;
+  width:100%!important;
+  margin:8px 0 0!important;
+  padding:6px 8px!important;
+  position:relative!important;
+  inset:auto!important;
+  align-self:stretch!important;
+  flex:0 0 auto!important;
+}
+.battlefield .hero .status{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:4px!important;
+  align-items:flex-start!important;
+  min-height:0!important;
+  margin:6px 0 0!important;
+}
+.battlefield .hero .status:empty{
+  display:none!important;
+  margin:0!important;
+  padding:0!important;
+  min-height:0!important;
+}
+.battlefield .hero .item-inventory{
+  display:flex!important;
+  gap:4px!important;
+  min-height:0!important;
+  margin:6px 0 0!important;
+}
+.battlefield .hero .item-inventory:empty{
+  display:none!important;
+  margin:0!important;
+  padding:0!important;
+  min-height:0!important;
+}
+/* keep the portrait-contained orbit ring and balls clean in offline and online */
+.hero.spirits-active .hero-portrait::after{
+  content:none!important;
+  display:none!important;
+}
+.io-spirits{
+  display:none;
+  position:absolute!important;
+  inset:0!important;
+  overflow:hidden!important;
+  pointer-events:none!important;
+  z-index:12!important;
+}
+.io-spirits.show{display:block!important;}
+.io-spirits::before{
+  content:'';
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  width:104px!important;
+  height:104px!important;
+  margin:-52px 0 0 -52px!important;
+  border-radius:50%!important;
+  border:2px solid rgba(135,205,255,.34)!important;
+  box-shadow:0 0 24px rgba(73,138,255,.36) inset, 0 0 10px rgba(73,138,255,.20)!important;
+}
+.io-spirits i{
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  width:18px!important;
+  height:18px!important;
+  margin:-9px 0 0 -9px!important;
+  border-radius:50%!important;
+  background:radial-gradient(circle at 35% 35%,#ffffff 0 18%,#c9f7ff 32%,#5db1ff 62%,rgba(93,177,255,0) 74%)!important;
+  box-shadow:0 0 10px rgba(122,215,255,.95),0 0 20px rgba(89,156,255,.58)!important;
+  animation:ioOrbitFixed105 2.35s linear infinite!important;
+  will-change:transform!important;
+}
+.io-spirits i:nth-child(2){animation-delay:-.78s!important;}
+.io-spirits i:nth-child(3){animation-delay:-1.56s!important;}
+.io-spirits[data-count='1'] i:nth-child(2),
+.io-spirits[data-count='1'] i:nth-child(3){display:none!important;}
+.io-spirits[data-count='2'] i:nth-child(3){display:none!important;}
+@keyframes ioOrbitFixed105{
+  from{transform:rotate(0deg) translateX(52px) rotate(0deg);}
+  to{transform:rotate(360deg) translateX(52px) rotate(-360deg);}
+}
+
+/* v1.05 FINAL — exact card button placement from reference */
+.battlefield .hero-body{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  justify-content:flex-start!important;
+  min-height:150px!important;
+  height:150px!important;
+  padding:10px 12px!important;
+}
+.battlefield .hero .hero-name{order:1!important}
+.battlefield .hero .stats{order:2!important;margin:8px 0!important}
+.battlefield .hero .hpbar{order:3!important;margin:0!important;flex:0 0 8px!important}
+.battlefield .hero .status{order:4!important;margin:5px 0 0!important;min-height:0!important}
+.battlefield .hero .item-inventory{order:5!important;margin:4px 0 0!important;min-height:0!important}
+.battlefield .hero .inspect-hero{
+  order:6!important;
+  margin:auto 0 0!important;
+  width:100%!important;
+  min-height:28px!important;
+  padding:5px 8px!important;
+  border-radius:7px!important;
+  position:static!important;
+  flex:0 0 auto!important;
+}
+.battlefield .hero .status:empty,.battlefield .hero .item-inventory:empty{display:none!important}
+
+/* v1.05 FINAL — Wisp Spirits: visible circular orbit + balls on that exact orbit */
+.hero.spirits-active .hero-portrait::after{content:none!important;display:none!important}
+.io-spirits{
+  display:none;
+  position:absolute!important;
+  inset:0!important;
+  overflow:hidden!important;
+  pointer-events:none!important;
+  z-index:12!important;
+}
+.io-spirits.show{display:block!important}
+.io-spirits::before{
+  content:''!important;
+  display:block!important;
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  width:104px!important;
+  height:104px!important;
+  transform:translate(-50%,-50%)!important;
+  border:2px solid rgba(145,216,255,.52)!important;
+  border-radius:50%!important;
+  box-shadow:0 0 8px rgba(90,175,255,.35),inset 0 0 18px rgba(73,138,255,.20)!important;
+}
+.io-spirits i{
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  width:18px!important;
+  height:18px!important;
+  margin:-9px 0 0 -9px!important;
+  border-radius:50%!important;
+  background:radial-gradient(circle at 35% 35%,#fff 0 18%,#c9f7ff 32%,#5db1ff 62%,rgba(93,177,255,0) 74%)!important;
+  box-shadow:0 0 10px rgba(122,215,255,.95),0 0 20px rgba(89,156,255,.58)!important;
+  animation:ioOrbit105 2.35s linear infinite!important;
+}
+.io-spirits i:nth-child(2){animation-delay:-.783s!important}
+.io-spirits i:nth-child(3){animation-delay:-1.566s!important}
+.io-spirits[data-count='1'] i:nth-child(2),.io-spirits[data-count='1'] i:nth-child(3){display:none!important}
+.io-spirits[data-count='2'] i:nth-child(3){display:none!important}
+@keyframes ioOrbit105{from{transform:rotate(0deg) translateX(52px) rotate(0deg)}to{transform:rotate(360deg) translateX(52px) rotate(-360deg)}}
+
+/* v1.06 — explicit Io Spirits orbit ring (real DOM element, not pseudo-element) */
+.io-spirits::before{content:none!important;display:none!important}
+.io-spirits .io-orbit-ring{
+  display:block!important;
+  position:absolute!important;
+  z-index:1!important;
+  left:50%!important;
+  top:50%!important;
+  width:104px!important;
+  height:104px!important;
+  transform:translate(-50%,-50%)!important;
+  border:3px solid rgba(160,225,255,.82)!important;
+  border-radius:50%!important;
+  background:transparent!important;
+  box-shadow:0 0 7px rgba(120,210,255,.9),0 0 18px rgba(73,138,255,.55),inset 0 0 10px rgba(120,210,255,.30)!important;
+  opacity:1!important;
+  pointer-events:none!important;
+}
+.io-spirits i{z-index:2!important}
+
+/* v1.05 HP FIX — JS inline HP percentage must control the green fill */
+.battlefield .hero .hpbar i{
+  max-width:100%!important;
+  transition:width .22s ease!important;
+}
+
+/* v1.05 VERIFIED HP fill: custom property wins over legacy rules */
+.battlefield .hero .hpbar i{width:var(--hp-pct,100%)!important;max-width:100%!important;}
+
+/* v1.05 VERIFIED HP fill: transform-based so legacy width rules cannot break it */
+.battlefield .hero .hpbar i{width:100%!important;transform-origin:left center!important;transform:scaleX(var(--hp-scale,1))!important;}
+
+/* v1.06 — canonical Io Spirits and HP visuals. Keep this block last. */
+/* The v1.07 SVG replaces legacy orbit markup. */
+.spirits-v107 .spirit-rotor{transform-origin:80px 80px;animation:spiritsRotate107 2.4s linear infinite}
+@keyframes spiritsRotate107{to{transform:rotate(360deg)}}
+.hero-portrait{position:relative!important;overflow:hidden!important}
+.io-spirits{display:none!important;position:absolute!important;inset:0!important;overflow:hidden!important;pointer-events:none!important;z-index:20!important}
+.io-spirits.show{display:block!important}
+.io-spirits .io-orbit-ring{display:block!important;position:absolute!important;left:50%!important;top:50%!important;width:112px!important;height:112px!important;transform:translate(-50%,-50%)!important;border:2px solid rgba(150,225,255,.78)!important;border-radius:50%!important;box-shadow:0 0 8px rgba(115,215,255,.9),0 0 22px rgba(55,130,255,.65),inset 0 0 12px rgba(115,215,255,.32)!important;opacity:1!important}
+.io-spirits i{display:block!important;position:absolute!important;left:50%!important;top:50%!important;width:20px!important;height:20px!important;margin:-10px 0 0 -10px!important;border-radius:50%!important;background:radial-gradient(circle at 35% 35%,#fff 0 16%,#d8fbff 29%,#62b8ff 58%,rgba(75,150,255,0) 75%)!important;box-shadow:0 0 10px #8be5ff,0 0 22px rgba(70,145,255,.9)!important;animation:ioSpiritsOrbit106 2.4s linear infinite!important;z-index:2!important}
+.io-spirits i:nth-of-type(2){animation-delay:-.8s!important}
+.io-spirits i:nth-of-type(3){animation-delay:-1.6s!important}
+.io-spirits[data-count='1'] i:nth-of-type(n+2){display:none!important}
+.io-spirits[data-count='2'] i:nth-of-type(3){display:none!important}
+@keyframes ioSpiritsOrbit106{from{transform:rotate(0deg) translateX(56px) rotate(0deg)}to{transform:rotate(360deg) translateX(56px) rotate(-360deg)}}
+.battlefield .hero .hpbar i{width:100%;transform:none!important;transition:width .22s ease!important}
+/* v1.13 — Dota-style categorized shop */
+.shop-panel.open{width:332px;max-height:calc(100vh - 150px);overflow:auto}
+.shop-panel.open .shop-items{display:block}
+.shop-category{margin:8px 0 10px;padding:7px;background:linear-gradient(180deg,#141b27e8,#0e141ee8);border:1px solid #2c3749;border-radius:10px}
+.shop-category-head{display:flex;align-items:center;gap:8px;margin:0 0 7px;color:#d7dde8;font-size:11px;font-weight:1000;letter-spacing:1px;text-transform:uppercase}
+.shop-category-head img{width:30px!important;height:30px!important;object-fit:contain!important;border-radius:6px;background:#161923;border:1px solid #51456d;box-shadow:0 0 0 1px #0008 inset}
+.shop-category-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.shop-category-grid .shop-item{display:flex;min-width:0;min-height:78px;flex-direction:column;justify-content:flex-start;align-items:center;gap:4px;padding:6px 4px;text-align:center;border-radius:7px;background:linear-gradient(#192333,#121924);border:1px solid #34445a}
+.shop-category-grid .shop-item:hover:not(:disabled),.shop-category-grid .shop-item:focus-visible:not(:disabled){border-color:#a4b2c8;filter:brightness(1.15);outline:none}
+.shop-category-grid .shop-item img{width:52px!important;height:44px!important;object-fit:contain!important;border-radius:4px;background:#0c1017}
+.shop-category-grid .shop-item span{font-size:9px;line-height:1.15;overflow-wrap:anywhere}
+.shop-category-grid .shop-item b{display:block;margin-top:2px;color:#f0cf65;font-size:10px}
+.shop-category-weapons .shop-category-head{color:#e0b75d}.shop-category-magic .shop-category-head{color:#c493e8}.shop-category-support .shop-category-head{color:#75c9b2}.shop-category-armor .shop-category-head{color:#9db7e1}
+.shop-panel.open .shop-info{position:sticky;bottom:0;background:#0d141fef;backdrop-filter:blur(8px);box-shadow:0 -8px 18px #0009}
+@media(max-width:1180px){.shop-panel.open{width:286px}.shop-category-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.shop-category-grid .shop-item img{width:44px!important;height:38px!important}.shop-category-grid .shop-item{min-height:72px}}
+
+
+/* v1.14 — compact categorized shop + visual upgrade recipes */
+.shop-panel.open{width:300px!important;max-height:calc(100vh - 132px)!important;overflow:auto!important;padding:7px!important}
+.shop-panel.open .shop-items{margin-top:4px!important}
+.shop-panel.open .shop-head{gap:5px!important}
+.shop-panel.open .shop-toggle{padding:6px 8px!important;font-size:10px!important}
+.shop-panel.open .shop-next{margin:2px 2px 0!important;font-size:8px!important}
+.shop-category{margin:5px 0!important;padding:5px!important;border-radius:8px!important}
+.shop-category-head{gap:6px!important;margin:0 0 4px!important;font-size:9px!important;letter-spacing:.75px!important}
+.shop-category-head img{width:23px!important;height:23px!important;border-radius:5px!important}
+.shop-category-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:4px!important}
+.shop-category-grid .shop-item{min-height:60px!important;gap:2px!important;padding:4px 2px!important;border-radius:6px!important}
+.shop-category-grid .shop-item img{width:41px!important;height:35px!important;border-radius:3px!important}
+.shop-category-grid .shop-item span{font-size:8px!important;line-height:1.04!important}
+.shop-category-grid .shop-item b{margin-top:1px!important;font-size:9px!important}
+.shop-panel.open .shop-info{margin-top:5px!important;padding:6px!important;min-height:0!important;border-radius:7px!important}
+.shop-info-head{gap:6px!important;margin-bottom:4px!important}
+.shop-info-head img{width:32px!important;height:32px!important;border-radius:4px!important}
+.shop-info-head b{font-size:10px!important}.shop-info-head small{font-size:8px!important}
+.shop-info-desc{font-size:9px!important;line-height:1.28!important}
+.shop-recipe{display:grid;grid-template-rows:auto 18px auto;justify-items:center;align-items:center;margin-top:6px;padding-top:6px;border-top:1px solid #2a3548}
+.shop-recipe-node{width:38px;height:32px;padding:2px;border:1px solid #6f5930;border-radius:4px;background:#0b1017;box-shadow:0 0 0 1px #0008 inset}
+.shop-recipe-node.component{border-color:#45536a}
+.shop-recipe-node img{display:block;width:100%!important;height:100%!important;object-fit:contain!important;border-radius:2px!important;background:#0b1017!important}
+.shop-recipe-lines{display:block;width:80px;height:18px;overflow:visible}
+.shop-recipe-lines path{fill:none;stroke:#b49a49;stroke-width:1.6;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 2px #000)}
+.shop-category-misc .shop-category-head{color:#c6a0ec}
+@media(max-width:1180px){.shop-panel.open{width:280px!important}.shop-category-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}.shop-category-grid .shop-item{min-height:58px!important}.shop-category-grid .shop-item img{width:38px!important;height:33px!important}}
+
+.shop-info-body.has-recipe{display:grid;grid-template-columns:minmax(0,1fr) 54px;gap:7px;align-items:start}
+.shop-info-body.has-recipe .shop-recipe{margin:0;padding:0 0 0 6px;border-top:0;border-left:1px solid #2a3548;grid-template-rows:auto 12px auto}
+.shop-info-body.has-recipe .shop-recipe-node{width:32px;height:27px;padding:1px}
+.shop-info-body.has-recipe .shop-recipe-lines{width:54px;height:12px}
+.shop-info-body.has-recipe .shop-recipe-lines path{transform:scaleY(.67);transform-origin:center top}
+
+/* Invoker */
+#invoke-overlay{position:fixed;inset:0;z-index:12000;background:rgba(8,10,16,.72);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+#invoke-overlay .invoke-panel{width:min(620px,92vw);padding:24px;border-radius:22px;border:1px solid rgba(130,160,255,.35);background:linear-gradient(180deg,rgba(18,22,34,.98),rgba(9,12,20,.98));box-shadow:0 24px 80px rgba(0,0,0,.45);color:#eef3ff;font:14px/1.4 Segoe UI,sans-serif}
+#invoke-overlay .invoke-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-size:20px;letter-spacing:.08em}
+#invoke-overlay .invoke-head #invoke-time{font-weight:800;color:#ffd77a}
+#invoke-overlay .invoke-orbs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+#invoke-overlay .invoke-orbs button{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:#151b29;color:#fff;cursor:pointer}
+#invoke-overlay .invoke-orbs img{width:42px;height:42px;border-radius:10px}
+#invoke-overlay .invoke-seq{min-height:42px;display:flex;gap:8px;margin-bottom:10px}
+#invoke-overlay .invoke-seq span{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;background:#232b3f;font-weight:800;font-size:18px}
+#invoke-overlay .invoke-found{display:flex;flex-wrap:wrap;gap:10px;min-height:46px}
+#invoke-overlay .invoke-found-spell{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;background:#111827;border:1px solid rgba(255,255,255,.08)}
+#invoke-overlay .invoke-found-spell img{width:28px;height:28px;border-radius:8px}
+#invoke-overlay .invoke-tip{margin-top:14px;opacity:.78}
+.hero.ghostwalk{filter:saturate(.65) brightness(.9)}
+.hero.tornadoed{transform:translateY(-16px)}
+
+/* Invoker v1.20: summon card + ready-state invoke */
+.forge-spirit-card{position:absolute;right:-92px;bottom:8px;width:104px;min-height:78px;z-index:36;display:flex;gap:7px;align-items:center;padding:7px;border-radius:12px;border:1px solid #814e31;background:linear-gradient(180deg,#2a1b16f2,#151012f5);box-shadow:0 8px 22px #0008,0 0 12px #ff7b2b22;color:#f7e3cd;cursor:default;transition:.16s ease}
+.forge-spirit-card>img{width:40px;height:54px;object-fit:cover;border-radius:8px;border:1px solid #a85c2d;box-shadow:0 0 9px #ff7c2a44}
+.forge-spirit-copy{display:flex;min-width:0;flex-direction:column;gap:1px;font:600 10px/1.15 Segoe UI,sans-serif}.forge-spirit-copy b{font-size:9px;color:#ffbe82}.forge-spirit-copy span{white-space:nowrap}.forge-spirit-copy small{font-size:9px;color:#c8a88d}
+.forge-spirit-card.targetable{cursor:pointer;border-color:#ffd36c;box-shadow:0 0 0 2px #ffd36c77,0 0 20px #ff9b46aa;transform:translateY(-2px)}
+.invoker-casting-state{position:absolute;inset:8px;z-index:48;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px;background:rgba(26,12,38,.82);border:1px solid #ba6dff99;box-shadow:inset 0 0 24px #8d4dff55,0 0 18px #8d4dff33;pointer-events:none;color:#f0d6ff;letter-spacing:.08em;text-shadow:0 0 9px #bd74ff}
+.invoker-casting-state img{width:31px;height:31px;border-radius:8px}.invoker-casting-state b{font-size:12px}
+#invoke-overlay .invoke-ready{text-align:center;margin:-4px 0 12px;color:#c8d3eb}
+#invoke-overlay .invoke-start{display:block;width:100%;margin:0 0 14px;padding:13px 16px;border:0;border-radius:13px;background:linear-gradient(180deg,#7b5bd9,#51369f);box-shadow:0 7px 22px #0007,0 0 16px #8064ed55;color:#fff;font:800 14px Segoe UI,sans-serif;letter-spacing:.06em;cursor:pointer}
+#invoke-overlay .invoke-orbs.locked{opacity:.4;filter:saturate(.4)}
+#invoke-overlay .invoke-orbs button:disabled{cursor:not-allowed}
+@media(max-width:900px){.forge-spirit-card{right:-48px;bottom:-58px;transform:scale(.86)}.forge-spirit-card.targetable{transform:scale(.86) translateY(-2px)}}
+
+
+/* v1.23 Invoker UI polish */
+.invoker-effect-overlays{display:none;position:absolute;z-index:31;left:7px;top:7px;max-width:52px;grid-template-columns:repeat(2, 1fr);gap:4px;pointer-events:none}
+.invoker-effect-overlays.show{display:grid!important}
+.invoker-effect-dot{position:relative;width:22px;height:22px;border-radius:50%;display:block;overflow:visible;background:#10151f;border:2px solid #ff7474;box-shadow:0 0 0 2px rgba(8,10,14,.92),0 0 10px rgba(255,90,90,.35)}
+.invoker-effect-dot.good{border-color:#63e699;box-shadow:0 0 0 2px rgba(8,10,14,.92),0 0 10px rgba(95,224,139,.35)}
+.invoker-effect-dot img{width:100%;height:100%;object-fit:cover;border-radius:50%;clip-path:circle(50%)}
+.invoker-effect-dot b{position:absolute;right:-4px;bottom:-4px;min-width:14px;height:14px;padding:0 2px;border-radius:999px;display:grid;place-items:center;background:#0e1117;border:1.5px solid currentColor;color:#fff;font-size:9px;line-height:1;font-weight:900;box-shadow:0 0 8px rgba(0,0,0,.45)}
+.invoker-effect-dot.good b{color:#bfffd4}.invoker-effect-dot:not(.good) b{color:#ffd4d4}
+.forge-spirit-card{position:static!important;width:100%!important;min-height:unset!important;margin:8px 0 0!important;padding:6px 8px!important;border-radius:10px!important;display:flex!important;align-items:center!important;gap:8px!important;background:linear-gradient(180deg,#2a1b16f5,#151012f7)!important;box-shadow:inset 0 0 0 1px rgba(255,146,67,.18),0 8px 18px rgba(0,0,0,.32)!important}
+.forge-spirit-media{width:42px;height:42px;flex:0 0 42px;border-radius:9px;overflow:hidden;border:1px solid #b16230;box-shadow:0 0 9px rgba(255,124,42,.35)}
+.forge-spirit-media video{width:100%;height:100%;object-fit:cover;transform:scale(1.05)}
+.forge-spirit-copy{display:flex;flex-direction:column;gap:2px;min-width:0}.forge-spirit-copy b{font-size:11px;line-height:1.05;color:#ffd39f}.forge-spirit-copy span,.forge-spirit-copy small{font-size:10px;line-height:1.1;color:#f6e3cc}.forge-spirit-card.targetable{transform:none!important;box-shadow:0 0 0 2px rgba(255,211,108,.55),0 0 20px rgba(255,155,70,.42)!important}
+.pool .card[data-id='invoker'] img{object-position:center 26%!important}
+
+
+/* v1.24 Invoker cleanup */
+#draft .draft-card[data-id='invoker'] img{object-fit:contain!important;object-position:center center!important;background:#120b17!important}
+.battlefield .hero .invoker-effect-overlays{left:8px!important;top:8px!important;max-width:70px!important;grid-template-columns:repeat(2,30px)!important;gap:5px!important;z-index:45!important}
+.battlefield .hero .invoker-effect-dot{width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;border-width:2px!important}
+.battlefield .hero .invoker-effect-dot img{display:block!important;width:100%!important;height:100%!important;min-width:100%!important;min-height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:cover!important;object-position:center!important;border-radius:50%!important;clip-path:circle(50%)!important;padding:0!important;margin:0!important}
+.battlefield .hero .invoker-effect-dot b{right:-4px!important;bottom:-4px!important;min-width:15px!important;height:15px!important;font-size:9px!important;z-index:2!important}
+.battlefield .hero{overflow:visible!important}
+.battlefield .hero .forge-spirit-card{position:absolute!important;left:50%!important;top:-74px!important;right:auto!important;bottom:auto!important;transform:translateX(-50%)!important;width:156px!important;min-height:58px!important;margin:0!important;padding:6px 8px!important;z-index:60!important;border-radius:12px!important;display:flex!important;align-items:center!important;gap:8px!important;background:linear-gradient(180deg,#2a1b16fa,#151012fa)!important;box-shadow:0 8px 20px rgba(0,0,0,.55),0 0 14px rgba(255,124,42,.22)!important;overflow:visible!important}
+.battlefield .hero .forge-spirit-card.targetable{transform:translateX(-50%) translateY(-2px)!important}
+.battlefield .hero .forge-spirit-media{width:46px!important;height:46px!important;flex:0 0 46px!important;border-radius:9px!important;overflow:hidden!important}
+.battlefield .hero .forge-spirit-media video{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;transform:none!important}
+.battlefield .hero .forge-spirit-copy{display:flex!important;flex-direction:column!important;gap:2px!important;min-width:0!important}
+.battlefield .hero .forge-spirit-copy b{font-size:10px!important;color:#ffd39f!important}.battlefield .hero .forge-spirit-copy span,.battlefield .hero .forge-spirit-copy small{font-size:9px!important;line-height:1.1!important;color:#f6e3cc!important;white-space:nowrap!important}
+@media(max-width:1000px){.battlefield .hero .forge-spirit-card{top:-64px!important;width:138px!important}.battlefield .hero .forge-spirit-media{width:40px!important;height:40px!important;flex-basis:40px!important}}
+.battlefield .hero .alacrity-persistent{display:none;position:absolute;z-index:34;left:50%;top:7px;width:72px;height:54px;transform:translateX(-50%);pointer-events:none;filter:drop-shadow(0 0 7px rgba(244,102,255,.72))}
+.battlefield .hero .alacrity-persistent.show{display:block}
+.battlefield .hero .alacrity-persistent i{position:absolute;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,#fff 0 12%,#ffc8ff 24%,#f36dff 52%,#a83dd7 72%,transparent 76%);box-shadow:0 0 12px rgba(245,104,255,.9);animation:alacrityPersistent 1.45s ease-in-out infinite alternate}
+.battlefield .hero .alacrity-persistent i:nth-child(1){left:26px;top:0}.battlefield .hero .alacrity-persistent i:nth-child(2){left:4px;top:27px;animation-delay:.18s}.battlefield .hero .alacrity-persistent i:nth-child(3){right:4px;top:27px;animation-delay:.36s}
+@keyframes alacrityPersistent{from{transform:translateY(2px) scale(.88);opacity:.78}to{transform:translateY(-2px) scale(1.08);opacity:1}}
+
+/* v1.25 — Invoker draft portrait uses the exact same full card box as every hero */
+#draft .draft-card[data-id='invoker'] img{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  aspect-ratio:16/9!important;
+  object-fit:fill!important;
+  object-position:center center!important;
+  margin:0!important;
+  padding:0!important;
+  background:transparent!important;
+}
+
+
+/* v1.26 — final overlay layout, portrait tooltips, Invoke banner fill */
+.battlefield .hero .status{display:none!important}
+.item-debuff-overlay{left:8px!important;top:8px!important;right:auto!important;bottom:auto!important}
+.tether-status-overlay{left:8px!important;top:auto!important;bottom:8px!important;right:auto!important}
+.sf-mark-overlay{right:8px!important;top:auto!important;bottom:8px!important;left:auto!important}
+.invoker-effect-overlays{display:none;position:absolute!important;right:8px!important;top:8px!important;left:auto!important;bottom:auto!important;max-width:72px!important;grid-template-columns:repeat(2,30px)!important;gap:5px!important;z-index:46!important;pointer-events:auto!important}
+.invoker-effect-overlays.show{display:grid!important}
+.invoker-effect-dot{display:grid!important;place-items:center!important;position:relative!important;width:30px!important;height:30px!important;border-radius:50%!important;background:#10151f!important;border:2px solid rgba(255,255,255,.18)!important;box-shadow:0 0 0 2px rgba(8,10,14,.9),0 0 10px rgba(0,0,0,.35)!important;pointer-events:auto!important}
+.invoker-effect-dot.good{border-color:#58e58d!important;box-shadow:0 0 0 2px rgba(8,10,14,.9),0 0 10px rgba(64,210,124,.42)!important}
+.invoker-effect-dot.bad{border-color:#ff7f8a!important;box-shadow:0 0 0 2px rgba(8,10,14,.9),0 0 10px rgba(210,64,90,.4)!important}
+.invoker-effect-dot img{width:100%!important;height:100%!important;border-radius:50%!important;object-fit:cover!important;display:block!important}
+.invoker-effect-dot b{position:absolute!important;right:-2px!important;bottom:-2px!important;min-width:17px!important;height:17px!important;padding:0 3px!important;border-radius:999px!important;background:#10151f!important;color:#fff!important;font-size:11px!important;line-height:15px!important;text-align:center!important;border:1px solid rgba(255,255,255,.65)!important}
+.hero-portrait[title]{cursor:help}
+.invoker-casting-state{position:absolute!important;inset:8px!important;border-radius:12px!important;overflow:hidden!important;display:block!important;background:rgba(15,8,28,.72)!important}
+.invoker-casting-state img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;border-radius:inherit!important;opacity:.98!important}
+.invoker-casting-state .invoker-casting-shade{position:absolute;inset:0;background:linear-gradient(to top,rgba(14,9,22,.9),rgba(14,9,22,.15) 52%,rgba(14,9,22,.45));display:block}
+.invoker-casting-state b{position:absolute!important;left:50%!important;bottom:12px!important;transform:translateX(-50%)!important;font-size:13px!important;letter-spacing:.12em!important;padding:4px 10px!important;border-radius:999px!important;background:rgba(18,14,29,.8)!important;border:1px solid rgba(220,164,255,.45)!important;z-index:2!important;white-space:nowrap!important}
+.forge-spirit-card{top:-74px!important;left:50%!important;transform:translateX(-50%)!important;right:auto!important;bottom:auto!important;z-index:55!important}
+
+
+/* v1.27 — remove always-on help cursor, keep effect tooltips only, keep FRONT label above Alacrity */
+.hero-portrait[title],.hero-portrait{cursor:default!important}
+.battlefield .hero .alacrity-persistent{z-index:24!important;top:14px!important}
+.hero.front::after{z-index:60!important}
+.invoker-effect-dot,.sf-mark-overlay,.item-debuff-overlay,.tether-status-overlay{cursor:help!important}
+
+
+/* v1.36 — Arc Warden polish */
+#draft .draft-card[data-id='arcwarden'] img{object-fit:cover!important;object-position:center center!important;background:#121827!important}
+#game .battlefield .team.has-four{gap:6px!important;padding-left:0!important;padding-right:0!important;justify-content:space-between!important}
+#game .battlefield .team.has-four .hero{width:calc((100% - 18px)/4)!important;flex:0 0 calc((100% - 18px)/4)!important;height:348px!important;min-width:0!important}
+#game .battlefield .team.has-four .hero .hero-portrait{height:162px!important;flex:0 0 162px!important}
+#game .battlefield .team.has-four .hero-body{padding:8px!important}
+#game .battlefield .team.has-four .hero-name{font-size:11px!important;letter-spacing:-.45px!important;line-height:1.05!important;height:auto!important;min-height:0!important;white-space:normal!important;overflow:hidden!important}
+#game .battlefield .team.has-four .stats{gap:4px!important;margin:6px 0!important}
+#game .battlefield .team.has-four .stat{padding:4px 6px!important;font-size:11px!important}
+#game .battlefield .team.has-four .inspect-hero{padding:8px 6px!important;font-size:11px!important}
+#game .battlefield .team.has-four .status{font-size:10px!important;line-height:1.1!important;max-height:62px!important;overflow:auto!important}
+.hero[data-hero='arcwarden_clone'] .hero-portrait video{object-position:center 20%!important;transform:scale(1.08)!important}
+.hero[data-hero='arcwarden'] .hero-portrait video,.hero[data-hero='arcwarden'] .hero-portrait .static-hero-portrait{object-position:center 20%!important}
+
+
+/* v1.42 — expanded item shop */
+.shop-recipe-components{display:flex;justify-content:center;gap:5px;align-items:center}
+.shop-recipe.multi-2{grid-template-rows:auto 18px auto}
+.shop-recipe.multi-2 .shop-recipe-lines{width:74px!important}
+.shop-category-grid .shop-item span{max-width:100%;word-break:normal;overflow-wrap:anywhere}
+.shop-category-weapons .shop-item,.shop-category-magic .shop-item{min-height:62px!important}
+@media(max-height:850px){.shop-panel.open{top:88px!important;max-height:calc(100vh - 98px)!important}.shop-category{margin:3px 0!important}.shop-category-grid .shop-item{min-height:56px!important}.shop-category-grid .shop-item img{width:38px!important;height:32px!important}}
+.shop-info-body.has-recipe{grid-template-columns:minmax(0,1fr) 82px!important}
+.shop-info-body.has-recipe .shop-recipe-lines{width:76px!important}
+.shop-info-body.has-recipe .shop-recipe-components{width:76px}
+
+.kill-firstblood{margin-left:8px;padding:2px 6px;border-radius:999px;background:linear-gradient(180deg,#b31b1b,#6f0c0c);border:1px solid rgba(255,150,120,.45);color:#ffd7b0;font-weight:900;font-size:11px;letter-spacing:.05em}
+
+/* v1.46 hotfixes: Invoker draft portraits + wider shop */
+#draft .draft-card[data-id='invoker'] img{
+  object-fit:cover!important;
+  object-position:center 18%!important;
+  background:#140c18!important;
+}
+#draft .draft-slot[data-hero='invoker'] img{
+  object-fit:cover!important;
+  object-position:center 18%!important;
+}
+.shop-panel.open{
+  width:380px!important;
+}
+.shop-info-desc{
+  line-height:1.34!important;
+}
+@media(max-width:1180px){
+  .shop-panel.open{width:340px!important}
+}
+
+
+/* v1.47 — SF position / cooldown UI and wide shop */
+.sf-presence-overlay{
+  display:none;position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:34px;height:34px;border-radius:50%;z-index:48;overflow:hidden;
+  background:#090a0d;border:2px solid #ff5e65;box-shadow:0 0 0 2px rgba(8,10,14,.9),0 0 11px rgba(255,48,58,.48);
+  pointer-events:auto;cursor:help;
+}
+.sf-presence-overlay.show{display:block}
+.sf-presence-overlay img{width:100%!important;height:100%!important;object-fit:cover!important;border-radius:50%!important;display:block!important}
+
+/* Open shop grows sideways instead of becoming a long narrow column. */
+.shop-panel.open{
+  width:560px!important;
+  max-height:calc(100vh - 118px)!important;
+  overflow:hidden!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 190px!important;
+  grid-template-areas:"head head" "next next" "items info"!important;
+  column-gap:10px!important;
+  align-items:start!important;
+}
+.shop-panel.open .shop-head{grid-area:head!important}
+.shop-panel.open .shop-next{grid-area:next!important}
+.shop-panel.open .shop-items{
+  grid-area:items!important;display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:6px!important;margin-top:4px!important;
+  max-height:calc(100vh - 178px)!important;overflow:auto!important;padding-right:4px!important;
+}
+.shop-panel.open .shop-info{
+  grid-area:info!important;position:sticky!important;top:0!important;bottom:auto!important;
+  margin-top:4px!important;min-height:150px!important;max-height:calc(100vh - 178px)!important;
+  overflow:auto!important;padding:9px!important;background:#0d141ff5!important;
+  box-shadow:none!important;border:1px solid #344057!important;
+}
+.shop-panel.open .shop-category{margin:0!important;min-width:0!important}
+.shop-panel.open .shop-category-weapons,.shop-panel.open .shop-category-magic{grid-column:auto!important}
+.shop-panel.open .shop-category-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:4px!important}
+.shop-panel.open .shop-category-grid .shop-item{min-height:62px!important;padding:4px!important}
+.shop-panel.open .shop-category-grid .shop-item img{width:42px!important;height:36px!important}
+.shop-panel.open .shop-info-desc{font-size:10px!important;line-height:1.38!important}
+.shop-panel.open .shop-info-body.has-recipe{grid-template-columns:1fr!important}
+.shop-panel.open .shop-info-body.has-recipe .shop-recipe{border-left:0!important;border-top:1px solid #2a3548!important;padding:7px 0 0!important;margin-top:7px!important}
+@media(max-width:1500px){.shop-panel.open{width:500px!important;grid-template-columns:minmax(0,1fr) 170px!important}.shop-panel.open .shop-category-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:1180px){.shop-panel.open{width:440px!important;grid-template-columns:minmax(0,1fr) 155px!important}.shop-panel.open .shop-items{grid-template-columns:1fr!important}}
+
+/* v1.48 — hero mastery + side-aware SF Presence */
+.sf-presence-overlay{left:auto!important;right:auto!important;bottom:8px!important;transform:none!important}
+.sf-presence-overlay.from-left{left:8px!important;right:auto!important}
+.sf-presence-overlay.from-right{right:8px!important;left:auto!important}
+
+.hero-name-row{display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0}
+.hero-name-row .hero-name{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.hero-mastery-slot{flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+.hero-mastery{position:relative;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;filter:drop-shadow(0 3px 5px rgba(0,0,0,.72));pointer-events:auto;cursor:help;z-index:62;overflow:visible}
+.hero-mastery img{display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;overflow:visible!important}
+.hero-mastery b{position:absolute;left:50%;bottom:2px;transform:translateX(-50%);min-width:17px;height:17px;padding:0 4px;border-radius:999px;display:grid;place-items:center;background:radial-gradient(circle at 35% 35%,#283243,#0a0d13 70%);color:#fff;border:1.5px solid rgba(255,255,255,.78);font-size:10px;line-height:1;font-weight:1000;text-shadow:0 1px 2px #000;box-shadow:0 2px 6px #000c;z-index:2}
+.hero-mastery.compact{width:34px;height:34px}
+.hero-mastery.compact b{min-width:15px;height:15px;font-size:8px;bottom:1px;padding:0 3px}
+.hero-mastery.tier-grandmaster{filter:drop-shadow(0 0 6px rgba(255,137,75,.6)) drop-shadow(0 3px 5px rgba(0,0,0,.72))}
+
+.draft-card,.draft-slot{position:relative!important}
+.draft-mastery-host{position:absolute;left:5px;top:5px;z-index:8;pointer-events:auto}
+.draft-slot .draft-mastery-host{left:6px;top:6px}
+#draft .draft-card .hero-mastery,#draft .draft-slot .hero-mastery{width:32px;height:32px}
+#draft .draft-card .hero-mastery b,#draft .draft-slot .hero-mastery b{min-width:14px;height:14px;font-size:8px;bottom:1px;padding:0 3px}
+
+#game .battlefield .team.has-four .hero-mastery{width:30px;height:30px}
+#game .battlefield .team.has-four .hero-mastery b{min-width:13px;height:13px;font-size:7px;bottom:1px;padding:0 2px}
+
+
+/* v1.49 — shop targeting UX + light render optimization */
+body.shop-targeting .shop-panel{opacity:.16!important;pointer-events:none!important;transform:scale(.96)!important;filter:saturate(.3)!important}
+body.shop-targeting .battlefield .hero.targetable{z-index:75!important;box-shadow:0 0 0 3px rgba(255,214,102,.82),0 0 28px rgba(255,214,102,.45)!important}
+.turn-queue-row,.item-inventory,.invoker-effect-overlays,.hero-mastery-slot{contain:layout style}
+#log,#effects{contain:layout style paint}
+
+/* v1.50 — profile top hero mastery */
+.profile-clickable{cursor:pointer!important;transition:filter .12s ease,transform .12s ease}
+.profile-clickable:hover{filter:brightness(1.12)}
+.profile-mastery-modal{position:fixed;inset:0;z-index:12000;background:rgba(2,5,10,.78);backdrop-filter:blur(6px);display:grid;place-items:center;padding:20px}
+.profile-mastery-modal.hidden{display:none!important}
+.profile-mastery-box{position:relative;width:min(720px,94vw);max-height:88vh;overflow:auto;border:1px solid #40506a;border-radius:18px;background:linear-gradient(180deg,#172131,#0e141e);box-shadow:0 24px 80px #000c;padding:18px;color:#f3f6fa}
+.profile-mastery-close{position:absolute;right:12px;top:12px;width:38px;height:38px;border-radius:50%;padding:0;background:#e8edf6;color:#121722;font-size:22px;z-index:2}
+.profile-mastery-head{display:grid;grid-template-columns:62px minmax(0,1fr) 58px;gap:12px;align-items:center;padding:4px 52px 14px 2px;border-bottom:1px solid #2d3a50}
+.profile-mastery-avatar{width:58px;height:58px;border-radius:10px;overflow:hidden;display:grid;place-items:center;background:#111824;border:1px solid #44536b}
+.profile-mastery-avatar img{width:100%;height:100%;object-fit:cover}.profile-mastery-avatar-fallback{font-size:26px;color:#a8b4c7}
+.profile-mastery-title{display:flex;flex-direction:column;gap:3px;min-width:0}.profile-mastery-title>b{font-size:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.profile-mastery-title>small{color:#98a9bf;font-size:11px}.profile-mastery-title>em{margin-top:4px;color:#ffd166;font-style:normal;font-size:12px;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
+.profile-mastery-rank{width:54px;height:54px;object-fit:contain}
+.profile-mastery-list{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.profile-mastery-row{display:grid;grid-template-columns:26px 48px minmax(0,1fr) 84px;gap:10px;align-items:center;padding:9px 10px;border:1px solid #29374b;border-radius:12px;background:#101722}
+.profile-mastery-row.tier-master,.profile-mastery-row.tier-grandmaster{border-color:#76506e;background:linear-gradient(90deg,#171521,#251523 55%,#16131d)}
+.profile-mastery-row.tier-grandmaster{box-shadow:inset 0 0 22px rgba(255,118,65,.08),0 0 14px rgba(255,118,65,.06)}
+.profile-mastery-place{font-size:15px;font-weight:1000;color:#73829a;text-align:center}
+.profile-mastery-hero{width:46px;height:46px;border-radius:8px;object-fit:cover;border:1px solid #46566d;background:#0c1119}
+.profile-mastery-copy{display:flex;flex-direction:column;gap:3px;min-width:0}.profile-mastery-copy>b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.profile-mastery-copy>small{font-size:10px;color:#a9b5c7}.profile-mastery-copy>i{display:block;height:5px;border-radius:999px;overflow:hidden;background:#293142;margin-top:2px}.profile-mastery-copy>i>span{display:block;height:100%;background:linear-gradient(90deg,#627dff,#ca6cff);border-radius:inherit}
+.profile-mastery-tier{position:relative;display:grid;grid-template-columns:42px;justify-items:center;justify-content:center}.profile-mastery-tier>img{width:42px;height:42px;object-fit:contain;filter:drop-shadow(0 2px 4px #000a)}.profile-mastery-tier>b{position:absolute;top:24px;left:50%;transform:translateX(-50%);min-width:15px;height:15px;padding:0 3px;display:grid;place-items:center;border-radius:999px;background:radial-gradient(circle at 35% 35%,#283243,#0a0d13 70%);border:1.5px solid #ffffffc7;font-size:8px;font-weight:1000;box-shadow:0 2px 5px #000a}.profile-mastery-tier>small{margin-top:2px;color:#8f9db1;font-size:8px;white-space:nowrap;text-align:center}
+.profile-mastery-empty{padding:26px;text-align:center;color:#8290a4;border:1px dashed #324057;border-radius:12px}
+@media(max-width:620px){.profile-mastery-row{grid-template-columns:22px 42px minmax(0,1fr) 62px;gap:7px;padding:8px}.profile-mastery-hero{width:40px;height:40px}.profile-mastery-tier>img{width:36px;height:36px}.profile-mastery-tier>b{top:23px}.profile-mastery-head{grid-template-columns:52px minmax(0,1fr) 46px}.profile-mastery-avatar{width:48px;height:48px}.profile-mastery-rank{width:44px;height:44px}.profile-mastery-title>b{font-size:18px}}
+
+/* v1.52 — mastery badge on portrait, SF overlay separation, arc portrait loop polish */
+#game .battlefield .hero .hero-portrait .hero-mastery-slot{
+  position:absolute!important;
+  left:8px!important;
+  top:8px!important;
+  z-index:34!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  pointer-events:auto!important;
+}
+#game .battlefield .hero .hero-body .hero-mastery-slot{display:none!important}
+#game .battlefield .hero .hero-name-row{display:block!important;min-width:0!important}
+#game .battlefield .hero .hero-name{display:block!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+#game .battlefield .hero .hero-mastery{width:29px!important;height:29px!important}
+#game .battlefield .hero .hero-mastery b{min-width:12px!important;height:12px!important;font-size:7px!important;bottom:1px!important;padding:0 2px!important}
+#game .battlefield .team.has-four .hero .hero-mastery{width:25px!important;height:25px!important}
+#game .battlefield .team.has-four .hero .hero-mastery b{min-width:11px!important;height:11px!important;font-size:6px!important;bottom:1px!important;padding:0 2px!important}
+
+#game .battlefield .hero .sf-mark-overlay{
+  left:8px!important;
+  right:auto!important;
+  top:44px!important;
+  bottom:auto!important;
+  width:34px!important;
+  height:34px!important;
+  z-index:25!important;
+}
+#game .battlefield .hero .sf-mark-overlay img{width:100%!important;height:100%!important;object-fit:cover!important;border-radius:50%!important}
+#game .battlefield .hero .sf-mark-overlay b{right:-2px!important;bottom:-2px!important;min-width:15px!important;height:15px!important;font-size:10px!important;line-height:1!important;padding:0 3px!important}
+#game .battlefield .hero .sf-presence-overlay{
+  width:34px!important;
+  height:34px!important;
+  bottom:8px!important;
+  z-index:24!important;
+}
+#game .battlefield .hero .sf-presence-overlay.from-left{left:8px!important;right:auto!important}
+#game .battlefield .hero .sf-presence-overlay.from-right{right:8px!important;left:auto!important}
+#game .battlefield .hero.front::after{z-index:35!important}
+
+/* keep Arc Warden match portrait centered and loop-friendly */
+.hero[data-hero='arcwarden'] .hero-portrait video{object-position:center center!important;transform:none!important}
+
+/* v1.53 — mastery number inside the badge like Dota */
+.hero-mastery b,
+#draft .draft-card .hero-mastery b,
+#draft .draft-slot .hero-mastery b,
+#game .battlefield .hero .hero-mastery b,
+#game .battlefield .team.has-four .hero .hero-mastery b{
+  left:50%!important;
+  top:56%!important;
+  bottom:auto!important;
+  transform:translate(-50%,-50%)!important;
+  min-width:12px!important;
+  height:12px!important;
+  padding:0 2px!important;
+  border-radius:999px!important;
+  background:radial-gradient(circle at 35% 35%, rgba(56,66,84,.98), rgba(8,10,16,.98) 72%)!important;
+  border:1px solid rgba(255,255,255,.9)!important;
+  box-shadow:0 1px 4px rgba(0,0,0,.88)!important;
+  font-size:8px!important;
+  line-height:1!important;
+  z-index:3!important;
+}
+#draft .draft-card .hero-mastery b,
+#draft .draft-slot .hero-mastery b{
+  top:57%!important;
+}
+#game .battlefield .hero .hero-mastery b{
+  top:58%!important;
+  min-width:11px!important;
+  height:11px!important;
+  font-size:7px!important;
+}
+#game .battlefield .team.has-four .hero .hero-mastery b{
+  top:60%!important;
+  min-width:10px!important;
+  height:10px!important;
+  font-size:6px!important;
+}
+
+/* v1.54 — avoid overlap with FRONT badge in battle */
+#game .battlefield .side-left .hero .hero-portrait .hero-mastery-slot{
+  left:auto!important;
+  right:8px!important;
+}
+#game .battlefield .side-right .hero .hero-portrait .hero-mastery-slot{
+  left:8px!important;
+  right:auto!important;
+}
+
+/* v1.55 — normalize all battle overlays so they never cover FRONT or mastery */
+#game .battlefield .hero.front::after{
+  z-index:80!important;
+}
+#game .battlefield .hero .hero-portrait .hero-mastery-slot{
+  z-index:79!important;
+}
+#game .battlefield .hero .hero-portrait .sticky-bomb-overlay,
+#game .battlefield .hero .hero-portrait .item-debuff-overlay,
+#game .battlefield .hero .hero-portrait .invoker-effect-overlays,
+#game .battlefield .hero .hero-portrait .sf-mark-overlay,
+#game .battlefield .hero .hero-portrait .sf-presence-overlay,
+#game .battlefield .hero .hero-portrait .tether-status-overlay{
+  z-index:55!important;
+}
+
+/* top corners reserved only for FRONT + mastery */
+#game .battlefield .side-left .hero.front::after{left:8px!important;right:auto!important;top:8px!important;}
+#game .battlefield .side-right .hero.front::after{right:8px!important;left:auto!important;top:8px!important;}
+#game .battlefield .side-left .hero .hero-portrait .hero-mastery-slot{right:8px!important;left:auto!important;top:8px!important;}
+#game .battlefield .side-right .hero .hero-portrait .hero-mastery-slot{left:8px!important;right:auto!important;top:8px!important;}
+
+/* left column under the mastery/front row */
+#game .battlefield .hero .sticky-bomb-overlay{
+  left:8px!important;
+  right:auto!important;
+  top:40px!important;
+  bottom:auto!important;
+  width:30px!important;
+  height:30px!important;
+}
+#game .battlefield .hero .item-debuff-overlay{
+  left:8px!important;
+  right:auto!important;
+  top:74px!important;
+  bottom:auto!important;
+  width:30px!important;
+  height:30px!important;
+}
+
+/* right column under the mastery/front row */
+#game .battlefield .hero .invoker-effect-overlays{
+  right:8px!important;
+  left:auto!important;
+  top:40px!important;
+  bottom:auto!important;
+  max-width:60px!important;
+  grid-template-columns:repeat(2, 28px)!important;
+  gap:4px!important;
+}
+#game .battlefield .hero .invoker-effect-dot{
+  width:28px!important;
+  height:28px!important;
+  min-width:28px!important;
+  min-height:28px!important;
+}
+#game .battlefield .hero .invoker-effect-dot b{
+  min-width:14px!important;
+  height:14px!important;
+  font-size:9px!important;
+  right:-2px!important;
+  bottom:-2px!important;
+}
+
+/* bottom row: keep each effect in its own corner */
+#game .battlefield .side-left .hero .sf-mark-overlay{
+  left:8px!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:8px!important;
+  width:30px!important;
+  height:30px!important;
+}
+#game .battlefield .side-right .hero .sf-mark-overlay{
+  right:8px!important;
+  left:auto!important;
+  top:auto!important;
+  bottom:8px!important;
+  width:30px!important;
+  height:30px!important;
+}
+#game .battlefield .hero .sf-mark-overlay b{
+  min-width:14px!important;
+  height:14px!important;
+  font-size:9px!important;
+}
+
+/* SF passive stays in requested team-side corner, but away from other markers */
+#game .battlefield .hero .sf-presence-overlay{
+  width:30px!important;
+  height:30px!important;
+  top:auto!important;
+  bottom:8px!important;
+}
+#game .battlefield .hero .sf-presence-overlay.from-left{left:8px!important;right:auto!important;}
+#game .battlefield .hero .sf-presence-overlay.from-right{right:8px!important;left:auto!important;}
+/* if both SF markers appear on the same corner, push the passive one upward a bit */
+#game .battlefield .side-left .hero .sf-mark-overlay.show + .sf-presence-overlay.from-left,
+#game .battlefield .side-right .hero .sf-mark-overlay.show + .sf-presence-overlay.from-right{
+  bottom:42px!important;
+}
+
+/* tether sits at bottom center and never overlaps corner effects */
+#game .battlefield .hero .tether-status-overlay{
+  left:50%!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:8px!important;
+  transform:translateX(-50%)!important;
+  width:30px!important;
+  height:30px!important;
+}
+#game .battlefield .hero .tether-status-overlay::after{
+  min-width:14px!important;
+  height:14px!important;
+  font-size:9px!important;
+}
+
+/* keep tooltip hitboxes aligned with the icons */
+#game .battlefield .hero .sticky-bomb-overlay,
+#game .battlefield .hero .item-debuff-overlay,
+#game .battlefield .hero .invoker-effect-dot,
+#game .battlefield .hero .sf-mark-overlay,
+#game .battlefield .hero .sf-presence-overlay,
+#game .battlefield .hero .tether-status-overlay{
+  pointer-events:auto!important;
+}
+
+/* v1.58 — Dota-like mastery medallion: level plate overlaps the lower point of the medal */
+.hero-mastery b,
+#draft .draft-card .hero-mastery b,
+#draft .draft-slot .hero-mastery b,
+#game .battlefield .hero .hero-mastery b,
+#game .battlefield .team.has-four .hero .hero-mastery b{
+  left:50%!important;
+  top:75%!important;
+  bottom:auto!important;
+  transform:translate(-50%,-50%)!important;
+  min-width:14px!important;
+  width:auto!important;
+  height:14px!important;
+  padding:0 3px!important;
+  border-radius:999px!important;
+  background:#090c11!important;
+  border:1.5px solid rgba(236,241,247,.92)!important;
+  color:#fff!important;
+  font-size:8px!important;
+  font-weight:1000!important;
+  line-height:1!important;
+  box-shadow:0 1px 3px rgba(0,0,0,.95)!important;
+  text-shadow:0 1px 1px #000!important;
+  z-index:4!important;
+}
+#draft .draft-card .hero-mastery b,#draft .draft-slot .hero-mastery b{top:76%!important}
+#game .battlefield .hero .hero-mastery b{top:76%!important;min-width:12px!important;height:12px!important;font-size:7px!important;padding:0 2px!important}
+#game .battlefield .team.has-four .hero .hero-mastery b{top:77%!important;min-width:11px!important;height:11px!important;font-size:6px!important;padding:0 2px!important}
+
+/* v1.68 — sell owned items from hero inventory. */
+.battlefield .hero .item-inventory .item-owned{position:relative;display:inline-grid;place-items:center;width:24px;height:24px;padding:0;border:1px solid #56647a;border-radius:4px;background:#101722;overflow:hidden;cursor:default}
+.battlefield .hero .item-inventory .item-owned img{width:22px!important;height:22px!important;object-fit:cover!important;border:0!important;border-radius:3px!important}
+.battlefield .hero .item-inventory .item-owned.sellable{cursor:pointer;border-color:#b99542;box-shadow:0 0 0 1px #0007}
+.battlefield .hero .item-inventory .item-owned.sellable:hover{filter:brightness(1.18);border-color:#ffd166}
+.battlefield .hero .item-inventory .item-owned.sellable::after{content:'$';position:absolute;right:0;bottom:-1px;min-width:9px;height:9px;display:grid;place-items:center;border-radius:4px 0 0 0;background:#1b1405;color:#ffd166;font:800 7px/1 Segoe UI,Arial,sans-serif;pointer-events:none}
+
+/* v1.71 — Broodmother */
+.broodlings-card{border-color:#8f2b3d!important;background:linear-gradient(180deg,#31131af7,#180a10fa)!important;box-shadow:0 8px 20px rgba(0,0,0,.55),0 0 14px rgba(210,70,98,.16)!important}
+.broodlings-card .broodlings-media{width:40px!important;height:40px!important;image-rendering:auto;object-fit:cover;border-radius:8px;border:1px solid rgba(219,110,132,.55)}
+.broodlings-card .forge-spirit-copy b{color:#ffd7df!important}
+
+/* v1.74 — Broodmother spiderlings top display */
+.battlefield .hero .broodlings-card{position:absolute!important;left:50%!important;top:-34px!important;transform:translateX(-50%)!important;display:flex!important;align-items:flex-end!important;justify-content:center!important;gap:8px!important;z-index:65!important;width:auto!important;min-height:0!important;margin:0!important;padding:0!important;background:transparent!important;border:none!important;box-shadow:none!important;overflow:visible!important}
+.battlefield .hero .broodling-chip{position:relative!important;width:34px!important;height:34px!important;border-radius:8px!important;border:2px solid #d14b59!important;background:linear-gradient(180deg,#24070c,#110509)!important;box-shadow:0 5px 12px rgba(0,0,0,.45),0 0 10px rgba(212,67,90,.18)!important;overflow:hidden!important}
+.battlefield .hero .broodling-chip-img{width:100%!important;height:100%!important;display:block!important;object-fit:cover!important}
+.battlefield .hero .broodling-chip-hp{position:absolute!important;right:-4px!important;bottom:-5px!important;min-width:16px!important;height:16px!important;padding:0 3px!important;border-radius:999px!important;background:#1b0b10!important;border:1.5px solid #ff7f92!important;color:#ffdbe2!important;font-size:10px!important;font-weight:900!important;line-height:13px!important;text-align:center!important;box-shadow:0 0 6px rgba(0,0,0,.45)!important}
+
+
+/* v1.75 — Broodmother spiderlings like Invoker + web spit */
+.battlefield .hero .forge-spirit-card.broodlings-card{position:absolute!important;left:50%!important;top:-74px!important;right:auto!important;bottom:auto!important;transform:translateX(-50%)!important;width:156px!important;min-height:58px!important;margin:0!important;padding:6px 8px!important;z-index:61!important;border-radius:12px!important;display:flex!important;align-items:center!important;gap:8px!important;background:linear-gradient(180deg,#351319fa,#180a10fa)!important;border:1px solid #8f2b3d!important;box-shadow:0 8px 20px rgba(0,0,0,.55),0 0 14px rgba(210,70,98,.16)!important;overflow:visible!important}
+.battlefield .hero .forge-spirit-card.broodlings-card .broodlings-media{width:40px!important;height:40px!important;flex:0 0 40px!important;object-fit:cover!important;border-radius:8px!important;border:1px solid rgba(219,110,132,.55)!important;box-shadow:0 0 9px rgba(210,70,98,.24)!important}
+.battlefield .hero .forge-spirit-card.broodlings-card .forge-spirit-copy b{color:#ffd7df!important}
+.battlefield .hero .broodlings-card .broodling-chip,.battlefield .hero .broodlings-card .broodling-chip-img,.battlefield .hero .broodlings-card .broodling-chip-hp{display:none!important}
+.brood-webshot{position:absolute;pointer-events:none;z-index:130;transform:translate(-50%,-50%)}
+.brood-webshot-core{position:absolute;left:0;top:0;width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ffffff 0,#eef6ff 18%,#dfeeff 36%,#cfe1f5 58%,rgba(196,214,232,.35) 76%,rgba(196,214,232,0) 100%);box-shadow:0 0 10px rgba(225,236,255,.55)}
+.brood-webshot-trail{position:absolute;left:2px;top:2px;width:52px;height:12px;transform-origin:left center;transform:rotate(var(--ang));background:linear-gradient(90deg,rgba(241,247,255,.88),rgba(228,239,252,.62) 38%,rgba(202,220,241,.18) 76%,rgba(202,220,241,0) 100%);filter:blur(.2px);clip-path:polygon(0 40%,88% 0,100% 50%,88% 100%,0 60%)}
+.brood-webshot.impact .brood-webshot-core{opacity:0}
+.brood-webshot-burst{position:absolute;left:0;top:0;width:16px;height:16px;border-radius:50%;opacity:0;box-shadow:0 0 0 0 rgba(242,247,255,.95)}
+.brood-webshot.impact .brood-webshot-burst{opacity:1;animation:broodWebBurst .55s ease-out forwards}
+@keyframes broodWebBurst{0%{transform:translate(-2px,-2px) scale(.3);box-shadow:0 0 0 0 rgba(242,247,255,.95)}100%{transform:translate(-20px,-20px) scale(1.15);box-shadow:0 0 0 18px rgba(242,247,255,0),0 0 22px 8px rgba(210,226,247,0)}}
+
+/* v1.76 — Broodmother summon portraits + web projectile */
+.battlefield .hero .broodlings-summons{position:absolute!important;left:50%!important;top:-74px!important;transform:translateX(-50%)!important;display:flex!important;gap:8px!important;align-items:flex-end!important;justify-content:center!important;z-index:64!important;overflow:visible!important;pointer-events:none!important}
+.battlefield .hero .broodlings-summons .forge-spirit-card.broodling-summon-card{position:relative!important;left:auto!important;top:auto!important;right:auto!important;bottom:auto!important;transform:none!important;width:132px!important;min-height:58px!important;margin:0!important;padding:6px 7px!important;display:flex!important;align-items:center!important;gap:7px!important;background:linear-gradient(180deg,#351319fa,#180a10fa)!important;border:1px solid #8f2b3d!important;border-radius:12px!important;box-shadow:0 8px 20px rgba(0,0,0,.55),0 0 14px rgba(210,70,98,.18)!important;color:#f7e3e8!important}
+.battlefield .hero .broodlings-summons .forge-spirit-media{width:42px!important;height:46px!important;flex:0 0 42px!important;border-radius:8px!important;overflow:hidden!important;border:1px solid rgba(219,110,132,.58)!important;box-shadow:0 0 8px rgba(210,70,98,.25)!important}
+.battlefield .hero .broodlings-summons .forge-spirit-media img{width:100%!important;height:100%!important;display:block!important;object-fit:cover!important;object-position:center!important}
+.battlefield .hero .broodlings-summons .forge-spirit-copy{display:flex!important;flex-direction:column!important;gap:2px!important;min-width:0!important}
+.battlefield .hero .broodlings-summons .forge-spirit-copy b{font-size:10px!important;line-height:1!important;color:#ffd7df!important;white-space:nowrap!important}
+.battlefield .hero .broodlings-summons .forge-spirit-copy span,.battlefield .hero .broodlings-summons .forge-spirit-copy small{font-size:9px!important;line-height:1.15!important;color:#f6dfe5!important;white-space:nowrap!important}
+@media(max-width:1000px){.battlefield .hero .broodlings-summons{top:-66px!important;gap:5px!important}.battlefield .hero .broodlings-summons .forge-spirit-card.broodling-summon-card{width:116px!important;padding:5px 6px!important}.battlefield .hero .broodlings-summons .forge-spirit-media{width:38px!important;height:42px!important;flex-basis:38px!important}}
+.brood-webshot{position:absolute;pointer-events:none;z-index:130;transform:translate(-50%,-50%)}
+.brood-webshot-core{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle,#fff 0,#eef5ff 28%,#d4e4f5 56%,rgba(204,222,239,.1) 100%);box-shadow:0 0 10px rgba(239,247,255,.8)}
+.brood-webshot-trail{position:absolute;left:0;top:-3px;width:64px;height:6px;transform-origin:left center;transform:rotate(var(--ang));background:linear-gradient(90deg,rgba(246,250,255,.95),rgba(220,235,250,.55) 45%,rgba(210,228,245,0) 100%);filter:blur(.35px);clip-path:polygon(0 35%,100% 0,90% 50%,100% 100%,0 65%)}
+.brood-web-impact{position:absolute;left:0;top:0;width:72px;height:72px;transform:translate(-50%,-50%) scale(.15);opacity:0}
+.brood-webshot.impact .brood-web-impact{opacity:1;animation:broodWebOpen .58s ease-out forwards}
+.brood-webshot.impact .brood-webshot-core,.brood-webshot.impact .brood-webshot-trail{opacity:0}
+.brood-web-spoke{position:absolute;left:35px;top:35px;width:33px;height:1.5px;background:rgba(241,247,255,.9);transform-origin:0 50%;box-shadow:0 0 4px rgba(225,238,250,.55)}
+.brood-web-spoke.s0{transform:rotate(0deg)}.brood-web-spoke.s1{transform:rotate(45deg)}.brood-web-spoke.s2{transform:rotate(90deg)}.brood-web-spoke.s3{transform:rotate(135deg)}.brood-web-spoke.s4{transform:rotate(180deg)}.brood-web-spoke.s5{transform:rotate(225deg)}.brood-web-spoke.s6{transform:rotate(270deg)}.brood-web-spoke.s7{transform:rotate(315deg)}
+.brood-web-ring{position:absolute;border:1.5px solid rgba(239,246,255,.88);border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}.brood-web-ring.r1{width:34px;height:34px}.brood-web-ring.r2{width:60px;height:60px}
+@keyframes broodWebOpen{0%{transform:translate(-50%,-50%) scale(.15) rotate(-12deg);opacity:.2}70%{transform:translate(-50%,-50%) scale(1.05) rotate(3deg);opacity:1}100%{transform:translate(-50%,-50%) scale(1) rotate(0);opacity:0}}
+
+
+/* v1.77 — Broodmother summon cards fix */
+.battlefield .hero .broodlings-summons{position:absolute!important;left:50%!important;top:-74px!important;transform:translateX(-50%)!important;display:flex!important;gap:8px!important;align-items:flex-end!important;justify-content:center!important;z-index:64!important;overflow:visible!important;pointer-events:none!important;width:max-content!important;max-width:none!important}
+.battlefield .hero .broodling-summon-card{position:relative!important;width:132px!important;min-height:58px!important;margin:0!important;padding:6px 7px!important;display:flex!important;align-items:center!important;gap:7px!important;background:linear-gradient(180deg,#351319fa,#180a10fa)!important;border:1px solid #8f2b3d!important;border-radius:12px!important;box-shadow:0 8px 20px rgba(0,0,0,.55),0 0 14px rgba(210,70,98,.18)!important;color:#f7e3e8!important;overflow:visible!important;flex:0 0 auto!important}
+.battlefield .hero .broodling-summon-media{width:42px!important;height:46px!important;flex:0 0 42px!important;border-radius:8px!important;overflow:hidden!important;border:1px solid rgba(219,110,132,.58)!important;box-shadow:0 0 8px rgba(210,70,98,.25)!important}
+.battlefield .hero .broodling-summon-media img,.battlefield .hero .broodling-summon-media video{width:100%!important;height:100%!important;display:block!important;object-fit:cover!important;object-position:center!important}
+.battlefield .hero .broodling-summon-copy{display:flex!important;flex-direction:column!important;gap:2px!important;min-width:0!important}
+.battlefield .hero .broodling-summon-copy b{font-size:10px!important;line-height:1!important;color:#ffd7df!important;white-space:nowrap!important}
+.battlefield .hero .broodling-summon-copy span,.battlefield .hero .broodling-summon-copy small{font-size:9px!important;line-height:1.15!important;color:#f6dfe5!important;white-space:nowrap!important}
+@media(max-width:1000px){.battlefield .hero .broodlings-summons{top:-66px!important;gap:5px!important}.battlefield .hero .broodling-summon-card{width:116px!important;padding:5px 6px!important}.battlefield .hero .broodling-summon-media{width:38px!important;height:42px!important;flex-basis:38px!important}}
+
+
+/* v1.78 — compact spiderlings */
+.battlefield .hero .broodlings-summons{top:-54px!important;gap:4px!important;z-index:64!important}
+.battlefield .hero .broodling-summon-card{width:82px!important;min-height:38px!important;padding:4px 5px!important;gap:5px!important;border-radius:10px!important}
+.battlefield .hero .broodling-summon-media{width:24px!important;height:28px!important;flex:0 0 24px!important;border-radius:6px!important}
+.battlefield .hero .broodling-summon-copy{gap:1px!important}
+.battlefield .hero .broodling-summon-copy b{font-size:7px!important;letter-spacing:0!important}
+.battlefield .hero .broodling-summon-copy span,.battlefield .hero .broodling-summon-copy small{font-size:7px!important;line-height:1.05!important}
+@media(max-width:1000px){.battlefield .hero .broodlings-summons{top:-48px!important;gap:3px!important}.battlefield .hero .broodling-summon-card{width:76px!important;min-height:34px!important;padding:3px 4px!important}.battlefield .hero .broodling-summon-media{width:22px!important;height:25px!important;flex-basis:22px!important}}
+
+
+/* v1.79 — keep stats inside boxes */
+.battlefield .hero .stats{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;align-items:stretch!important}
+.battlefield .hero .stat{min-width:0!important;width:100%!important;overflow:hidden!important;white-space:nowrap!important;text-overflow:ellipsis!important;font-size:12px!important;line-height:1.15!important;padding:6px 7px!important}
+#game .battlefield .team.has-four .stat{font-size:10px!important;padding:4px 5px!important}
+
+
+/* v1.84 hotfix — contiguous item grid, no dark seams between item cards. */
+.shop-panel.open .shop-category-grid{gap:0!important;overflow:hidden;border-radius:5px!important}
+.shop-panel.open .shop-category-grid .shop-item{border-radius:0!important;margin:0!important}
+
+/* v1.84.1 — move armor out of the attack stat so text never truncates with ellipsis */
+.battlefield .hero .armorstat{grid-column:1 / -1!important;text-align:center!important}
+.battlefield .hero .armorstat:empty{display:none!important}
+
+
+/* v1.84.2 — slightly larger battle cards; full HP/attack/armor values without ellipsis. */
+#game.screen{max-width:1580px!important}
+#game .battlefield{grid-template-columns:minmax(440px,1.08fr) minmax(270px,.62fr) minmax(440px,1.08fr)!important}
+#game .battlefield .hero{height:450px!important}
+#game .battlefield .hero-body{height:170px!important;min-height:170px!important}
+.battlefield .hero .stats{grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr)!important}
+.battlefield .hero .hpstat,.battlefield .hero .atkstat{overflow:visible!important;text-overflow:clip!important;font-size:11px!important}
+#game .battlefield .team.has-four .hero{height:366px!important}
+#game .battlefield .team.has-four .hero-body{height:184px!important;min-height:184px!important}
+#game .battlefield .team.has-four .hpstat,#game .battlefield .team.has-four .atkstat{font-size:10px!important}
+.turn-token img[src$="turn_broodmother_mini.png"]{object-fit:contain!important;image-rendering:auto;background:#111827}
+@media(max-width:1100px){#game.screen{max-width:100%!important}#game .battlefield{grid-template-columns:minmax(320px,1fr) 220px minmax(320px,1fr)!important}}
+
+/* v1.85.10 — compact square Laser debuff tile with remaining turns */
+.status-badge.effect-tile{display:inline-flex;align-items:center;gap:6px;padding:2px 8px 2px 2px;border-radius:10px;min-height:24px}
+.status-badge.effect-tile span{white-space:nowrap;font-weight:800;line-height:1;font-size:13px}
+.battlefield .hero .status-badge.effect-tile img{width:20px!important;height:20px!important;min-width:20px!important;max-width:20px!important;min-height:20px!important;max-height:20px!important;padding:2px;border-radius:6px;background:rgba(56,86,143,.34);border:1px solid rgba(130,180,255,.42);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.status-badge.blind-tile{background:rgba(24,42,74,.92);border-color:rgba(114,180,255,.45);color:#eef6ff}
+
+/* v1.86 — Rage / Defense Matrix status tiles */
+.status-badge.matrix-tile{background:rgba(28,54,82,.94);border-color:rgba(116,211,255,.58);color:#e5f8ff}
+.status-badge.matrix-boost-tile{background:rgba(25,67,75,.94);border-color:rgba(105,239,232,.55);color:#dffffd}
+.status-badge.rage-tile{background:rgba(86,31,25,.94);border-color:rgba(255,117,80,.58);color:#ffe4dc}
+.status-badge.matrix-tile img,.status-badge.matrix-boost-tile img,.status-badge.rage-tile img{border-radius:6px!important}
+
+/* v1.86.4 — Rage / Defense Matrix / Laser Blind persistent portrait effects */
+.battlefield .hero .matrix-film,.battlefield .hero .rage-aura,.battlefield .hero .laser-blind-fx{display:none;position:absolute;inset:-4px;pointer-events:none;z-index:23;overflow:visible}
+.battlefield .hero.matrix-shielded .matrix-film,.battlefield .hero.matrix-boosted .matrix-film{display:block}
+.battlefield .hero.rage-active .rage-aura{display:block}
+/* Laser blind now uses only the square icon/timer, not a white glow overlay */
+.battlefield .hero.blind-active .laser-blind-fx{display:none!important}
+/* Tinker Matrix: more broken jagged segments like the skill icon */
+.battlefield .hero .matrix-film::before{content:"";position:absolute;inset:7px;border-radius:16px;background:radial-gradient(circle at 50% 40%,rgba(222,251,255,.26) 0%,rgba(112,220,255,.18) 33%,rgba(57,175,232,.12) 62%,rgba(20,78,122,.07) 82%,rgba(14,35,58,0) 100%);border:1px solid rgba(131,235,255,.72);box-shadow:0 0 12px rgba(76,205,255,.6),inset 0 0 18px rgba(138,241,255,.24);animation:matrixShieldPulse 2.15s ease-in-out infinite}
+.battlefield .hero .matrix-film::after{content:"";position:absolute;inset:10px;border-radius:14px;opacity:.96;mix-blend-mode:screen;background-image:url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%0A%20%20%3Cg%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%0A%20%20%20%20%3Cpath%20d%3D%27M12%2010%20L40%2042%20L22%2074%27%20stroke%3D%27rgba%28232%2C252%2C255%2C0.95%29%27%20stroke-width%3D%272.8%27%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%27M20%2079%20L52%2046%20L86%2046%27%20stroke%3D%27rgba%28226%2C249%2C255%2C0.96%29%27%20stroke-width%3D%272.8%27%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%27M50%2046%20L22%2078%27%20stroke%3D%27rgba%28190%2C241%2C255%2C0.88%29%27%20stroke-width%3D%272.4%27%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%27M48%2046%20L74%2069%20L87%2088%27%20stroke%3D%27rgba%28232%2C252%2C255%2C0.93%29%27%20stroke-width%3D%272.6%27%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%27M77%2011%20L92%2015%27%20stroke%3D%27rgba%28232%2C252%2C255%2C0.86%29%27%20stroke-width%3D%272.5%27%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%27M14%2086%20L27%2080%27%20stroke%3D%27rgba%28225%2C249%2C255%2C0.86%29%27%20stroke-width%3D%272.4%27%2F%3E%0A%20%20%3C%2Fg%3E%0A%3C%2Fsvg%3E"),linear-gradient(132deg,rgba(255,255,255,.16),rgba(116,244,255,.03) 35%,rgba(255,255,255,.14) 50%,rgba(116,244,255,.03) 65%,rgba(255,255,255,.16));background-size:100% 100%,100% 100%;background-repeat:no-repeat;clip-path:polygon(8% 0%,23% 5%,39% 0%,58% 7%,74% 2%,92% 0%,100% 15%,95% 33%,100% 49%,93% 65%,100% 83%,90% 100%,73% 96%,56% 100%,39% 94%,20% 100%,0% 86%,6% 66%,0% 48%,7% 31%,0% 14%);box-shadow:inset 0 0 14px rgba(116,244,255,.14);animation:matrixCustomSweep 4.8s linear infinite}
+.battlefield .hero.matrix-boosted:not(.matrix-shielded) .matrix-film::before{background:radial-gradient(circle at 50% 40%,rgba(224,255,248,.16) 0%,rgba(108,239,224,.14) 35%,rgba(51,177,170,.1) 68%,rgba(0,0,0,0) 100%);border-color:rgba(118,242,232,.56);box-shadow:0 0 9px rgba(77,243,219,.36),inset 0 0 12px rgba(93,255,216,.16)}
+.battlefield .hero.matrix-boosted:not(.matrix-shielded) .matrix-film::after{opacity:.52;animation-duration:5.1s}
+.battlefield .hero .matrix-film i{position:absolute;inset:14px;border-radius:12px;border:1px solid rgba(214,251,255,.34);box-shadow:inset 0 0 12px rgba(255,255,255,.12);background-image:url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%0A%20%20%3Cg%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%0A%20%20%20%20%3Cpath%20d%3D%27M17%2014%20L39%2038%27%20stroke%3D%27rgba%28255%2C255%2C255%2C0.24%29%27%20stroke-width%3D%271.5%27%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%27M27%2077%20L52%2051%27%20stroke%3D%27rgba%28200%2C245%2C255%2C0.22%29%27%20stroke-width%3D%271.4%27%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%27M54%2052%20L73%2067%27%20stroke%3D%27rgba%28255%2C255%2C255%2C0.18%29%27%20stroke-width%3D%271.3%27%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%27M58%2046%20L83%2046%27%20stroke%3D%27rgba%28215%2C248%2C255%2C0.20%29%27%20stroke-width%3D%271.3%27%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%27M79%2015%20L89%2018%27%20stroke%3D%27rgba%28255%2C255%2C255%2C0.16%29%27%20stroke-width%3D%271.2%27%2F%3E%0A%20%20%3C%2Fg%3E%0A%3C%2Fsvg%3E"),radial-gradient(circle at 25% 28%,rgba(255,255,255,.46) 0 2px,transparent 3px),radial-gradient(circle at 71% 20%,rgba(213,247,255,.36) 0 1.7px,transparent 2.6px),radial-gradient(circle at 30% 73%,rgba(213,247,255,.30) 0 1.6px,transparent 2.4px),radial-gradient(circle at 74% 72%,rgba(255,255,255,.24) 0 1.5px,transparent 2.3px);background-size:100% 100%,auto,auto,auto,auto;background-repeat:no-repeat;animation:matrixShieldInner 1.8s ease-in-out infinite alternate}
+/* Lifestealer Rage: red outline around the whole hero card */
+.battlefield .hero.rage-active{box-shadow:0 0 0 2px rgba(255,82,66,.95),0 0 18px rgba(255,64,38,.55),0 0 32px rgba(145,0,0,.32)!important;border-color:rgba(255,98,78,.95)!important}
+.battlefield .hero.rage-active.front{box-shadow:0 0 0 2px rgba(255,140,80,.98),0 0 22px rgba(255,92,52,.66),0 0 42px rgba(145,0,0,.36)!important}
+.battlefield .hero.rage-active .hero-portrait{box-shadow:inset 0 0 0 2px rgba(255,104,82,.90),0 0 18px rgba(255,78,52,.34)!important;border-color:rgba(255,128,92,.88)!important}
+.battlefield .hero.rage-active .hero-body,.battlefield .hero.rage-active .inspect-hero{border-color:rgba(255,102,82,.82)!important;box-shadow:inset 0 0 0 1px rgba(255,86,66,.12)}
+.battlefield .hero.rage-active .hpbar{box-shadow:0 0 0 1px rgba(255,97,79,.64),0 0 10px rgba(255,70,44,.28)!important}
+.battlefield .hero .rage-aura::before{content:"";position:absolute;inset:-5px;border-radius:20px;background:radial-gradient(circle at 50% 80%,rgba(255,255,255,.10) 0%,rgba(255,129,98,.18) 22%,rgba(255,67,42,.30) 45%,rgba(135,0,0,.24) 67%,rgba(0,0,0,0) 79%);filter:blur(7px);opacity:.92;animation:rageAuraPulse 1.28s ease-in-out infinite alternate}
+.battlefield .hero .rage-aura::after{content:"";position:absolute;inset:-1px;border-radius:20px;border:2px solid rgba(255,112,77,.58);box-shadow:0 0 10px rgba(255,72,43,.42),0 0 22px rgba(255,85,51,.28),inset 0 0 16px rgba(255,165,132,.12);animation:rageAuraRing 1.9s linear infinite}
+.battlefield .hero .rage-aura i{position:absolute;left:50%;top:50%;width:94%;height:94%;transform:translate(-50%,-50%);border-radius:50%;background:conic-gradient(from 0deg,rgba(255,0,0,0) 0 20%,rgba(255,121,66,.34) 34%,rgba(255,196,160,.18) 46%,rgba(255,0,0,0) 62%,rgba(255,93,46,.22) 80%,rgba(255,0,0,0) 100%);filter:blur(4px);animation:rageAuraSpin 3.2s linear infinite}
+@keyframes matrixShieldPulse{0%{transform:scale(.988);opacity:.68}50%{transform:scale(1.016);opacity:1}100%{transform:scale(.994);opacity:.78}}
+@keyframes matrixCustomSweep{0%{transform:translateX(-1px) scale(.995);opacity:.36}50%{transform:translateX(1px) scale(1.01);opacity:.98}100%{transform:translateX(-1px) scale(.998);opacity:.45}}
+@keyframes matrixShieldInner{0%{opacity:.34;transform:scale(.988)}100%{opacity:.68;transform:scale(1.01)}}
+@keyframes rageAuraPulse{0%{transform:scale(.97);opacity:.7}100%{transform:scale(1.05);opacity:1}}
+@keyframes rageAuraRing{0%{transform:scale(.95);opacity:.28}35%{opacity:.78}100%{transform:scale(1.06);opacity:.16}}
+@keyframes rageAuraSpin{0%{transform:translate(-50%,-50%) rotate(0deg)}100%{transform:translate(-50%,-50%) rotate(360deg)}}
+
+
+/* v1.86.6 — Defense Matrix: clean film, no line pattern */
+.battlefield .hero .matrix-film::after,.battlefield .hero .matrix-film i{display:none!important;background:none!important;box-shadow:none!important;border:0!important;animation:none!important}
+.battlefield .hero .matrix-film::before{background:radial-gradient(ellipse at 50% 46%,rgba(235,253,255,.27) 0%,rgba(139,229,255,.19) 34%,rgba(64,184,232,.13) 62%,rgba(18,83,126,.07) 80%,rgba(0,0,0,0) 100%)!important;border:1.5px solid rgba(144,236,255,.7)!important;box-shadow:0 0 14px rgba(73,201,255,.52),inset 0 0 24px rgba(138,241,255,.20)!important}
+
+
+/* v1.86.25 — Abaddon status tiles */
+.status-badge.aphotic-shield-tile{background:rgba(24,52,84,.94);border-color:rgba(136,212,255,.58);color:#e8f8ff}
+.status-badge.borrowed-time-tile{background:rgba(33,38,90,.95);border-color:rgba(192,234,255,.62);color:#f5fbff}
+.status-badge.aphotic-shield-tile img,.status-badge.borrowed-time-tile img{border-radius:6px!important}
+.battlefield .hero.borrowed-time-active .hero-portrait{box-shadow:0 0 0 2px rgba(184,230,255,.28),0 0 18px rgba(111,173,255,.24)}
+.battlefield .hero.aphotic-shielded .hero-portrait{box-shadow:0 0 0 2px rgba(130,211,255,.18),0 0 12px rgba(130,211,255,.16)}
+
+
+/* v1.86.31 — Pipe of Insight visual shield */
+.status-badge.pipe-shield-tile{background:linear-gradient(180deg,rgba(16,71,78,.97),rgba(11,43,61,.97));border-color:rgba(119,237,226,.72);color:#edffff;box-shadow:0 0 8px rgba(82,220,209,.25)}
+.status-badge.pipe-shield-tile img{border-radius:6px!important;box-shadow:0 0 5px rgba(137,255,240,.25)}
+.battlefield .hero.pipe-shielded .hero-portrait{box-shadow:inset 0 0 0 2px rgba(116,238,220,.65),inset 0 0 28px rgba(38,155,167,.20),0 0 18px rgba(54,195,190,.22)!important}
+.battlefield .hero.pipe-shielded .hero-portrait::before{content:'';position:absolute;z-index:15;pointer-events:none;inset:5px;border-radius:12px;border:2px solid rgba(178,255,244,.42);background:radial-gradient(ellipse at center,rgba(113,239,225,.04) 18%,rgba(35,164,178,.10) 58%,rgba(12,77,100,.17) 82%,rgba(5,34,52,.10) 100%);box-shadow:inset 0 0 20px rgba(152,255,242,.10),0 0 9px rgba(68,218,209,.16);animation:pipe-shield-pulse 1.8s ease-in-out infinite alternate}
+@keyframes pipe-shield-pulse{from{opacity:.62;filter:brightness(.92)}to{opacity:1;filter:brightness(1.12)}}
+
+/* v1.86.32 — Eye of Skadi anti-heal visual */
+.status-badge.skadi-tile{background:rgba(18,78,112,.96);border-color:rgba(98,216,255,.72);color:#e7fbff;box-shadow:0 0 10px rgba(72,190,255,.22)}
+.status-badge.skadi-tile img{border-radius:6px!important}
+.battlefield .hero.skadi-affected .hero-portrait::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:24;border-radius:inherit;box-shadow:inset 0 0 0 2px rgba(86,218,255,.36),inset 0 0 30px rgba(63,177,255,.18),0 0 14px rgba(68,190,255,.14);background:linear-gradient(135deg,rgba(172,243,255,.08),transparent 28%,rgba(95,202,255,.06) 52%,transparent 72%)}
+
+.mp-lobby-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}.mp-refresh,.mp-lobby-join{border:1px solid #526784;background:#182638;color:#eef4ff;border-radius:8px;font-weight:900;cursor:pointer}.mp-refresh{padding:7px 10px;font-size:11px}.mp-lobby-list{display:flex;flex-direction:column;gap:8px;max-height:270px;overflow:auto}.mp-lobby-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px;border:1px solid #303c50;border-radius:9px;background:#111925}.mp-lobby-meta{display:flex;flex-direction:column;min-width:0}.mp-lobby-meta b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mp-lobby-meta small{color:#93a2b7;margin-top:3px}.mp-lobby-join{padding:9px 13px;flex:none}.mp-lobby-join:hover,.mp-refresh:hover{filter:brightness(1.15)}
+
+/* v1.86.35 lobby browser profile cards */
+.mp-lobby-list{max-height:360px;gap:10px}.mp-lobby-row{min-height:78px;padding:10px 12px;border-radius:18px;border-color:#3b4659;background:linear-gradient(180deg,#151e2a,#101720);box-shadow:0 5px 18px #0005}.mp-lobby-avatar{width:58px;height:58px;border-radius:10px;overflow:hidden;display:grid;place-items:center;flex:none;background:#263246;border:2px solid #63728a;color:#b9c5d8;font-size:24px;font-weight:900}.mp-lobby-avatar img{width:100%;height:100%;object-fit:cover}.mp-lobby-meta{flex:1;gap:7px}.mp-lobby-meta>b{font-size:16px;color:#f4f7ff}.mp-lobby-rank{display:flex;align-items:center;gap:7px;color:#aebbd0;font-size:12px;font-weight:700}.mp-lobby-rank img{width:27px;height:27px;object-fit:contain}.mp-lobby-join{min-width:142px;padding:12px 15px;border-radius:10px;background:#253b58;border-color:#6683ad;color:#fff;letter-spacing:.3px}
+
+/* v1.86.37 — public lobby waiting room */
+.lobby-wait-overlay{position:fixed;inset:0;z-index:12000;display:grid;place-items:center;padding:28px;background:radial-gradient(circle at 50% 25%,rgba(48,70,108,.22),transparent 42%),rgba(7,11,18,.97);backdrop-filter:blur(9px)}
+.lobby-wait-overlay.hidden{display:none!important}.lobby-wait-shell{width:min(1080px,94vw);border:1px solid #344258;border-radius:22px;padding:34px 36px 28px;background:linear-gradient(180deg,#111925,#0c131e);box-shadow:0 30px 90px #000a}
+.lobby-wait-title{text-align:center;font-size:30px;font-weight:1000;letter-spacing:.035em}.lobby-wait-subtitle{text-align:center;color:#9daac0;margin:7px 0 28px;font-size:14px}
+.lobby-versus{display:grid;grid-template-columns:1fr 72px 1fr;align-items:stretch;gap:14px}.lobby-vs-mark{display:grid;place-items:center;font-size:22px;font-weight:1000;color:#6f7d94}
+.lobby-player-card{min-height:176px;border:1px solid #34455e;border-radius:18px;background:linear-gradient(135deg,#101927,#0b111a);display:grid;grid-template-columns:142px 1fr;gap:20px;align-items:center;padding:16px 22px;overflow:hidden;position:relative}
+.lobby-player-card.waiting{display:flex;align-items:center;justify-content:center;border-style:dashed;color:#8490a4}.lobby-player-card.local{box-shadow:0 0 0 1px rgba(76,120,235,.16),0 14px 38px rgba(0,0,0,.24)}
+.lobby-wait-avatar{width:142px;height:142px;border-radius:14px;border:1px solid #43536b;background:#080d14;display:grid;place-items:center;overflow:hidden;font-size:44px;font-weight:1000;color:#637087}.lobby-wait-avatar img{width:100%;height:100%;object-fit:cover}
+.lobby-wait-meta{min-width:0}.lobby-wait-nick{font-size:25px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lobby-wait-rank{display:flex;align-items:center;gap:12px;margin-top:15px;color:#b8c3d4}.lobby-wait-rank img{width:52px;height:52px;object-fit:contain}.lobby-wait-rank b{display:block;color:#e8edf7;font-size:16px}.lobby-wait-rank span{font-size:13px;color:#8f9cb1}
+.lobby-player-card.waiting .lobby-player-search{display:flex;align-items:center;gap:13px;font-size:16px;font-weight:900}.lobby-mini-spinner{width:28px;height:28px;border:3px solid #33445d;border-top-color:#5b7ff2;border-radius:50%;animation:lobbySpin .9s linear infinite}
+.lobby-search-state{margin-top:25px;display:flex;align-items:center;justify-content:center;gap:16px;color:#bfc9d9}.lobby-search-ring{position:relative;width:46px;height:46px;border:1px solid #31445f;border-radius:50%}.lobby-search-ring:before,.lobby-search-ring:after{content:"";position:absolute;inset:8px;border:2px solid transparent;border-top-color:#5378ef;border-radius:50%;animation:lobbySpin 1.05s linear infinite}.lobby-search-ring:after{inset:15px;border-top-color:#85a0ff;animation-direction:reverse;animation-duration:.72s}.lobby-search-ring span{position:absolute;width:5px;height:5px;background:#7392ff;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);box-shadow:0 0 14px #7392ff}
+.lobby-search-copy{display:flex;align-items:center;gap:5px;font-size:15px;letter-spacing:.055em}.lobby-search-dots{display:inline-flex;gap:3px}.lobby-search-dots i{width:4px;height:4px;background:#93a7c7;border-radius:50%;animation:lobbyDot 1.15s infinite}.lobby-search-dots i:nth-child(2){animation-delay:.18s}.lobby-search-dots i:nth-child(3){animation-delay:.36s}
+.lobby-ready-state{margin-top:25px;text-align:center;color:#7fd6a2;font-weight:900}.lobby-ready-state.hidden{display:none}.lobby-leave-btn{display:block;margin:22px auto 0;border:1px solid #43536b;background:#151f2d;color:#c8d2e1;border-radius:10px;padding:10px 18px;font-weight:900;cursor:pointer}.lobby-leave-btn:hover{filter:brightness(1.15)}
+body.lobby-waiting #draft,body.lobby-waiting #game{pointer-events:none;user-select:none}.lobby-wait-overlay.ready .lobby-search-state{display:none}.lobby-wait-overlay.ready .lobby-ready-state{display:block!important}
+@keyframes lobbySpin{to{transform:rotate(360deg)}}@keyframes lobbyDot{0%,70%,100%{opacity:.25;transform:translateY(0)}35%{opacity:1;transform:translateY(-3px)}}
+@media(max-width:760px){.lobby-versus{grid-template-columns:1fr}.lobby-vs-mark{height:24px}.lobby-player-card{grid-template-columns:92px 1fr;min-height:128px}.lobby-wait-avatar{width:92px;height:92px}.lobby-wait-nick{font-size:19px}.lobby-wait-shell{padding:24px 18px}.lobby-wait-title{font-size:24px}}
+
+.mp-stats-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mp-stats-buttons .mp-secondary{margin:0;min-width:0}
+.mp-global-stats-panel{max-height:440px}
+.mp-global-stats-list{display:flex;flex-direction:column;gap:8px;max-height:340px;overflow:auto}
+.mp-global-row{display:flex;align-items:center;gap:12px;min-height:58px;padding:9px 12px;border:1px solid #344156;border-radius:12px;background:#111925}
+.mp-global-place{width:48px;flex:none;font-weight:1000;font-size:18px;color:#8fa8d0;text-align:center}
+.mp-global-main{display:flex;flex-direction:column;gap:5px;min-width:0}
+.mp-global-main>b{font-size:15px;color:#f4f7ff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mp-global-rank{display:flex;align-items:center;gap:7px;color:#aebbd0;font-size:12px;font-weight:700}
+.mp-global-rank img{width:28px;height:28px;object-fit:contain}
+.mp-hero-winrate-row{justify-content:space-between;padding-left:16px}
+.mp-hero-winrate-row>b{font-size:14px;letter-spacing:.3px}
+.mp-global-winrate{font-weight:1000;font-size:18px;color:#dfe8ff}
+
+
+/* v1.86.44 — bigger online panels */
+#connectPanel,
+#leaderboardPanel,
+#heroStatsPanel{
+  width:min(1040px, 94vw);
+  min-height:440px;
+  margin:18px auto 0;
+  padding:20px 20px 18px;
+  box-sizing:border-box;
+  border-radius:18px;
+}
+#connectPanel .mp-lobby-list,
+#leaderboardPanel .mp-global-stats-list,
+#heroStatsPanel .mp-global-stats-list{
+  max-height:420px;
+  min-height:320px;
+}
+#connectPanel .mp-lobby-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+#leaderboardPanel .mp-global-stats-list,
+#heroStatsPanel .mp-global-stats-list{
+  gap:10px;
+}
+@media (max-width: 900px){
+  #connectPanel,
+  #leaderboardPanel,
+  #heroStatsPanel{
+    width:min(96vw, 760px);
+    min-height:360px;
+    padding:16px;
+  }
+  #connectPanel .mp-lobby-list,
+  #leaderboardPanel .mp-global-stats-list,
+  #heroStatsPanel .mp-global-stats-list{
+    min-height:240px;
+    max-height:300px;
+  }
+}
+
+/* Mars — Arena of Blood */
+.hero.mars-arena-caster,.hero.mars-arena-target{position:relative;z-index:8;box-shadow:0 0 0 3px rgba(255,126,35,.88),0 0 22px rgba(255,64,10,.75),inset 0 0 24px rgba(132,28,5,.35)!important}
+.hero.mars-arena-caster::after,.hero.mars-arena-target::after{content:"";position:absolute;inset:-10px -8px;pointer-events:none;z-index:26;border:3px solid rgba(255,144,35,.8);border-radius:14px;background:repeating-linear-gradient(90deg,transparent 0 12%,rgba(255,92,18,.32) 12% 15%,transparent 15% 28%);mix-blend-mode:screen;animation:marsArenaPulse 1.2s ease-in-out infinite alternate}
+@keyframes marsArenaPulse{from{filter:drop-shadow(0 0 4px #ff7b22);opacity:.72}to{filter:drop-shadow(0 0 13px #ff3300);opacity:1}}
+
+
+/* v1.86.48 — center large online panels on viewport */
+#connectPanel,
+#leaderboardPanel,
+#heroStatsPanel{
+  position:fixed;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:min(1040px,calc(100vw - 48px));
+  min-height:440px;
+  max-height:min(78vh,760px);
+  margin:0;
+  padding:20px 20px 18px;
+  box-sizing:border-box;
+  border-radius:18px;
+  z-index:10020;
+  box-shadow:0 28px 90px rgba(0,0,0,.62);
+}
+#connectPanel.hidden,
+#leaderboardPanel.hidden,
+#heroStatsPanel.hidden{display:none}
+#connectPanel .mp-lobby-list,
+#leaderboardPanel .mp-global-stats-list,
+#heroStatsPanel .mp-global-stats-list{
+  max-height:calc(min(78vh,760px) - 110px);
+  min-height:320px;
+}
+@media (max-width:900px){
+  #connectPanel,
+  #leaderboardPanel,
+  #heroStatsPanel{
+    width:calc(100vw - 28px);
+    min-height:360px;
+    max-height:82vh;
+    padding:16px;
+  }
+  #connectPanel .mp-lobby-list,
+  #leaderboardPanel .mp-global-stats-list,
+  #heroStatsPanel .mp-global-stats-list{
+    min-height:240px;
+    max-height:calc(82vh - 98px);
+  }
+}
+
+/* v1.86.49 — closable centered online panels */
+.mp-head-actions{display:flex;align-items:center;gap:8px}
+.mp-panel-close{width:34px;height:34px;border:1px solid #53657f;border-radius:9px;background:#172235;color:#fff;font-size:24px;font-weight:900;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;vertical-align:middle}
+.mp-panel-close:hover{background:#24344f;border-color:#7790b8}
+
+
+/* v1.86.50 — polish close button + Mars visuals */
+.hero.mars-arena-caster::after{display:none!important}
+.hero.mars-arena-target::after{inset:-8px -6px!important;border:2px solid rgba(255,150,56,.78)!important;border-radius:14px!important;background:linear-gradient(180deg,rgba(255,162,68,.16),rgba(255,92,24,.06))!important;mix-blend-mode:screen!important;animation:marsArenaPulse 1.2s ease-in-out infinite alternate!important}
+.mars-spear.pinned .mars-spear-victim{opacity:1!important;transform:scale(1.05)!important}
+.mars-spear.pinned .mars-spear-chain{opacity:1!important}
+
+
+/* v1.86.61 — fighters in Mars arena glow on both sides; Mars keeps only duration icon */
+.hero.mars-arena-caster:not(.mars-arena-fighter){box-shadow:none!important}
+.hero.mars-arena-caster:not(.mars-arena-fighter) .hero-portrait{box-shadow:none!important}
+.hero.mars-arena-fighter{position:relative!important;z-index:8!important;box-shadow:0 0 0 2px rgba(255,136,46,.96),0 0 22px rgba(255,88,24,.58),inset 3px 0 0 rgba(255,146,54,.95),inset -3px 0 0 rgba(255,146,54,.95),inset 0 0 22px rgba(132,28,5,.18)!important}
+.hero.mars-arena-fighter .hero-portrait{box-shadow:inset 2px 0 0 rgba(255,157,70,.92),inset -2px 0 0 rgba(255,157,70,.92),inset 0 0 0 2px rgba(255,150,56,.56),0 0 16px rgba(255,94,24,.18)!important}
+.hero.mars-arena-fighter::before{content:'';position:absolute;inset:-7px -5px;pointer-events:none;z-index:24;border-radius:16px;border:2px solid rgba(255,156,58,.74);box-shadow:0 0 14px rgba(255,102,36,.42), inset 0 0 24px rgba(255,118,40,.08);background:linear-gradient(180deg,rgba(255,166,78,.07),rgba(255,98,34,.03));animation:marsArenaPulse 1.15s ease-in-out infinite alternate}
+.hero.mars-arena-fighter::after{content:'';position:absolute;top:16px;bottom:16px;left:10px;right:10px;pointer-events:none;z-index:23;border-left:3px solid rgba(255,164,72,.94);border-right:3px solid rgba(255,164,72,.94);filter:drop-shadow(0 0 6px rgba(255,96,28,.56));opacity:.96}
+
+
+/* v1.86.63 — Mars arena fighter glow cleanup + bottom hoop */
+.hero.mars-arena-fighter{box-shadow:0 0 0 2px rgba(255,136,46,.94),0 0 18px rgba(255,88,24,.46),inset 0 0 20px rgba(132,28,5,.16)!important}
+.hero.mars-arena-fighter .hero-portrait{box-shadow:inset 0 0 0 2px rgba(255,150,56,.44),0 0 12px rgba(255,94,24,.12)!important}
+.hero.mars-arena-fighter::before{content:'';position:absolute;inset:-7px -5px;pointer-events:none;z-index:24;border-radius:16px;border:2px solid rgba(255,156,58,.68);box-shadow:0 0 12px rgba(255,102,36,.34), inset 0 0 20px rgba(255,118,40,.06);background:linear-gradient(180deg,rgba(255,166,78,.04),rgba(255,98,34,.02));animation:marsArenaPulse 1.15s ease-in-out infinite alternate}
+.hero.mars-arena-fighter::after{content:'';position:absolute;left:-14px;right:-14px;bottom:-14px;height:38px;pointer-events:none;z-index:25;border-left:3px solid rgba(255,156,66,.88);border-right:3px solid rgba(255,156,66,.88);border-bottom:3px solid rgba(255,176,90,.98);border-top:0;border-radius:0 0 26px 26px / 0 0 22px 22px;box-shadow:0 0 14px rgba(255,100,28,.34), inset 0 -10px 14px rgba(255,122,34,.08);background:radial-gradient(ellipse at center bottom,rgba(255,164,76,.10) 0%,rgba(255,116,34,.05) 42%,transparent 74%);filter:drop-shadow(0 0 6px rgba(255,112,34,.38));animation:marsArenaPulse 1.15s ease-in-out infinite alternate}
+
+
+/* v1.86.64 — remove the obsolete small per-card Arena hoop; global hoop is in combat-fx */
+.hero.mars-arena-fighter::after{display:none!important;content:none!important}
+
+
+/* v1.86.94 — hero portraits in global winrate */
+.mp-hero-winrate-row{justify-content:space-between!important;padding:8px 12px!important;min-height:78px!important}
+.mp-hero-winrate-main{display:flex;align-items:center;gap:14px;min-width:0;flex:1}
+.mp-hero-winrate-portrait{width:104px;height:62px;object-fit:cover;object-position:center;border-radius:7px;border:1px solid #35445a;background:#0b1018;flex:none;display:block}
+.mp-hero-winrate-main>b{font-size:15px;letter-spacing:.35px;color:#f4f7ff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mp-hero-winrate-row .mp-global-winrate{margin-left:18px;min-width:86px;text-align:right;font-size:20px}
+
+/* Browser port responsive layer — desktop layout remains 1.86.94. */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+@media(max-width:980px) and (orientation:landscape){
+ body{overflow-x:hidden}
+ .screen{max-width:100vw!important;padding:8px!important}
+ .battlefield{grid-template-columns:minmax(0,1fr) clamp(220px,28vw,340px) minmax(0,1fr)!important;gap:6px!important;min-height:0!important;padding:6px 0!important}
+ .team{gap:4px!important}.hero{transform-origin:center bottom;scale:.78;margin-inline:-8px!important}.mid{min-width:0!important}.log{font-size:11px!important}.hud{font-size:12px!important}
+ #draftCards{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:6px!important}.draft-card{width:auto!important;min-width:0!important}.draft-card img{height:clamp(64px,10vw,100px)!important;object-fit:cover}
+ .action-panel{font-size:11px!important}
+}
+@media(max-width:720px) and (orientation:portrait){
+ .screen{padding:8px!important}.battlefield{display:flex!important;flex-direction:column!important}.mid{order:-1!important;width:100%!important}.side{width:100%!important;min-width:0!important}.team{overflow-x:auto!important;justify-content:flex-start!important;gap:8px!important}.hero{min-width:145px!important}
+ #draftCards{grid-template-columns:repeat(3,minmax(0,1fr))!important}.draft-card{width:auto!important;min-width:0!important}
+}
