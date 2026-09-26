@@ -2142,3 +2142,208 @@ html body #game .shop-info-buy{
     min-width:20px!important;min-height:20px!important;
   }
 }
+
+
+/* v1.86.97 — current full client: fullscreen battle, stable 4-card teams, summons above cards */
+@media (orientation:landscape) and (max-height:600px){
+  html,html body{
+    width:100%!important;
+    height:100dvh!important;
+    min-height:100dvh!important;
+    max-height:100dvh!important;
+    margin:0!important;
+    overflow:hidden!important;
+  }
+  html body.game-running #app{
+    position:fixed!important;
+    inset:0!important;
+    width:100vw!important;
+    height:100dvh!important;
+    min-height:100dvh!important;
+    max-height:100dvh!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:hidden!important;
+  }
+  html body.game-running #app>header{display:none!important}
+  html body.game-running #game.screen{
+    position:absolute!important;
+    inset:0!important;
+    width:100vw!important;
+    height:100dvh!important;
+    min-height:100dvh!important;
+    max-height:100dvh!important;
+    margin:0!important;
+    padding:4px 6px max(5px,env(safe-area-inset-bottom))!important;
+    box-sizing:border-box!important;
+    display:grid!important;
+    grid-template-rows:27px 32px minmax(0,1fr) 52px!important;
+    gap:3px!important;
+    overflow:hidden!important;
+  }
+
+  html body.game-running #game .battlefield{
+    height:100%!important;
+    min-height:0!important;
+    max-height:none!important;
+    overflow:visible!important;
+    align-items:stretch!important;
+  }
+  html body.game-running #game .side{
+    height:100%!important;
+    min-height:0!important;
+    overflow:visible!important;
+  }
+  html body.game-running #game .battlefield .team{
+    height:calc(100% - 19px)!important;
+    min-height:0!important;
+    padding:3px!important;
+    gap:3px!important;
+    overflow:visible!important;
+    align-items:flex-end!important;
+  }
+
+  /* Three heroes keep the old wide size; Tempest Double switches only that team to 4 equal columns. */
+  html body.game-running #game .battlefield .hero{
+    width:calc((100% - 6px)/3)!important;
+    flex:0 0 calc((100% - 6px)/3)!important;
+    height:min(334px,calc(100% - 2px))!important;
+    max-height:334px!important;
+    min-height:0!important;
+    display:flex!important;
+    flex-direction:column!important;
+    overflow:hidden!important;
+    border-radius:7px!important;
+    transform-origin:center bottom!important;
+  }
+  html body.game-running #game .battlefield .team.has-four .hero{
+    width:calc((100% - 9px)/4)!important;
+    flex:0 0 calc((100% - 9px)/4)!important;
+    min-width:0!important;
+    max-width:none!important;
+    margin:0!important;
+  }
+  html body.game-running #game .battlefield .hero .hero-portrait{
+    width:100%!important;
+    height:60%!important;
+    max-height:200px!important;
+    min-height:0!important;
+    flex:0 0 60%!important;
+    overflow:hidden!important;
+    position:relative!important;
+  }
+  html body.game-running #game .battlefield .hero .hero-portrait>video,
+  html body.game-running #game .battlefield .hero .hero-portrait>.static-hero-portrait{
+    position:absolute!important;
+    inset:0!important;
+    display:block!important;
+    width:100%!important;
+    height:100%!important;
+    min-width:100%!important;
+    min-height:100%!important;
+    max-width:100%!important;
+    max-height:100%!important;
+    object-fit:cover!important;
+    object-position:center!important;
+    overflow:hidden!important;
+  }
+  html body.game-running #game .battlefield .hero .hero-body{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    width:100%!important;
+    overflow:hidden!important;
+  }
+
+  /* Broodmother summons live outside the card; only her outer shell may overflow. */
+  html body.game-running #game .battlefield .hero.has-broodlings{
+    overflow:visible!important;
+    z-index:70!important;
+  }
+  html body.game-running #game .battlefield .hero.has-broodlings .hero-portrait,
+  html body.game-running #game .battlefield .hero.has-broodlings .hero-body{
+    overflow:hidden!important;
+  }
+  html body.game-running #game .battlefield .hero.has-broodlings .broodlings-summons{
+    position:absolute!important;
+    left:0!important;
+    right:0!important;
+    top:auto!important;
+    bottom:calc(100% + 4px)!important;
+    width:100%!important;
+    max-width:100%!important;
+    transform:none!important;
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:3px!important;
+    z-index:120!important;
+    overflow:visible!important;
+    pointer-events:none!important;
+  }
+  html body.game-running #game .battlefield .hero.has-broodlings .broodling-summon-card{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    min-height:34px!important;
+    padding:3px!important;
+    border-radius:6px!important;
+    overflow:hidden!important;
+  }
+  html body.game-running #game .battlefield .hero.has-broodlings .broodling-summon-media{
+    width:100%!important;
+    height:24px!important;
+    min-height:24px!important;
+    overflow:hidden!important;
+  }
+  html body.game-running #game .battlefield .hero.has-broodlings .broodling-summon-media video{
+    display:block!important;
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
+  }
+
+  /* Keep the whole queue visible when a fourth hero exists. */
+  html body.game-running #game .turn-queue{
+    width:min(350px,52vw)!important;
+    max-width:52vw!important;
+    height:27px!important;
+    min-height:27px!important;
+    padding:2px 5px 4px!important;
+    overflow:visible!important;
+  }
+  html body.game-running #game .turn-queue-row{
+    width:100%!important;
+    height:20px!important;
+    gap:2px!important;
+    justify-content:center!important;
+    flex-wrap:nowrap!important;
+    overflow:visible!important;
+  }
+  html body.game-running #game .turn-token{
+    width:18px!important;height:18px!important;min-width:18px!important;min-height:18px!important;
+    flex:0 0 18px!important;
+  }
+  html body.game-running #game .turn-token.now{
+    width:21px!important;height:21px!important;min-width:21px!important;min-height:21px!important;
+    flex-basis:21px!important;
+  }
+
+  /* Bottom controls must stay inside the viewport above the home indicator. */
+  html body.game-running #game .action-panel{
+    grid-row:4!important;
+    align-self:stretch!important;
+    height:52px!important;
+    min-height:52px!important;
+    max-height:52px!important;
+    margin:0!important;
+    padding:4px 7px max(4px,env(safe-area-inset-bottom))!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+  }
+  html body.game-running #game .action-panel #actions{
+    margin-top:3px!important;
+    min-height:28px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    flex-wrap:nowrap!important;
+  }
+}
