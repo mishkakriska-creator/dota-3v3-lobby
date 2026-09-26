@@ -159,7 +159,7 @@ function applyMatch(body){
 const server=http.createServer(async(req,res)=>{
   const u=new URL(req.url,'http://localhost');
   if(req.method==='OPTIONS'){res.writeHead(204,cors);return res.end();}
-  if(u.pathname==='/health')return send(res,200,{ok:true,statsApiVersion:3});
+  if(u.pathname==='/health')return send(res,200,{ok:true,statsApiVersion:4});
   if(u.pathname==='/api/lobbies'&&req.method==='GET')return send(res,200,{lobbies:[...rooms].map(([id,r])=>view(id,r))});
   if(u.pathname==='/api/lobbies'&&req.method==='POST'){
     let body={};try{let s='';for await(const c of req)s+=c;body=JSON.parse(s||'{}')}catch{}
@@ -246,9 +246,32 @@ wss.on('connection',(ws,ctx)=>{
         room.lastStateAt=Date.now();
         const picks=Array.isArray(m.chosen)?m.chosen.length:0;
         console.log(`State room=${ctx.roomId} player=${player} phase=${String(m.phase||'')} picks=${picks} bytes=${raw.length}`);
+      }
 
-        // Global MMR/hero stats are intentionally NOT written from raw WebSocket state.
-        // The clients submit one identity-bound /api/match payload after the winner is known.
+      if(m.type==='match_result'&&m.payload&&typeof m.payload==='object'){
+        const incoming=m.payload||{};
+        const incomingPlayers=Array.isArray(incoming.players)?incoming.players:[];
+        const players=[0,1].map(i=>{
+          const rp=room.profiles?.[i]||{};
+          const cp=incomingPlayers[i]||{};
+          return {
+            id:String(rp.globalId||rp.id||cp.id||cp.profileId||''),
+            nick:rp.nick||cp.nick||('Игрок '+(i+1)),
+            rating:Number(rp.rating??cp.rating)||0,
+            team:i
+          };
+        });
+        const claimedWinner=Number(incoming.winner);
+        const payload={...incoming,players};
+        if(!payload.winnerId&&[0,1].includes(claimedWinner))payload.winnerId=players[claimedWinner].id;
+        const result=applyMatch(payload);
+        console.log('Global match_result via WS room='+ctx.roomId+' from='+player,
+          'match='+String(payload.matchId||''),'winner='+String(payload.winner),
+          'winnerId='+String(payload.winnerId||''),
+          'players='+players.map(x=>x.nick+':'+x.id).join('|'),
+          'ok='+String(!!result.ok),'duplicate='+String(!!result.duplicate),
+          result.error?('error='+result.error):'');
+        safeWsSend(ws,{type:'match_result_ack',matchId:String(payload.matchId||''),ok:!!result.ok,error:result.error||'',duplicate:!!result.duplicate},'match_result_ack');
       }
 
       if(['state','version','profile'].includes(m.type)){
