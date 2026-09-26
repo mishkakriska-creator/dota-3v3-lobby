@@ -4256,3 +4256,24 @@ html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .shop-pa
   min-width:20px!important;
   min-height:20px!important;
 }
+
+
+/* v1.86.121 — iPhone 11 gets its room back; draft pick repaint is cheaper */
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield .team .hero>.hero-body{
+  grid-template-rows:14px 28px 6px 19px 22px 23px!important;
+  padding:6px 6px 5px!important;
+}
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield .team .hero .hero-name{font-size:9px!important}
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield .team .hero .stats>.hpstat,
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield .team .hero .stats>.atkstat{
+  height:28px!important;min-height:28px!important;max-height:28px!important;font-size:8.5px!important;
+}
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield .team .hero .inspect-hero{
+  height:23px!important;min-height:23px!important;max-height:23px!important;font-size:7.5px!important;
+}
+html.dota-landscape-mobile body #draft .draft-card{
+  transition:none!important;
+}
+html.dota-landscape-mobile body #draft .draft-slot{
+  transition:none!important;
+}
