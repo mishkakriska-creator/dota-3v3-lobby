@@ -294,22 +294,30 @@
     document.querySelectorAll('.team.enigma-black-hole-team').forEach(x=>{if(Number.isInteger(keepTeam)&&x.id===`team${keepTeam}`)return;x.classList.remove('enigma-black-hole-team')});
     document.querySelectorAll('.hero.enigma-black-hole-victim,.hero.enigma-black-hole-mobile-victim').forEach(x=>{
       if(keepVictimIds?.has(x.id))return;
-      x.classList.remove('enigma-black-hole-victim','enigma-black-hole-mobile-victim');x.style.removeProperty('--bh-stack');x.style.removeProperty('--bh-z');x.style.removeProperty('--bh-left');x.style.removeProperty('--bh-top');x.style.removeProperty('--bh-center-left');x.style.removeProperty('--bh-center-top');x.style.removeProperty('--bh-angle');x.style.removeProperty('--bh-radius');x.style.removeProperty('--bh-x');x.style.removeProperty('--bh-y');x.style.removeProperty('--bh-rot');x.style.removeProperty('--bh-period');x.style.removeProperty('--bh-scale')
+      x.classList.remove('enigma-black-hole-victim','enigma-black-hole-mobile-victim');x.style.removeProperty('--bh-stack');x.style.removeProperty('--bh-z');x.style.removeProperty('--bh-left');x.style.removeProperty('--bh-top');x.style.removeProperty('--bh-center-left');x.style.removeProperty('--bh-center-top');x.style.removeProperty('--bh-angle');x.style.removeProperty('--bh-radius');x.style.removeProperty('--bh-x');x.style.removeProperty('--bh-y');x.style.removeProperty('--bh-dx');x.style.removeProperty('--bh-dy');x.style.removeProperty('--bh-rot');x.style.removeProperty('--bh-period');x.style.removeProperty('--bh-scale')
     });
   }
   function updateEnigmaBoardFx(){
     if(!G||!blackHoleActive()){clearBoardClasses();removeBlackHoleFx();return}
-    const team=G.enigmaBlackHoleEnemyTeam,box=document.getElementById(`team${team}`),victims=blackHoleVictims(team),front=frontHero(team),frontNode=front?document.getElementById(`hero-${team}-${front.id}`):null;if(!box||!victims.length||!frontNode)return;
+    const team=G.enigmaBlackHoleEnemyTeam,box=document.getElementById(`team${team}`),victims=blackHoleVictims(team),front=frontHero(team),frontNode=front?document.getElementById(`hero-${team}-${front.id}`):null,bf=document.querySelector('#game .battlefield');
+    if(!box||!victims.length||!frontNode||!bf)return;
     const keepIds=new Set(victims.map(h=>`hero-${team}-${h.id}`));clearBoardClasses(team,keepIds);
-    const anchor=getBlackHoleAnchor(team);if(!anchor)return;
+    // Always recapture from the normal in-flow front card. The victims never leave
+    // flex layout now, so later renders cannot collapse the team and throw them down.
+    const anchor=captureBlackHoleAnchor(team);if(!anchor)return;
     box.classList.add('enigma-black-hole-team');
-    const animating=Date.now()<(Number(G.enigmaBlackHoleAnimatingUntil)||0);
-    const centerLeft=Math.max(0,anchor.boxLeft),centerTop=Math.max(0,anchor.boxTop),cardW=Math.max(1,anchor.cardW||frontNode.getBoundingClientRect().width);
-    if(!animating){
-      const count=Math.max(1,victims.length),mobile=mobileBlackHoleLayout();
-      victims.forEach((h,i)=>{const d=document.getElementById(`hero-${team}-${h.id}`);if(!d)return;const a=suctionAnimations.get(d);if(a){try{a.cancel()}catch(_){}suctionAnimations.delete(d)}
-        d.classList.remove('enigma-black-hole-mobile-victim');d.classList.add('enigma-black-hole-victim');d.style.setProperty('--bh-stack',String(i));d.style.setProperty('--bh-z',String(h===active(team)?80:58+i));d.style.setProperty('--bh-center-left',centerLeft+'px');d.style.setProperty('--bh-center-top',centerTop+'px');const pose=blackHoleVictimPose(i,count,cardW,Math.max(1,anchor.cardH||frontNode.getBoundingClientRect().height),mobile);const period=(2.45 + i*.21).toFixed(2)+'s';d.style.setProperty('--bh-x',pose.x.toFixed(1)+'px');d.style.setProperty('--bh-y',pose.y.toFixed(1)+'px');d.style.setProperty('--bh-rot',pose.rot.toFixed(1)+'deg');d.style.setProperty('--bh-period',period);d.style.setProperty('--bh-scale',String(pose.scale))});
-    }
+    const br=bf.getBoundingClientRect(),count=Math.max(1,victims.length),mobile=mobileBlackHoleLayout(),cardW=Math.max(1,anchor.cardW||frontNode.getBoundingClientRect().width),cardH=Math.max(1,anchor.cardH||frontNode.getBoundingClientRect().height);
+    const targetBaseX=br.left+anchor.fieldLeft,targetBaseY=br.top+anchor.fieldTop;
+    victims.forEach((h,i)=>{
+      const d=document.getElementById(`hero-${team}-${h.id}`);if(!d)return;
+      const r=d.getBoundingClientRect(),pose=blackHoleVictimPose(i,count,cardW,cardH,mobile);
+      const sx=r.left+r.width/2,sy=r.top+r.height/2,dx=targetBaseX+pose.x-sx,dy=targetBaseY+pose.y-sy;
+      const a=suctionAnimations.get(d);if(a){try{a.cancel()}catch(_){}suctionAnimations.delete(d)}
+      d.classList.remove('enigma-black-hole-mobile-victim');d.classList.add('enigma-black-hole-victim');
+      d.style.setProperty('--bh-stack',String(i));d.style.setProperty('--bh-z',String(h===active(team)?80:58+i));
+      d.style.setProperty('--bh-dx',dx.toFixed(1)+'px');d.style.setProperty('--bh-dy',dy.toFixed(1)+'px');
+      d.style.setProperty('--bh-rot',pose.rot.toFixed(1)+'deg');d.style.setProperty('--bh-period',(2.45+i*.21).toFixed(2)+'s');d.style.setProperty('--bh-scale',String(pose.scale));
+    });
     positionBlackHoleFx();
   }
   function releaseBlackHoleVictims(team){
@@ -322,7 +330,7 @@
     for(const d of nodes){
       const a=suctionAnimations.get(d);if(a){try{a.cancel()}catch(_){}suctionAnimations.delete(d)}
       d.classList.remove('enigma-black-hole-victim','enigma-black-hole-mobile-victim');
-      for(const k of['--bh-stack','--bh-z','--bh-left','--bh-top','--bh-center-left','--bh-center-top','--bh-angle','--bh-radius','--bh-x','--bh-y','--bh-rot','--bh-period','--bh-scale'])d.style.removeProperty(k);
+      for(const k of['--bh-stack','--bh-z','--bh-left','--bh-top','--bh-center-left','--bh-center-top','--bh-angle','--bh-radius','--bh-x','--bh-y','--bh-dx','--bh-dy','--bh-rot','--bh-period','--bh-scale'])d.style.removeProperty(k);
     }
     box.classList.remove('enigma-black-hole-team');
     blackHoleAnchor=null;
@@ -342,17 +350,11 @@
   }
 
   function flyEnemiesIntoHole(team){
-    const victims=blackHoleVictims(team),front=frontHero(team),frontNode=front?document.getElementById(`hero-${team}-${front.id}`):null;if(!frontNode)return;
-    const mobile=mobileBlackHoleLayout(),anchor=getBlackHoleAnchor(team);if(!anchor)return;
-    const tx=anchor.fieldLeft+document.querySelector('#game .battlefield').getBoundingClientRect().left,ty=anchor.fieldTop+document.querySelector('#game .battlefield').getBoundingClientRect().top,tr={width:anchor.cardW,height:anchor.cardH},count=Math.max(1,victims.length);
-    victims.forEach((h,i)=>{const d=document.getElementById(`hero-${team}-${h.id}`);if(!d)return;const r=d.getBoundingClientRect(),sx=r.left+r.width/2,sy=r.top+r.height/2;const pose=blackHoleVictimPose(i,count,tr.width,tr.height,mobile);const targetX=tx+pose.x,targetY=ty+pose.y;const dx=targetX-sx,dy=targetY-sy;const sign=((team===0?-1:1)*(i%2===0?1:-1));const arcX=Math.max(38,Math.abs(dx)*.20)*sign,arcY=-Math.max(34,Math.min(86,Math.abs(dy)*.24));try{const old=suctionAnimations.get(d);if(old)old.cancel();const a=d.animate([
-      {translate:'0 0',scale:'1',rotate:'0deg',filter:'brightness(1) saturate(1) blur(0px)',offset:0},
-      {translate:`${dx*.16+arcX*.68}px ${dy*.12+arcY}px`,scale:'.97',rotate:`${sign*7}deg`,filter:'brightness(.97) saturate(1.08)',offset:.18},
-      {translate:`${dx*.60+arcX*.20}px ${dy*.52+arcY*.20}px`,scale:`${Math.min(.92,pose.scale+.12)}`,rotate:`${sign*14}deg`,filter:'brightness(.88) saturate(1.18)',offset:.58},
-      {translate:`${dx}px ${dy}px`,scale:`${pose.scale}`,rotate:`${pose.rot}deg`,filter:'brightness(.82) saturate(1.32) blur(.2px)',offset:1}
-    ],{duration:780+i*70,easing:'cubic-bezier(.18,.82,.14,1)',fill:'forwards'});suctionAnimations.set(d,a)}catch(_){}});
+    if(!Number.isInteger(team))return;
+    captureBlackHoleAnchor(team);
+    // CSS transform performs the suction while every card keeps its real flex slot.
+    requestAnimationFrame(()=>{updateEnigmaBoardFx();positionBlackHoleFx()});
   }
-
   function playMidnightPulseFx(team){
     const bf=document.querySelector('#game .battlefield'),front=frontHero(team),card=front?document.getElementById(`hero-${team}-${front.id}`):null;if(!bf||!card)return;
     const br=bf.getBoundingClientRect(),cr=card.getBoundingClientRect();
