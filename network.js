@@ -79,7 +79,11 @@
     const avatar=document.createElement('div');avatar.className='lobby-wait-avatar';
     if(p.avatar){const img=document.createElement('img');img.src=p.avatar;img.alt='';avatar.append(img)}else avatar.textContent='?';
     const meta=document.createElement('div');meta.className='lobby-wait-meta';
-    const nick=document.createElement('div');nick.className='lobby-wait-nick';nick.textContent=p.nick||('Игрок '+(slot+1));
+    const nick=document.createElement('div');nick.className='lobby-wait-nick';
+    const fullNick=String(p.nick||('Игрок '+(slot+1)));
+    const nickChars=[...fullNick];
+    nick.textContent=nickChars.length>13?nickChars.slice(0,13).join('')+'…':fullNick;
+    nick.title=fullNick;
     const rr=document.createElement('div');rr.className='lobby-wait-rank';
     const icon=document.createElement('img');icon.src=`assets/ranks/rank_${String(ri).padStart(2,'0')}.png`;icon.alt='';
     const txt=document.createElement('div');txt.innerHTML=`<b>${rank}</b><span>${rating} MMR${Number.isFinite(Number(p.wins))?` • Победы: ${Math.max(0,Number(p.wins)||0)}`:''}</span>`;
