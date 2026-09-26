@@ -1376,3 +1376,66 @@ html body #game .shop-info-buy{
     width:100%!important;
   }
 }
+
+
+/* WEB MOBILE v9 — wide landscape team slots + Arena behind cards */
+@media (orientation:landscape) and (max-height:600px){
+  /* Make BOTH player slot columns substantially wider. */
+  html body #draft .draft-stage{
+    width:min(1320px,96vw)!important;
+    grid-template-columns:clamp(118px,14vw,175px) minmax(0,1fr) clamp(118px,14vw,175px)!important;
+    gap:5px!important;
+  }
+  html body #draft .draft-side-p1,
+  html body #draft .draft-side-p2{
+    width:100%!important;
+    min-width:0!important;
+    justify-self:stretch!important;
+  }
+  html body #draft .draft-side-p1 .draft-slots,
+  html body #draft .draft-side-p2 .draft-slots{
+    width:100%!important;
+  }
+  html body #draft .draft-side-p1 .draft-slot,
+  html body #draft .draft-side-p2 .draft-slot{
+    width:100%!important;
+  }
+  html body #draft .draft-grid{
+    grid-template-columns:repeat(6,clamp(66px,8.5vw,116px))!important;
+    justify-content:center!important;
+  }
+
+  /* Arena is a background layer. Columns can never cover hero cards. */
+  html body #game .battlefield{
+    position:relative!important;
+    overflow:hidden!important;
+    isolation:isolate!important;
+  }
+  html body #game #marsArenaPersistent.mars-arena-v79{
+    z-index:1!important;
+    overflow:hidden!important;
+    pointer-events:none!important;
+  }
+  html body #game .side,
+  html body #game .mid{
+    position:relative!important;
+    z-index:2!important;
+  }
+  html body #game .battlefield .hero{
+    position:relative!important;
+    z-index:4!important;
+  }
+  html body #game .battlefield:has(#marsArenaPersistent) .side{
+    background:rgba(9,13,20,.34)!important;
+  }
+  html body #game .battlefield:has(#marsArenaPersistent) .mid{
+    background:rgba(9,13,20,.72)!important;
+    z-index:3!important;
+  }
+  html body #game #marsArenaPersistent .m79-seg{
+    z-index:1!important;
+  }
+  html body #game #marsArenaPersistent :is(.m79-floor,.m79-floor-inner,.m79-hoop,.m79-inner-ring,.m79-smoke,.m79-backglow,.m79-gap-smoke){
+    z-index:0!important;
+  }
+}
