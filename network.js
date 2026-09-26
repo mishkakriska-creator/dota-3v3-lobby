@@ -1,7 +1,7 @@
 // Dota Cards v0.41 — built-in portable multiplayer host.
 // If opened through HOST_GAME.bat, the page connects to the local WebSocket server.
 (() => {
-  const GAME_VERSION='1.86.120';
+  const GAME_VERSION='1.86.121';
   const PROTOCOL_VERSION=14;
   const DOTA_SERVER_CONFIG = {
     primary: localStorage.getItem('dota_server_primary') || 'https://dota-3v3-lobby.onrender.com',
@@ -443,8 +443,12 @@
       try{ws?.close()}catch{}; setTimeout(()=>{location.href=location.pathname},30); return;
     }
     if(m.phase==='draft'){
-      applying=true; targetMode=null; G=null; chosen=Array.isArray(m.chosen)?m.chosen:[]; draftPreview=null;
-      clearBattlefield(); activeVfx.clear(); seenVfx.clear(); lastPayload=''; closeInspect(); closeHeroPick();
+      const incoming=Array.isArray(m.chosen)?m.chosen:[];
+      const same=incoming.length===chosen.length&&incoming.every((id,i)=>id===chosen[i]);
+      const draftVisible=document.getElementById('draft')&&!document.getElementById('draft').classList.contains('hidden');
+      if(same&&!G&&draftVisible){applyLocks();return}
+      applying=true; targetMode=null; G=null; chosen=incoming; draftPreview=null;
+      activeVfx.clear(); seenVfx.clear(); lastPayload=''; closeInspect(); closeHeroPick();
       document.getElementById('game').classList.add('hidden');
       document.getElementById('draft').classList.remove('hidden');
       updateDraft(); applying=false; applyLocks();
