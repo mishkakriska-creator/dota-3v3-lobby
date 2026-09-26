@@ -246,9 +246,18 @@ wss.on('connection',(ws,ctx)=>{
         room.lastStateAt=Date.now();
         const picks=Array.isArray(m.chosen)?m.chosen.length:0;
         console.log(`State room=${ctx.roomId} player=${player} phase=${String(m.phase||'')} picks=${picks} bytes=${raw.length}`);
+      }
 
-        // Global MMR/hero stats are intentionally NOT written from raw WebSocket state.
-        // The clients submit one identity-bound /api/match payload after the winner is known.
+      if(m.type==='match_result'&&m.payload&&typeof m.payload==='object'){
+        const payload={...m.payload};
+        // Never trust only the numeric slot. Bind winner to the declared profile ID,
+        // and make sure both player IDs are present.
+        const result=applyMatch(payload);
+        console.log('Global match_result via WS room='+ctx.roomId+' from='+player,
+          'match='+String(payload.matchId||''),'winnerId='+String(payload.winnerId||''),
+          'ok='+String(!!result.ok),'duplicate='+String(!!result.duplicate),
+          result.error?('error='+result.error):'');
+        safeWsSend(ws,{type:'match_result_ack',matchId:String(payload.matchId||''),ok:!!result.ok,error:result.error||'',duplicate:!!result.duplicate},'match_result_ack');
       }
 
       if(['state','version','profile'].includes(m.type)){
