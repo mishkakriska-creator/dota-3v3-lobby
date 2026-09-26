@@ -34,7 +34,7 @@
     if(!h)return;
     if(!noNet)window.emitNetVfx?.('audio-attack',h);
     try{
-      attackAudio.pause();attackAudio.currentTime=0;attackAudio.src=ENIGMA_ATTACK_AUDIO.pre+'?v=185';attackAudio.load();attackAudio.play().catch(()=>{});
+      playFile(attackAudio,ENIGMA_ATTACK_AUDIO.pre);
       nativeSetTimeout(()=>playFile(sfxAudio,ENIGMA_ATTACK_AUDIO.launch),90);
       nativeSetTimeout(()=>playFile(miscAudio,ENIGMA_ATTACK_AUDIO.impact),Math.max(180,attackImpactMs(h)));
     }catch(e){}
@@ -274,14 +274,17 @@
     fx.style.width=w+'px';fx.style.height=h+'px';
   }
   const suctionAnimations=new Map();
-  function clearBoardClasses(){
-    document.querySelectorAll('.team.enigma-black-hole-team').forEach(x=>x.classList.remove('enigma-black-hole-team'));
-    document.querySelectorAll('.hero.enigma-black-hole-victim,.hero.enigma-black-hole-mobile-victim').forEach(x=>{x.classList.remove('enigma-black-hole-victim','enigma-black-hole-mobile-victim');x.style.removeProperty('--bh-stack');x.style.removeProperty('--bh-z');x.style.removeProperty('--bh-left');x.style.removeProperty('--bh-top');x.style.removeProperty('--bh-center-left');x.style.removeProperty('--bh-center-top');x.style.removeProperty('--bh-angle');x.style.removeProperty('--bh-radius');x.style.removeProperty('--bh-x');x.style.removeProperty('--bh-period')});
+  function clearBoardClasses(keepTeam=null,keepVictimIds=null){
+    document.querySelectorAll('.team.enigma-black-hole-team').forEach(x=>{if(Number.isInteger(keepTeam)&&x.id===`team${keepTeam}`)return;x.classList.remove('enigma-black-hole-team')});
+    document.querySelectorAll('.hero.enigma-black-hole-victim,.hero.enigma-black-hole-mobile-victim').forEach(x=>{
+      if(keepVictimIds?.has(x.id))return;
+      x.classList.remove('enigma-black-hole-victim','enigma-black-hole-mobile-victim');x.style.removeProperty('--bh-stack');x.style.removeProperty('--bh-z');x.style.removeProperty('--bh-left');x.style.removeProperty('--bh-top');x.style.removeProperty('--bh-center-left');x.style.removeProperty('--bh-center-top');x.style.removeProperty('--bh-angle');x.style.removeProperty('--bh-radius');x.style.removeProperty('--bh-x');x.style.removeProperty('--bh-period')
+    });
   }
   function updateEnigmaBoardFx(){
-    clearBoardClasses();
-    if(!G||!blackHoleActive()){removeBlackHoleFx();return}
+    if(!G||!blackHoleActive()){clearBoardClasses();removeBlackHoleFx();return}
     const team=G.enigmaBlackHoleEnemyTeam,box=document.getElementById(`team${team}`),victims=blackHoleVictims(team),front=frontHero(team),frontNode=front?document.getElementById(`hero-${team}-${front.id}`):null;if(!box||!victims.length||!frontNode)return;
+    const keepIds=new Set(victims.map(h=>`hero-${team}-${h.id}`));clearBoardClasses(team,keepIds);
     const anchor=getBlackHoleAnchor(team);if(!anchor)return;
     box.classList.add('enigma-black-hole-team');
     const animating=Date.now()<(Number(G.enigmaBlackHoleAnimatingUntil)||0);
