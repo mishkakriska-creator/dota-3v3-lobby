@@ -467,9 +467,7 @@ function clearMatchPreloadCache(){
   matchPreloadHost?.remove();matchPreloadHost=null;
 }
 function pruneMatchPreloadCacheForBattle(){
-  const keepClone=chosen.includes('arcwarden');
   for(const [url,v] of [...matchPreloadVideos.entries()]){
-    if(keepClone&&url==='assets/portraits/arcwarden_clone.webm')continue;
     try{v.pause();v.removeAttribute('src');v.load();v.remove()}catch(_){}
     matchPreloadVideos.delete(url);
   }
@@ -626,7 +624,7 @@ function warmAllGameAssets(onProgress){
     jobs.push(()=>preloadMatchImage(d.img||draftPortraitSrc(id)||''));
     for(const sk of d.skills||[]){const icon=skillIcon(id,sk.id);if(icon)jobs.push(()=>preloadMatchImage(icon))}
   }
-  ['assets/portraits/forge_spirit.webm','assets/portraits/spiderling.webm','assets/portraits/arcwarden_clone.webm','assets/portraits/phantomlancer_illusion.webm'].forEach(url=>jobs.push(()=>warmVideoNetworkOnly(url)));
+  ['assets/portraits/forge_spirit.webm','assets/portraits/spiderling.webm','assets/portraits/phantomlancer_illusion.webm'].forEach(url=>jobs.push(()=>warmVideoNetworkOnly(url)));
   jobs.push(()=>warmAudioNetworkOnly('assets/audio/background_music.mp3'));
   let done=0;const total=Math.max(1,jobs.length),q=[...jobs];
   const report=()=>{try{onProgress?.(Math.round(done/total*100),done,total)}catch(_){}};
