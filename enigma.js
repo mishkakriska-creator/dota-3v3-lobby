@@ -278,7 +278,7 @@
     document.querySelectorAll('.team.enigma-black-hole-team').forEach(x=>{if(Number.isInteger(keepTeam)&&x.id===`team${keepTeam}`)return;x.classList.remove('enigma-black-hole-team')});
     document.querySelectorAll('.hero.enigma-black-hole-victim,.hero.enigma-black-hole-mobile-victim').forEach(x=>{
       if(keepVictimIds?.has(x.id))return;
-      x.classList.remove('enigma-black-hole-victim','enigma-black-hole-mobile-victim');x.style.removeProperty('--bh-stack');x.style.removeProperty('--bh-z');x.style.removeProperty('--bh-left');x.style.removeProperty('--bh-top');x.style.removeProperty('--bh-center-left');x.style.removeProperty('--bh-center-top');x.style.removeProperty('--bh-angle');x.style.removeProperty('--bh-radius');x.style.removeProperty('--bh-x');x.style.removeProperty('--bh-period')
+      x.classList.remove('enigma-black-hole-victim','enigma-black-hole-mobile-victim');x.style.removeProperty('--bh-stack');x.style.removeProperty('--bh-z');x.style.removeProperty('--bh-left');x.style.removeProperty('--bh-top');x.style.removeProperty('--bh-center-left');x.style.removeProperty('--bh-center-top');x.style.removeProperty('--bh-angle');x.style.removeProperty('--bh-radius');x.style.removeProperty('--bh-x');x.style.removeProperty('--bh-period');x.style.removeProperty('--bh-scale')
     });
   }
   function updateEnigmaBoardFx(){
