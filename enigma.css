@@ -1,13 +1,14 @@
-/* Enigma — v1.86.97 */
+/* Enigma — v1.86.98 */
 #game .battlefield{position:relative!important;overflow:visible!important}
 #game .team.enigma-black-hole-team{position:relative!important;isolation:isolate!important}
-#game .team.enigma-black-hole-team .hero.enigma-black-hole-victim{position:absolute!important;left:var(--bh-center-left,0)!important;top:var(--bh-center-top,0)!important;margin:0!important;z-index:var(--bh-z,50)!important;transform:translate(-50%,-50%) translateX(var(--bh-x,0px)) translateY(-4px) rotate(-1deg) scale(var(--bh-scale,.90))!important;filter:saturate(1.08) brightness(.94);transition:left .38s cubic-bezier(.2,.8,.2,1),top .38s cubic-bezier(.2,.8,.2,1)!important;animation:enigmaVictimFloat var(--bh-period,2.8s) ease-in-out infinite;animation-delay:calc(var(--bh-stack,0) * -0.22s)}
+#game .team.enigma-black-hole-team .hero.enigma-black-hole-victim{position:absolute!important;left:var(--bh-center-left,0)!important;top:var(--bh-center-top,0)!important;margin:0!important;z-index:var(--bh-z,50)!important;transform:translate(-50%,-50%) translate(var(--bh-x,0px),var(--bh-y,0px)) rotate(var(--bh-rot,0deg)) scale(var(--bh-scale,.78))!important;filter:saturate(1.08) brightness(.94);transition:left .34s cubic-bezier(.2,.8,.2,1),top .34s cubic-bezier(.2,.8,.2,1)!important;animation:enigmaVictimFloat var(--bh-period,2.7s) ease-in-out infinite;animation-delay:calc(var(--bh-stack,0) * -0.19s)}
 #game .team.enigma-black-hole-team .hero.enigma-black-hole-victim.active{z-index:89!important}
 #game .team.enigma-black-hole-team .hero.enigma-black-hole-victim::before{content:'';position:absolute;inset:-7px;border-radius:18px;pointer-events:none;z-index:70;border:1px solid rgba(131,77,255,.25);box-shadow:0 0 16px rgba(89,47,255,.38),0 0 34px rgba(40,15,119,.32);animation:enigmaVictimPulse 1.1s ease-in-out infinite alternate}
 @keyframes enigmaVictimPulse{to{box-shadow:0 0 22px rgba(132,73,255,.58),0 0 46px rgba(49,17,142,.45)}}
 @keyframes enigmaVictimFloat{
-  0%,100%{transform:translate(-50%,-50%) translateX(var(--bh-x,0px)) translateY(-7px) rotate(-1.5deg) scale(var(--bh-scale,.90))}
-  50%{transform:translate(-50%,-50%) translateX(var(--bh-x,0px)) translateY(0px) rotate(1.5deg) scale(var(--bh-scale,.90))}
+  0%,100%{transform:translate(-50%,-50%) translate(var(--bh-x,0px),calc(var(--bh-y,0px) - 5px)) rotate(calc(var(--bh-rot,0deg) - 1.5deg)) scale(var(--bh-scale,.78))}
+  38%{transform:translate(-50%,-50%) translate(calc(var(--bh-x,0px) + 3px),calc(var(--bh-y,0px) + 2px)) rotate(calc(var(--bh-rot,0deg) + 1deg)) scale(var(--bh-scale,.78))}
+  72%{transform:translate(-50%,-50%) translate(calc(var(--bh-x,0px) - 2px),calc(var(--bh-y,0px) - 1px)) rotate(calc(var(--bh-rot,0deg) - .5deg)) scale(var(--bh-scale,.78))}
 }
 
 #enigmaBlackHoleFx{position:absolute;pointer-events:none;z-index:5;border-radius:50%;overflow:visible;transform:perspective(420px) rotateX(56deg);transform-origin:center;filter:drop-shadow(0 0 18px rgba(83,34,255,.55));opacity:.98;will-change:transform,left,top}
