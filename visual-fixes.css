@@ -3424,3 +3424,79 @@ html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .ins
   visibility:visible!important;
   overflow:hidden!important;
 }
+
+
+/* v1.86.113 — phone: name hugs stats + owned items visible again */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero>.hero-body{
+  grid-template-rows:
+    22px
+    29px
+    7px
+    23px
+    minmax(22px,1fr)
+    24px!important;
+  row-gap:1px!important;
+}
+
+/* Push the name to the BOTTOM of its row, so it sits near HP / attack. */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .hero-name-row{
+  grid-column:1 / -1!important;
+  grid-row:1!important;
+  height:22px!important;
+  min-height:22px!important;
+  margin:0!important;
+  padding:0 0 1px!important;
+  display:flex!important;
+  align-items:flex-end!important;
+  justify-content:flex-start!important;
+  overflow:hidden!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .hero-name{
+  margin:0!important;
+  padding:0!important;
+  line-height:1!important;
+  align-self:flex-end!important;
+}
+
+/* Old mobile rules hid inventory completely. Force it back on when it contains items. */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .item-inventory{
+  grid-column:2!important;
+  grid-row:5!important;
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-content:flex-start!important;
+  justify-content:flex-end!important;
+  gap:2px!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:22px!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .item-inventory:empty{
+  display:none!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .item-inventory .item-owned{
+  display:inline-grid!important;
+  place-items:center!important;
+  width:21px!important;
+  height:21px!important;
+  min-width:21px!important;
+  min-height:21px!important;
+  padding:0!important;
+  margin:0!important;
+  border-radius:4px!important;
+  overflow:hidden!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .item-inventory .item-owned img{
+  display:block!important;
+  width:20px!important;
+  height:20px!important;
+  min-width:20px!important;
+  min-height:20px!important;
+  object-fit:cover!important;
+  margin:0!important;
+  padding:0!important;
+}
