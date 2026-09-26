@@ -125,6 +125,43 @@ async function lockDotaLandscape(){
   if(screen.orientation?.lock)await screen.orientation.lock('landscape');
  }catch(_){}
 }
+function syncBattleResponsiveVars(logicalW,logicalH){
+ try{
+  const root=document.documentElement,bf=document.querySelector('#game .battlefield');
+  const mobile=root.classList.contains('dota-landscape-mobile');
+  if(!mobile||!bf){
+   root.classList.remove('dota-landscape-compact','dota-landscape-roomy');
+   if(bf)for(const k of ['--team0-card-w','--team1-card-w','--battle-card-h','--battle-mid-w','--battle-card-gap','--battle-column-gap'])bf.style.removeProperty(k);
+   return;
+  }
+  logicalW=Number(logicalW)||parseFloat(getComputedStyle(root).getPropertyValue('--dota-vw'))||window.innerWidth||844;
+  logicalH=Number(logicalH)||parseFloat(getComputedStyle(root).getPropertyValue('--dota-vh'))||window.innerHeight||390;
+  const counts=G?[0,1].map(t=>Math.max(1,(G.teams?.[t]||[]).filter(h=>!h.infested).length)):[3,3];
+  const maxUnits=Math.max(...counts);
+  const clamp=(a,v,b)=>Math.max(a,Math.min(b,v));
+  const compact=logicalH<=400||logicalW<=860;
+  const roomy=logicalH>=410&&logicalW>=880;
+  const middle=maxUnits>3?clamp(54,Math.round(logicalW*.067),68):clamp(66,Math.round(logicalW*.082),84);
+  const columnGap=compact?3:4;
+  const outerAllowance=compact?16:20;
+  const sideWidth=Math.max(150,(logicalW-middle-outerAllowance-columnGap*2)/2);
+  const cardGap=maxUnits>3?2:(compact?3:4);
+  const cap=roomy?132:(compact?120:126);
+  const widthFor=n=>{
+   const raw=Math.floor((sideWidth-8-cardGap*Math.max(0,n-1))/Math.max(1,n));
+   return clamp(n>=4?76:94,raw,cap);
+  };
+  const cardH=clamp(218,Math.round(logicalH*.59),258);
+  bf.style.setProperty('--team0-card-w',widthFor(counts[0])+'px');
+  bf.style.setProperty('--team1-card-w',widthFor(counts[1])+'px');
+  bf.style.setProperty('--battle-card-h',cardH+'px');
+  bf.style.setProperty('--battle-mid-w',middle+'px');
+  bf.style.setProperty('--battle-card-gap',cardGap+'px');
+  bf.style.setProperty('--battle-column-gap',columnGap+'px');
+  root.classList.toggle('dota-landscape-compact',compact);
+  root.classList.toggle('dota-landscape-roomy',roomy);
+ }catch(_){}
+}
 function syncDotaViewport(){
  try{
   const vv=window.visualViewport;
@@ -136,13 +173,7 @@ function syncDotaViewport(){
   const logicalH=forcedPortrait?physicalW:physicalH;
   const root=document.documentElement;
   const landscapePhone=phone&&logicalW>logicalH;
-  // iPhone 12/13/14 standard-class landscape is roughly 844x390 CSS px.
-  // Do not rely on CSS @media here: Safari's viewport/chrome handling can make
-  // max-height media queries inconsistent between otherwise identical sessions.
-  const shortLandscape=landscapePhone&&(
-    logicalH<=400 ||
-    (logicalW<=860&&logicalH<=430)
-  );
+  const shortLandscape=landscapePhone&&(logicalH<=400||(logicalW<=860&&logicalH<=430));
   root.classList.toggle('dota-force-landscape',forcedPortrait);
   root.classList.toggle('dota-landscape-mobile',landscapePhone);
   root.classList.toggle('dota-landscape-short',shortLandscape);
@@ -161,6 +192,7 @@ function syncDotaViewport(){
    document.body.style.setProperty('--dota-header-h',hh+'px');
    document.body.offsetHeight;
   }
+  syncBattleResponsiveVars(logicalW,logicalH);
  }catch(_){}
 }
 syncDotaViewport();
@@ -948,7 +980,7 @@ window.addEventListener('pageshow',()=>setTimeout(reviveHeroPortraitVideos,70));
 function updateBattleUnitLayout(){
   if(!G)return;
   const bf=document.querySelector('#game .battlefield');if(!bf)return;
-  const counts=[0,1].map(t=>(G.teams?.[t]||[]).length);
+  const counts=[0,1].map(t=>(G.teams?.[t]||[]).filter(h=>!h.infested).length);
   [0,1].forEach(t=>{
     const team=document.getElementById(`team${t}`);if(!team)return;
     const c=counts[t];team.dataset.unitCount=String(c);
@@ -959,6 +991,7 @@ function updateBattleUnitLayout(){
   bf.classList.toggle('expand-left',counts[0]>3);
   bf.classList.toggle('expand-right',counts[1]>3);
   bf.classList.toggle('expand-both',counts[0]>3&&counts[1]>3);
+  syncBattleResponsiveVars();
 }
 function ensureHeroNode(h){let id=`hero-${h.team}-${h.id}`,d=document.getElementById(id);if(d)return d;d=document.createElement('div');d.id=id;d.dataset.hero=h.id;d.innerHTML=`<div class="hero-portrait">${h.staticPortrait?'<img class="static-hero-portrait" alt="">':'<video autoplay muted loop playsinline preload="auto"></video>'}<img class="silence-overlay" src="assets/silence_overlay.png" alt="Безмолвие"><img class="sticky-bomb-overlay" src="assets/status_sticky_bomb_v167.png" alt="Sticky Bomb"><div class="io-tether-anchor" aria-hidden="true"></div><svg class="spirits-v107" viewBox="0 0 160 160" aria-hidden="true" style="display:none;position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:20"><circle cx="80" cy="80" r="55" fill="none" stroke="#9ae5ff" stroke-width="1.8" opacity=".8"/><g class="spirit-rotor"><g class="spirit-ball" transform="rotate(0 80 80)"><circle cx="135" cy="80" r="9" fill="#46a9ff" opacity=".35"/><circle cx="135" cy="80" r="5" fill="#c6f7ff"/><circle cx="135" cy="80" r="2.5" fill="white"/></g><g class="spirit-ball" transform="rotate(120 80 80)"><circle cx="135" cy="80" r="9" fill="#46a9ff" opacity=".35"/><circle cx="135" cy="80" r="5" fill="#c6f7ff"/><circle cx="135" cy="80" r="2.5" fill="white"/></g><g class="spirit-ball" transform="rotate(240 80 80)"><circle cx="135" cy="80" r="9" fill="#46a9ff" opacity=".35"/><circle cx="135" cy="80" r="5" fill="#c6f7ff"/><circle cx="135" cy="80" r="2.5" fill="white"/></g></g></svg><div class="matrix-film" aria-hidden="true"><i></i></div><div class="rage-aura" aria-hidden="true"><i></i></div><div class="laser-blind-fx" aria-hidden="true"><i></i></div><div class="sf-mark-overlay"><img src="assets/skills/shadowraze_status.png" alt="Shadowraze"><b>0</b></div><div class="tether-status-overlay"><img src="assets/skills/io_tether.png" alt="Tether"></div><div class="item-debuff-overlay"><img alt="Предмет"></div><div class="sf-presence-overlay" title="Presence of the Dark Lord: броня −1"><img src="assets/skills/shadowfiend_presence.png" alt="Presence of the Dark Lord"></div><div class="hero-mastery-slot"></div><div class="invoker-effect-overlays"></div><div class="alacrity-persistent" aria-hidden="true"><i></i><i></i><i></i></div><div class="mine-explosion"></div></div><div class="shadowraze-impact" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><div class="bane-grip-hands" aria-hidden="true"><i></i><i></i><i></i></div><div class="infest-indicator" aria-hidden="true"><i></i><b></b></div><img class="lane-mine" src="assets/proximity_mine.png" alt="Мина"><div class="hero-body"><div class="hero-name-row"><div class="hero-name"></div></div><div class="stats"><span class="stat hpstat"></span><span class="stat atkstat"></span><span class="stat armorstat"></span></div><div class="hpbar"><i></i></div><button class="inspect-hero" type="button">КАРТОЧКА</button><div class="status"></div><div class="item-inventory"></div></div>`;d.dataset.team=String(h.team);if(h.staticPortrait){d.querySelector('.static-hero-portrait').src=h.portrait}else{let v=d.querySelector('video');const cached=matchPreloadVideos.get(h.portrait)||matchPreloadVideos.get(battlePortraitSrcFor(h.id));if(cached){try{cached.pause();cached.remove()}catch(_){}matchPreloadVideos.delete(h.portrait);matchPreloadVideos.delete(battlePortraitSrcFor(h.id));}v.src=h.portrait;v.loop=true;v.muted=true;v.autoplay=true;v.playsInline=true;v.preload='auto';v.defaultMuted=true;v.controls=false;v.disablePictureInPicture=true;v.disableRemotePlayback=true;v.poster=h.img;v.setAttribute('controlslist','nodownload nofullscreen noremoteplayback');armHeroPortraitVideo(v,h);v.onended=()=>{try{v.currentTime=0;v.play().catch(()=>{})}catch(_){}};v.onpause=null;v.play().catch(()=>{});setTimeout(()=>{try{if(v.paused)v.play().catch(()=>{})}catch(_){}} ,120)}d.querySelector('.inspect-hero').onclick=e=>{e.stopPropagation();openInspect(h.id)};return d}
 function renderForgeSpiritCard(owner,heroNode){let d=heroNode.querySelector('.forge-spirit-card'),spirit=owner?.forgeSpirit;if(!isForgeSpiritTarget(spirit)){d?.remove();return}if(!d){d=document.createElement('div');d.className='forge-spirit-card';d.dataset.owner=owner.id;d.innerHTML=`<div class="forge-spirit-media"><video autoplay muted loop playsinline preload="auto" src="assets/portraits/forge_spirit.webm"></video></div><div class="forge-spirit-copy"><b>FORGE SPIRIT</b><span class="forge-spirit-stats"></span><small class="forge-spirit-turns"></small></div>`;d.onclick=e=>{e.stopPropagation();pickTarget(owner.forgeSpirit)};heroNode.insertBefore(d,heroNode.firstChild);let v=d.querySelector('video');v.play().catch(()=>{})}let targetable=!!(targetMode&&targetMode.team===spirit.team&&targetMode.filter(spirit));d.classList.toggle('targetable',targetable);d.querySelector('.forge-spirit-stats').textContent=`❤️ ${spirit.hp}/${spirit.maxHp} · ⚔️ ${spirit.atk}`;d.querySelector('.forge-spirit-turns').textContent=`${spirit.turns} общ. ход.`}
