@@ -1527,3 +1527,36 @@ html body #game .shop-info-buy{
     font-weight:900!important;
   }
 }
+
+
+/* WEB MOBILE v12 — stable Black Hole cards + visible main-menu Profile button */
+@media (orientation:landscape) and (max-height:600px), (orientation:portrait) and (max-width:720px){
+  html body #game .hero.enigma-black-hole-mobile-victim{
+    position:relative!important;
+    left:auto!important;
+    top:auto!important;
+    right:auto!important;
+    bottom:auto!important;
+    translate:none!important;
+    transform:none!important;
+    animation:none!important;
+    filter:saturate(1.08) brightness(.94)!important;
+    z-index:6!important;
+  }
+  html body #game .hero.enigma-black-hole-mobile-victim::before{
+    content:''!important;
+    position:absolute!important;
+    inset:2px!important;
+    border-radius:inherit!important;
+    pointer-events:none!important;
+    z-index:30!important;
+    border:1px solid rgba(131,77,255,.45)!important;
+    box-shadow:0 0 13px rgba(89,47,255,.45),0 0 24px rgba(40,15,119,.34)!important;
+  }
+
+  html body .mp-profile-button{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+}
