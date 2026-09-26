@@ -210,9 +210,10 @@
     return {
       matchId:String(G.matchId),
       winner:Number(G.winner),
+      winnerId:String((Number(G.winner)===0?p0:p1)?.globalId||(Number(G.winner)===0?p0:p1)?.id||''),
       players:[
-        {id:String(p0.globalId||p0.id||''),nick:p0.nick||'Игрок 1',rating:Number(p0.rating)||0},
-        {id:String(p1.globalId||p1.id||''),nick:p1.nick||'Игрок 2',rating:Number(p1.rating)||0}
+        {id:String(p0.globalId||p0.id||''),nick:p0.nick||'Игрок 1',rating:Number(p0.rating)||0,team:0},
+        {id:String(p1.globalId||p1.id||''),nick:p1.nick||'Игрок 2',rating:Number(p1.rating)||0,team:1}
       ],
       teams:[
         (G.teams?.[0]||[]).filter(h=>h&&h.id!=='arcwarden_clone').map(h=>h.id).slice(0,3),
