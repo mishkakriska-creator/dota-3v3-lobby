@@ -145,9 +145,11 @@ function syncBattleResponsiveVars(logicalW,logicalH){
   const compact=logicalH<=400||logicalW<=860;
   const roomy=logicalH>=410&&logicalW>=880;
 
-  const middle=maxUnits>3
-    ?clamp(40,Math.round(logicalW*.048),44)
-    :clamp(46,Math.round(logicalW*.054),50);
+  const middle=roomy
+    ?(maxUnits>3?88:96)
+    :(maxUnits>3
+      ?clamp(40,Math.round(logicalW*.048),44)
+      :clamp(46,Math.round(logicalW*.054),50));
 
   const columnGap=2;
   const outerAllowance=6;
@@ -156,13 +158,20 @@ function syncBattleResponsiveVars(logicalW,logicalH){
 
   const widthFor=n=>{
    const raw=Math.floor((sideWidth-6-cardGap*Math.max(0,n-1))/Math.max(1,n));
+   if(roomy){
+    if(n>=5)return clamp(72,raw,76);
+    if(n===4)return clamp(80,raw,84);
+    return clamp(104,raw,108);
+   }
    if(n>=4)return clamp(88,raw,92);
-   return clamp(roomy?118:116,raw,roomy?122:120);
+   return clamp(116,raw,120);
   };
 
-  const cardH=maxUnits>3
-    ?clamp(232,Math.round(logicalH*.565),236)
-    :clamp(roomy?236:232,Math.round(logicalH*.58),roomy?240:236);
+  const cardH=roomy
+    ?(maxUnits>3?216:220)
+    :(maxUnits>3
+      ?clamp(232,Math.round(logicalH*.565),236)
+      :clamp(232,Math.round(logicalH*.58),236));
 
   bf.style.setProperty('--team0-card-w',widthFor(counts[0])+'px');
   bf.style.setProperty('--team1-card-w',widthFor(counts[1])+'px');
