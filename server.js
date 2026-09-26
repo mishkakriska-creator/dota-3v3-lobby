@@ -247,30 +247,8 @@ wss.on('connection',(ws,ctx)=>{
         const picks=Array.isArray(m.chosen)?m.chosen.length:0;
         console.log(`State room=${ctx.roomId} player=${player} phase=${String(m.phase||'')} picks=${picks} bytes=${raw.length}`);
 
-        const g=m.G;
-        if(g&&g.matchId!=null&&[0,1].includes(Number(g.winner))&&Array.isArray(g.teams)&&g.teams.length>=2){
-          const profiles=[0,1].map(i=>{
-            const p=room.profiles?.[i]||{};
-            return {
-              id:String(p.globalId||p.id||''),
-              nick:p.nick||(`Игрок ${i+1}`),
-              rating:Number(p.rating)||0
-            };
-          });
-          const teams=[0,1].map(i=>(Array.isArray(g.teams[i])?g.teams[i]:[])
-            .filter(h=>h&&h.id&&h.id!=='arcwarden_clone')
-            .map(h=>h.id)
-            .slice(0,3));
-          const winIndex=Number(g.winner);
-          const recorded=applyMatch({
-            matchId:String(g.matchId),
-            winner:winIndex,
-            winnerId:String(profiles[winIndex]?.id||''),
-            players:profiles.map((p,i)=>({...p,team:i})),
-            teams
-          });
-          if(recorded.ok&&!recorded.duplicate)console.log('Global match recorded from WebSocket state',String(g.matchId));
-        }
+        // Global MMR/hero stats are intentionally NOT written from raw WebSocket state.
+        // The clients submit one identity-bound /api/match payload after the winner is known.
       }
 
       if(['state','version','profile'].includes(m.type)){
