@@ -230,17 +230,35 @@
     const job=(async()=>{
       const payload=globalMatchPayload(); if(!payload)return false;
       let last=null;
+
+      // Primary path: use the already-open match WebSocket. This avoids CORS,
+      // Safari keepalive/background limitations and wrong fallback-server routing.
+      if(ws&&ws.readyState===1){
+        try{
+          ws.send(JSON.stringify({type:'match_result',payload}));
+          // Server deduplicates by matchId. Mark locally as sent; HTTP below remains
+          // a fallback only when WebSocket send itself is unavailable.
+          submittedGlobalMatches.add(key);
+          console.log('[GLOBAL STATS] match_result sent over WebSocket',key,payload.winnerId);
+          return true;
+        }catch(e){
+          last=e;
+          console.warn('[GLOBAL STATS] WebSocket submit failed',key,e?.message||e);
+        }
+      }
+
+      // Fallback for a result produced after the socket was lost.
       for(let attempt=1;attempt<=5;attempt++){
         try{
           const r=await lobbyFetch('/api/match',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),keepalive:true},null);
           let out=null;try{out=await r.json()}catch{}
           if(!r.ok||out?.ok===false)throw new Error(out?.error||('HTTP '+r.status));
           submittedGlobalMatches.add(key);
-          console.log('[GLOBAL STATS] match submitted',key,out||{});
+          console.log('[GLOBAL STATS] match submitted by HTTP',key,out||{});
           return true;
         }catch(e){
           last=e;
-          console.warn('[GLOBAL STATS] submit failed',key,'attempt',attempt,e?.message||e);
+          console.warn('[GLOBAL STATS] HTTP submit failed',key,'attempt',attempt,e?.message||e);
           if(attempt<5)await new Promise(r=>setTimeout(r,700*attempt));
         }
       }
