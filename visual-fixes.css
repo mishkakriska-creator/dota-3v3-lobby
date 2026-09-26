@@ -1229,3 +1229,128 @@ html body #game .shop-info-buy{
     text-overflow:ellipsis!important;
   }
 }
+
+
+/* WEB MOBILE v7 — tight draft grid, wider portrait slots, mastery scale, Mars arena visibility */
+@media (orientation:landscape) and (max-height:600px){
+  /* Draft cards sit almost flush like desktop instead of stretching rows apart. */
+  html body #draft .draft-grid{
+    grid-template-rows:repeat(3,auto)!important;
+    grid-auto-rows:auto!important;
+    align-content:start!important;
+    row-gap:2px!important;
+    column-gap:2px!important;
+    height:auto!important;
+    max-height:100%!important;
+  }
+  html body #draft .draft-card{
+    margin:0!important;
+  }
+
+  /* Mastery number must fit inside the small medal. */
+  html body #draft :is(.draft-card,.draft-slot) .hero-mastery>b{
+    font-size:6px!important;
+    line-height:1!important;
+    top:49%!important;
+  }
+  html body #game .battlefield .hero .hero-mastery>b{
+    font-size:5px!important;
+    line-height:1!important;
+    top:49%!important;
+  }
+
+  /* Arena exists inside battlefield: show it above team panels, below hero cards. */
+  html body #game .battlefield{
+    position:relative!important;
+    overflow:visible!important;
+  }
+  html body #game #marsArenaPersistent.mars-arena-v79{
+    z-index:5!important;
+    overflow:visible!important;
+    display:block!important;
+  }
+  html body #game .side,
+  html body #game .mid{
+    position:relative!important;
+    z-index:2!important;
+  }
+  html body #game .battlefield .hero{
+    position:relative!important;
+    z-index:10!important;
+  }
+  html body #game .battlefield:has(#marsArenaPersistent) .side{
+    background-color:rgba(9,13,20,.74)!important;
+  }
+  html body #game .battlefield:has(#marsArenaPersistent) .mid{
+    z-index:7!important;
+  }
+}
+
+@media (orientation:portrait) and (max-width:720px){
+  /* User-picked team slots are deliberately wide in portrait. */
+  html body #draft .draft-side{
+    width:min(92vw,430px)!important;
+    max-width:none!important;
+    justify-self:center!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+  }
+  html body #draft .draft-side .side-profile{
+    width:100%!important;
+  }
+  html body #draft .draft-slots{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+    width:100%!important;
+  }
+  html body #draft .draft-slot{
+    width:100%!important;
+    height:112px!important;
+    min-height:112px!important;
+    aspect-ratio:auto!important;
+  }
+  html body #draft .draft-slot.filled img{
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
+  }
+
+  /* Medal number proportions. */
+  html body #draft :is(.draft-card,.draft-slot) .hero-mastery>b{
+    font-size:8px!important;
+    line-height:1!important;
+    top:49%!important;
+  }
+  html body #game .battlefield .hero .hero-mastery>b{
+    font-size:7px!important;
+    line-height:1!important;
+    top:49%!important;
+  }
+
+  /* Mars Arena must also survive portrait clipping. */
+  body.game-running #game .battlefield{
+    position:relative!important;
+    overflow:visible!important;
+  }
+  body.game-running #game #marsArenaPersistent.mars-arena-v79{
+    z-index:5!important;
+    overflow:visible!important;
+    display:block!important;
+  }
+  body.game-running #game .side,
+  body.game-running #game .mid{
+    position:relative!important;
+    z-index:2!important;
+  }
+  body.game-running #game .battlefield .hero{
+    position:relative!important;
+    z-index:10!important;
+  }
+  body.game-running #game .battlefield:has(#marsArenaPersistent) .side{
+    background-color:rgba(9,13,20,.74)!important;
+  }
+  body.game-running #game .battlefield:has(#marsArenaPersistent) .mid{
+    z-index:7!important;
+  }
+}
