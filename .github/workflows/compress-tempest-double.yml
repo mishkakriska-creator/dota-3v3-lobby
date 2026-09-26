@@ -1,0 +1,47 @@
+name: Compress Tempest Double portrait
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/compress-tempest-double.yml
+
+permissions:
+  contents: write
+
+jobs:
+  compress:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: web-prototype
+          fetch-depth: 0
+
+      - name: Compress Tempest Double WebM
+        run: |
+          set -euo pipefail
+          SRC="assets/portraits/arcwarden_clone.webm"
+          TMP="assets/portraits/arcwarden_clone.comp.webm"
+
+          echo "BEFORE"
+          ffprobe -v error -show_entries stream=codec_name,width,height,r_frame_rate -show_entries format=duration,size -of default=noprint_wrappers=1 "$SRC"
+
+          ffmpeg -y -i "$SRC" -an             -vf "scale='min(512,iw)':-2:flags=lanczos,fps=24"             -c:v libvpx-vp9 -b:v 0 -crf 34             -deadline good -cpu-used 2 -row-mt 1 -threads 4             -pix_fmt yuv420p "$TMP"
+
+          SIZE=$(stat -c%s "$TMP")
+          if [ "$SIZE" -gt 2200000 ]; then
+            rm -f "$TMP"
+            ffmpeg -y -i "$SRC" -an               -vf "scale='min(480,iw)':-2:flags=lanczos,fps=22"               -c:v libvpx-vp9 -b:v 0 -crf 38               -deadline good -cpu-used 2 -row-mt 1 -threads 4               -pix_fmt yuv420p "$TMP"
+          fi
+
+          mv "$TMP" "$SRC"
+
+          echo "AFTER"
+          ffprobe -v error -show_entries stream=codec_name,width,height,r_frame_rate -show_entries format=duration,size -of default=noprint_wrappers=1 "$SRC"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$SRC"
+          git commit -m "Compress Tempest Double portrait"
+          git push origin HEAD:web-prototype
