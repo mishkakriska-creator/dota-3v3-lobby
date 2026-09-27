@@ -4944,3 +4944,277 @@ html.dota-force-landscape body:has(.web-profile-editor input:focus){
     animation:none!important;
   }
 }
+
+
+/* v1.86.141 — VFX retune from gameplay video references.
+   Visual-only; no mobile/card sizing changes. */
+
+/* Open Wounds:
+   1) short claw slash animation on cast;
+   2) victim portrait remains blood-red while debuff is active. */
+#game .hero.open-wounds-active .hero-portrait{
+  isolation:isolate;
+}
+#game .hero.open-wounds-active .hero-portrait video,
+#game .hero.open-wounds-active .hero-portrait .static-hero-portrait{
+  filter:sepia(.18) saturate(1.75) hue-rotate(322deg) brightness(.82) contrast(1.12)!important;
+}
+#game .hero.open-wounds-active .hero-portrait::before{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  z-index:34!important;
+  border-radius:inherit!important;
+  background:
+    linear-gradient(rgba(125,0,4,.25),rgba(125,0,4,.25)),
+    radial-gradient(circle at 50% 42%,rgba(255,60,55,.15),rgba(115,0,5,.42) 72%,rgba(45,0,3,.52))!important;
+  mix-blend-mode:multiply!important;
+  opacity:.72!important;
+  animation:dotaOpenWoundsBloodBreath 1.35s ease-in-out infinite!important;
+}
+#game .hero.open-wounds-active .hero-portrait::after{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  z-index:35!important;
+  border:0!important;
+  border-radius:inherit!important;
+  box-shadow:
+    inset 0 0 22px rgba(150,0,5,.78),
+    inset 0 -24px 34px rgba(75,0,2,.38),
+    0 0 12px rgba(120,0,0,.28)!important;
+  background:none!important;
+  animation:none!important;
+}
+@keyframes dotaOpenWoundsBloodBreath{
+  0%,100%{opacity:.58}
+  50%{opacity:.82}
+}
+
+/* The cast slash temporarily overrides the persistent overlays. */
+#game .hero.open-wounds-scratch .hero-portrait::before{
+  content:""!important;
+  position:absolute!important;
+  inset:-8%!important;
+  z-index:70!important;
+  border-radius:0!important;
+  background:
+    linear-gradient(112deg,transparent 0 24%,rgba(255,245,235,.98) 25% 27%,rgba(255,58,42,.95) 28% 31%,transparent 32% 100%),
+    linear-gradient(103deg,transparent 0 38%,rgba(255,238,222,.95) 39% 41%,rgba(220,24,24,.92) 42% 45%,transparent 46% 100%),
+    linear-gradient(120deg,transparent 0 51%,rgba(255,242,225,.96) 52% 54%,rgba(188,10,18,.92) 55% 58%,transparent 59% 100%)!important;
+  mix-blend-mode:screen!important;
+  filter:drop-shadow(0 0 4px rgba(255,30,22,.95)) drop-shadow(0 0 10px rgba(110,0,0,.85))!important;
+  opacity:0;
+  transform:translateX(-42%) scale(1.06);
+  animation:dotaOpenWoundsScratch .62s cubic-bezier(.15,.75,.12,1) both!important;
+}
+#game .hero.open-wounds-scratch .hero-portrait::after{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  z-index:69!important;
+  border:0!important;
+  background:radial-gradient(circle at 52% 50%,rgba(255,35,24,.35),rgba(105,0,4,.28) 48%,transparent 74%)!important;
+  box-shadow:none!important;
+  animation:dotaOpenWoundsImpact .62s ease-out both!important;
+}
+@keyframes dotaOpenWoundsScratch{
+  0%{opacity:0;transform:translateX(-48%) scale(1.08)}
+  16%{opacity:1}
+  48%{opacity:1;transform:translateX(6%) scale(1.03)}
+  100%{opacity:0;transform:translateX(32%) scale(1)}
+}
+@keyframes dotaOpenWoundsImpact{
+  0%{opacity:0}
+  26%{opacity:.18}
+  52%{opacity:.85}
+  100%{opacity:0}
+}
+
+/* Io Overcharge — subtle warm white/yellow aura, no blue starburst. */
+#game .hero.io-overcharge-active .hero-portrait{
+  isolation:isolate;
+}
+#game .hero.io-overcharge-active .hero-portrait::before{
+  content:""!important;
+  position:absolute!important;
+  inset:-4%!important;
+  z-index:34!important;
+  border-radius:50%!important;
+  background:
+    radial-gradient(circle at 50% 49%,
+      rgba(255,255,246,.56) 0 10%,
+      rgba(255,247,205,.34) 20%,
+      rgba(255,225,132,.18) 38%,
+      rgba(255,212,92,.08) 54%,
+      transparent 70%)!important;
+  filter:blur(3px)!important;
+  opacity:.72;
+  animation:dotaIoWarmGlow 1.45s ease-in-out infinite alternate!important;
+}
+#game .hero.io-overcharge-active .hero-portrait::after{
+  content:""!important;
+  position:absolute!important;
+  inset:5%!important;
+  z-index:33!important;
+  border-radius:50%!important;
+  background:none!important;
+  border:1px solid rgba(255,246,196,.24)!important;
+  box-shadow:
+    0 0 9px rgba(255,250,218,.42),
+    0 0 20px rgba(255,225,137,.25),
+    inset 0 0 14px rgba(255,250,223,.20)!important;
+  -webkit-mask:none!important;
+  mask:none!important;
+  filter:none!important;
+  opacity:.62;
+  animation:dotaIoWarmRing 1.8s ease-in-out infinite!important;
+}
+@keyframes dotaIoWarmGlow{
+  from{opacity:.42;transform:scale(.97)}
+  to{opacity:.76;transform:scale(1.035)}
+}
+@keyframes dotaIoWarmRing{
+  0%,100%{opacity:.35;transform:scale(.96)}
+  50%{opacity:.72;transform:scale(1.025)}
+}
+
+/* Curse of Avernus — dark navy smoke, no bright cyan rune. */
+#game .hero.avernus-cursed .hero-portrait{
+  isolation:isolate;
+}
+#game .hero.avernus-cursed .hero-portrait video,
+#game .hero.avernus-cursed .hero-portrait .static-hero-portrait{
+  filter:saturate(.82) brightness(.74) contrast(1.08) hue-rotate(8deg)!important;
+}
+#game .hero.avernus-cursed .hero-portrait::before{
+  content:""!important;
+  position:absolute!important;
+  inset:-10%!important;
+  z-index:35!important;
+  border-radius:42%!important;
+  background:
+    radial-gradient(ellipse at 28% 70%,rgba(4,16,64,.62) 0 15%,transparent 42%),
+    radial-gradient(ellipse at 70% 38%,rgba(5,24,80,.58) 0 18%,transparent 46%),
+    radial-gradient(ellipse at 48% 52%,rgba(12,29,82,.48) 0 24%,rgba(2,8,34,.38) 48%,transparent 72%)!important;
+  box-shadow:inset 0 0 24px rgba(2,8,42,.72)!important;
+  filter:blur(7px)!important;
+  opacity:.78;
+  animation:dotaAvernusDarkSmokeA 2.15s ease-in-out infinite alternate!important;
+}
+#game .hero.avernus-cursed .hero-portrait::after{
+  content:""!important;
+  position:absolute!important;
+  left:-18%!important;
+  top:8%!important;
+  width:138%!important;
+  height:94%!important;
+  z-index:36!important;
+  color:transparent!important;
+  font-size:0!important;
+  border:0!important;
+  border-radius:46%!important;
+  background:
+    radial-gradient(ellipse at 35% 45%,rgba(11,26,77,.58),transparent 42%),
+    radial-gradient(ellipse at 68% 66%,rgba(5,13,55,.64),transparent 40%)!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+  filter:blur(10px)!important;
+  opacity:.62;
+  animation:dotaAvernusDarkSmokeB 2.8s ease-in-out infinite alternate-reverse!important;
+}
+@keyframes dotaAvernusDarkSmokeA{
+  0%{transform:translate(-5%,4%) scale(.96);opacity:.52}
+  100%{transform:translate(7%,-5%) scale(1.08);opacity:.84}
+}
+@keyframes dotaAvernusDarkSmokeB{
+  0%{transform:translate(5%,-4%) rotate(-2deg);opacity:.44}
+  100%{transform:translate(-7%,5%) rotate(3deg);opacity:.72}
+}
+
+/* Suicide Squad — much larger explosion, deliberately spills far outside the card. */
+#game .hero.techies-suicide-fx,
+#game .hero.techies-suicide-hit{
+  overflow:visible!important;
+  z-index:180!important;
+}
+#game .hero.techies-suicide-fx .hero-portrait,
+#game .hero.techies-suicide-hit .hero-portrait{
+  overflow:visible!important;
+}
+#game .hero.techies-suicide-fx .hero-portrait::before,
+#game .hero.techies-suicide-hit .hero-portrait::before{
+  content:""!important;
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  width:105%!important;
+  height:auto!important;
+  aspect-ratio:1!important;
+  z-index:210!important;
+  border-radius:50%!important;
+  background:
+    radial-gradient(circle,
+      #fff 0 7%,
+      #fffbd4 8% 13%,
+      #ffd653 17%,
+      #ff8a0b 29%,
+      #f33b00 43%,
+      rgba(145,13,0,.72) 57%,
+      rgba(70,0,0,.22) 69%,
+      transparent 76%)!important;
+  box-shadow:
+    0 0 34px 12px rgba(255,255,220,.95),
+    0 0 85px 30px rgba(255,162,27,.86),
+    0 0 150px 55px rgba(255,58,0,.54)!important;
+  filter:blur(.4px)!important;
+  transform:translate(-50%,-50%) scale(.03);
+  animation:dotaTechiesMegaBlast .82s cubic-bezier(.08,.72,.08,1) both!important;
+}
+#game .hero.techies-suicide-fx .hero-portrait::after,
+#game .hero.techies-suicide-hit .hero-portrait::after{
+  content:""!important;
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  width:82%!important;
+  height:auto!important;
+  aspect-ratio:1!important;
+  z-index:205!important;
+  border:5px solid rgba(255,235,155,.96)!important;
+  border-radius:50%!important;
+  background:transparent!important;
+  box-shadow:
+    0 0 20px rgba(255,255,220,.98),
+    0 0 52px rgba(255,121,12,.9),
+    inset 0 0 18px rgba(255,252,204,.7)!important;
+  transform:translate(-50%,-50%) scale(.08);
+  animation:dotaTechiesMegaWave .82s ease-out both!important;
+}
+#game .hero.techies-suicide-fx .hero-portrait{
+  animation:dotaTechiesMegaFlash .82s ease-out both!important;
+}
+@keyframes dotaTechiesMegaBlast{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.03)}
+  12%{opacity:1;transform:translate(-50%,-50%) scale(.5)}
+  38%{opacity:1;transform:translate(-50%,-50%) scale(2.1)}
+  72%{opacity:.94;transform:translate(-50%,-50%) scale(3.4)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(4.7)}
+}
+@keyframes dotaTechiesMegaWave{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.05)}
+  18%{opacity:1}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(7.2)}
+}
+@keyframes dotaTechiesMegaFlash{
+  0%,100%{filter:none}
+  18%{filter:brightness(3.1) saturate(1.8)}
+  44%{filter:brightness(1.65) saturate(1.45)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  #game .hero.open-wounds-scratch .hero-portrait::before,
+  #game .hero.open-wounds-scratch .hero-portrait::after{
+    animation-duration:.2s!important;
+  }
+}
