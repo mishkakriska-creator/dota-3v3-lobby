@@ -108,10 +108,12 @@ function consolidatePlayers(source=stats){
   }
   const next={};let changed=false;
   for(const [key,items] of groups){
-    const latest=[...items].sort((a,b)=>(Number(b.p.updatedAt)||0)-(Number(a.p.updatedAt)||0))[0]?.p||{};
-    const ratings=items.map(x=>Math.max(0,Math.floor(Number(x.p.rating)||0)));
-    const rating=Math.round(ratings.reduce((a,b)=>a+b,0)/Math.max(1,ratings.length));
-    next[key]={nick:safeNick(latest.nick),rating,updatedAt:Math.max(...items.map(x=>Number(x.p.updatedAt)||0),0)};
+    const best=[...items].sort((a,b)=>
+      (Math.max(0,Math.floor(Number(b.p.rating)||0))-Math.max(0,Math.floor(Number(a.p.rating)||0))) ||
+      ((Number(b.p.updatedAt)||0)-(Number(a.p.updatedAt)||0))
+    )[0]?.p||{};
+    const rating=Math.max(0,Math.floor(Number(best.rating)||0));
+    next[key]={nick:safeNick(best.nick),rating,updatedAt:Math.max(...items.map(x=>Number(x.p.updatedAt)||0),0)};
     if(items.length!==1||items[0].oldKey!==key||Number(items[0].p.rating)!==rating)changed=true;
   }
   if(changed)source.players=next;
