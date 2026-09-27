@@ -7,13 +7,13 @@
     },
     "3aacdd1a-8256-4c21-a483-98fec90dc23f": {
       "nick": "Нагибатор67",
-      "rating": 0,
-      "updatedAt": 1790504285847
+      "rating": 80,
+      "updatedAt": 1790505345995
     },
     "nick:zxcfucker": {
       "nick": "ZXCFUCKER",
-      "rating": 335,
-      "updatedAt": 1790504536623
+      "rating": 395,
+      "updatedAt": 1790505345995
     }
   },
   "heroes": {
@@ -119,5 +119,5 @@
       "at": 1790504285847
     }
   },
-  "updatedAt": 1790504536623
+  "updatedAt": 1790505345995
 }
