@@ -154,12 +154,13 @@
     };
   }
 
+  function blackHoleSecondaryDamage(n){return Math.max(0,Math.round((Math.max(0,Number(n)||0)*.8)*4)/4)}
   const baseAbilityDamage=abilityDamage;
   abilityDamage=function(target,n,src='',attacker=null,fx={},damageType='magic'){
     const ctx=directedCtx;
     if(ctx&&target===ctx.primary&&!ctx.routing){
       ctx.routing=true;let out;
-      try{for(const victim of ctx.victims.filter(v=>v&&!v.dead))out=baseAbilityDamage(victim,n,src,attacker,fx,damageType)}finally{ctx.routing=false}
+      try{for(const victim of ctx.victims.filter(v=>v&&!v.dead)){const routed=victim===ctx.primary?n:blackHoleSecondaryDamage(n);out=baseAbilityDamage(victim,routed,src,attacker,fx,damageType)}}finally{ctx.routing=false}
       return out;
     }
     return baseAbilityDamage(target,n,src,attacker,fx,damageType);
@@ -175,7 +176,7 @@
     const ctx=directedCtx;
     if(ctx&&target===ctx.primary&&!ctx.routing){
       ctx.routing=true;let out;
-      try{for(const victim of ctx.victims.filter(v=>v&&!v.dead))out=baseDamageWithEnigmaKill(victim,n,src,attacker,fx)}finally{ctx.routing=false}
+      try{for(const victim of ctx.victims.filter(v=>v&&!v.dead)){const routed=victim===ctx.primary?n:blackHoleSecondaryDamage(n);out=baseDamageWithEnigmaKill(victim,routed,src,attacker,fx)}}finally{ctx.routing=false}
       return out;
     }
     return baseDamageWithEnigmaKill(target,n,src,attacker,fx);
@@ -230,7 +231,7 @@
   window.enigmaGroupedSpellDamage=function(target,n,src='',attacker=null,fx={},type='magic'){
     if(target&&blackHoleActive(target.team)){
       const victims=blackHoleVictims(target.team);
-      if(victims.length>1){for(const v of victims){if(type==='pure')baseAbilityDamage(v,n,src,attacker,fx,'pure');else baseAbilityDamage(v,n,src,attacker,fx,'magic')}return}
+      if(victims.length>1){for(const v of victims){const routed=v===target?n:blackHoleSecondaryDamage(n);if(type==='pure')baseAbilityDamage(v,routed,src,attacker,fx,'pure');else baseAbilityDamage(v,routed,src,attacker,fx,'magic')}return}
     }
     return type==='pure'?baseAbilityDamage(target,n,src,attacker,fx,'pure'):baseAbilityDamage(target,n,src,attacker,fx,'magic');
   };
