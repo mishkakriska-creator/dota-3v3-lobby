@@ -437,7 +437,18 @@ function rageMagicDamage(n){return 0}
 function playSatanicSound(h,noNet=false){playFile(itemAudio,'assets/audio/satanic.mp3');if(!noNet)window.emitNetVfx?.('audio-satanic',h)}
 function displayArmorValue(target){return Number(target?.armor||0)-shadowfiendPresencePenalty(target)+assaultArmorBonus(target)}
 function physicalBaseDamage(attacker,target,base=effectiveAtk(attacker)){let armor=displayArmorValue(target);return Math.max(0,base-armor)}
-function knockBackOne(target){if(isForgeSpiritTarget(target))return false;let arr=G.teams[target.team],idx=arr.indexOf(target);if(idx<0)return false;for(let i=idx+1;i<arr.length;i++){if(!arr[i].dead&&!arr[i].infested){[arr[idx],arr[i]]=[arr[i],arr[idx]];return true}}return false}
+function knockBackOne(target){
+ if(!G||!target||target.dead||isForgeSpiritTarget(target))return false;
+ const arr=G.teams?.[target.team];if(!Array.isArray(arr))return false;
+ // "Back" is defined by the current circular line order, not by raw array index.
+ // When G.front points near the end of the array, the next hero can be at index 0.
+ const order=currentLineOrder(target.team),depth=order.indexOf(target);
+ if(depth<0||depth>=order.length-1)return false;
+ const behind=order[depth+1],a=arr.indexOf(target),b=arr.indexOf(behind);
+ if(a<0||b<0||a===b)return false;
+ [arr[a],arr[b]]=[arr[b],arr[a]];
+ return true;
+}
 function consumeInvokedSpell(h,id){h.invokedSpells=Array.isArray(h.invokedSpells)?h.invokedSpells:[];let i=h.invokedSpells.indexOf(id);if(i>=0)h.invokedSpells.splice(i,1)}
 function invokerEffectField(key){return key==='tornado'?'tornadoAirborne':key+'Turns'}
 function markInvokerEffect(target,key,turns){let field=invokerEffectField(key);let negativeKeys=new Set(['coldSnap','burn','disarm','tornado','iceWall']);let finalTurns=negativeKeys.has(key)?reducedNegativeTurns(target,turns):turns;target[field]=Math.max(Number(target[field])||0,finalTurns);target[key+'AppliedTurn']=G?.turnSerial||0;return finalTurns}
