@@ -1,8 +1,8 @@
 (() => {
   const PUDGE_ID='pudge';
 
-  DATA[PUDGE_ID]={name:'PUDGE',hp:10,atk:2,img:'assets/pudge.jpg',skills:[
-    {id:'hook',name:'Meat Hook',cd:3,desc:'Притягивает выбранного героя из вражеской линии на переднюю позицию его линии и наносит 2 чистого урона. Проходит сквозь невосприимчивость к эффектам. Перезарядка: 3 хода Pudge.'},
+  DATA[PUDGE_ID]={name:'PUDGE',hp:10,atk:1,img:'assets/pudge.jpg',skills:[
+    {id:'hook',name:'Meat Hook',cd:3,desc:'Притягивает выбранного героя из вражеской линии на переднюю позицию его линии и наносит 1 чистого урона. Проходит сквозь невосприимчивость к эффектам. Перезарядка: 3 хода Pudge.'},
     {id:'rot',name:'Rot',cd:0,desc:'Переключаемая способность. Вокруг Pudge появляется ядовитое облако. В начале каждого общего хода оно наносит 2 магического урона врагу, стоящему прямо напротив Pudge по глубине линии. Если урон проходит, Pudge тоже получает 2 магического урона. Переключение не тратит действие и не имеет перезарядки.'},
     {id:'dismember',name:'Dismember',cd:3,desc:'Разрубает выбранного врага: наносит 1 магического урона + 0.5 за каждые 3 единицы общего здоровья Pudge, лечит Pudge на 1 за каждые полные 6 единиц его общего здоровья и оглушает цель на 1 её активацию. Оглушение проходит сквозь невосприимчивость к эффектам и снимается только сильным развеиванием. Перезарядка: 3 хода Pudge.'}
   ]};
@@ -296,7 +296,7 @@
       chooseEnemyAny('Выберите врага для Meat Hook',t=>!isForgeSpiritTarget(t),t=>{
         playPudgeAbilityAudio('hook');
         playPudgeHookFx(h,t);
-        setTimeout(()=>{if(!G||h.dead)return;moveHeroToFront(t);pureDamage(t,2,`${logIcon(PUDGE_ID,'hook')} ${h.name}: `,h,{impactDelay:120});putOnCooldown(h,'hook');addSkillLog(h,'hook',`${h.name} притягивает ${t.name} способностью Meat Hook на переднюю позицию его линии и наносит 2 чистого урона.`);render();spend();},430);
+        setTimeout(()=>{if(!G||h.dead)return;moveHeroToFront(t);pureDamage(t,1,`${logIcon(PUDGE_ID,'hook')} ${h.name}: `,h,{impactDelay:120});putOnCooldown(h,'hook');addSkillLog(h,'hook',`${h.name} притягивает ${t.name} способностью Meat Hook на переднюю позицию его линии и наносит 1 чистого урона.`);render();spend();},430);
       },'hook');
       return;
     }
