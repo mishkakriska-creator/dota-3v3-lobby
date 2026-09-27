@@ -86,7 +86,13 @@ function plIllusionAttacker(owner){
 function plIllusionHit(owner,target,prefix='🔱 Иллюзия'){
   const illusion=plIllusionAttacker(owner);
   if(attackMisses(illusion,target))return {landed:false,illusion};
-  const hit=attackDamageInfo(illusion,target,physicalBaseDamage(illusion,target,effectiveAtk(illusion)/2),{allowCrit:true,illusion:true});
+  // Juxtapose rule: an illusion deals exactly 50% of the final basic-attack
+  // damage it would otherwise deal in the same situation. Apply armor, copied
+  // items and crit first, then halve the result.
+  const hit=attackDamageInfo(illusion,target,physicalBaseDamage(illusion,target,effectiveAtk(illusion)),{allowCrit:true,illusion:false});
+  hit.damage=Math.max(0,Math.round(hit.damage*50)/100);
+  hit.illusion=true;
+  hit.tags=[...(hit.tags||[]),'иллюзия 50%'];
   damage(target,hit.damage,attackSourceLabel(illusion,hit,prefix),owner);
   window.registerAxeBasicHit?.(illusion,target,{illusion:true});
   if(!target.dead)afterSuccessfulBasicHit(illusion,target,hit.damage);
