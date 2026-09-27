@@ -11,7 +11,7 @@
  const HERO_META={techies:{name:'TECHIES',icon:'assets/hero_portraits_v166/techies.png'},morphling:{name:'MORPHLING',icon:'assets/hero_portraits_v166/morphling.png'},bane:{name:'BANE',icon:'assets/hero_portraits_v166/bane.png'},io:{name:'IO',icon:'assets/io.jpg'},tinker:{name:'TINKER',icon:'assets/tinker_draft.png'},silencer:{name:'SILENCER',icon:'assets/hero_portraits_v166/silencer.png'},shadowfiend:{name:'SHADOW FIEND',icon:'assets/hero_portraits_v166/shadowfiend.png'},lifestealer:{name:'LIFESTEALER',icon:'assets/hero_portraits_v166/lifestealer.png'},invoker:{name:'INVOKER',icon:'assets/invoker.jpg'},arcwarden:{name:'ARC WARDEN',icon:'assets/arcwarden.jpg'},phantomlancer:{name:'PHANTOM LANCER',icon:'assets/phantomlancer.png'},axe:{name:'AXE',icon:'assets/axe.jpg'},broodmother:{name:'BROODMOTHER',icon:'assets/hero_portraits_v166/broodmother.png'},mars:{name:'MARS',icon:'assets/mars_draft.png'},enigma:{name:'ENIGMA',icon:'assets/enigma_portrait.png'}};
  const MASTERY_KEY='dota_cards_hero_mastery_v1';
  const MASTERY_BACKUP_KEY='dota_cards_hero_mastery_backup_v1';
- const MASTERY_WIN_XP=100, MASTERY_LOSS_XP=35, MASTERY_MAX_LEVEL=30;
+ const MASTERY_WIN_XP=130, MASTERY_LOSS_XP=65, MASTERY_MAX_LEVEL=30;
  const MASTERY_TIERS=[
   {min:1,max:5,key:'bronze',name:'Бронза',icon:'assets/mastery/bronze.png'},
   {min:6,max:11,key:'silver',name:'Серебро',icon:'assets/mastery/silver.png'},
@@ -145,7 +145,7 @@
        const heroes=[...new Set(team.filter(h=>h&&h.id!=='arcwarden_clone').map(h=>h.id).filter(id=>HERO_IDS.includes(id)))];
        for(const id of heroes)localMastery[id]=Math.max(0,Math.floor(Number(localMastery[id])||0))+gain;
        saveMastery();
-       local=clean({...local,wins:(Number(local.wins)||0)+(won?1:0),losses:(Number(local.losses)||0)+(won?0:1),rating:Math.max(0,(Number(local.rating)||0)+(won?40:-20)),heroMastery:localMastery},localPlayer);
+       local=clean({...local,wins:(Number(local.wins)||0)+(won?1:0),losses:(Number(local.losses)||0)+(won?0:1),rating:Math.max(0,(Number(local.rating)||0)+(won?45:-20)),heroMastery:localMastery},localPlayer);
        ready=true;saveWebProfile();render();
        if(heroes.length)window.dispatchEvent(new CustomEvent('dota-mastery-gain',{detail:{heroes,gain,won}}));
        window.dispatchEvent(new CustomEvent('dota-profile-ready',{detail:{profile:getPublic(),ready:true}}));
