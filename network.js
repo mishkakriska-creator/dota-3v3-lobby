@@ -1,7 +1,7 @@
 // Dota Cards v0.41 — built-in portable multiplayer host.
 // If opened through HOST_GAME.bat, the page connects to the local WebSocket server.
 (() => {
-  const GAME_VERSION='1.86.131';
+  const GAME_VERSION='1.86.132';
   const PROTOCOL_VERSION=14;
   const DOTA_SERVER_CONFIG = {
     primary: localStorage.getItem('dota_server_primary') || 'https://dota-3v3-lobby.onrender.com',
@@ -252,6 +252,7 @@
           if(ack?.ok){
             submittedGlobalMatches.add(key);
             console.log('[GLOBAL STATS] match_result ACK',key,ack);
+            window.DotaSyncGlobalProfile?.();
             return true;
           }
           if(ack?.error) last=new Error(ack.error);
@@ -271,6 +272,7 @@
           if(!r.ok||out?.ok===false)throw new Error(out?.error||('HTTP '+r.status));
           submittedGlobalMatches.add(key);
           console.log('[GLOBAL STATS] match submitted by HTTP',key,out||{});
+          window.DotaSyncGlobalProfile?.();
           return true;
         }catch(e){
           last=e;
@@ -550,6 +552,20 @@
     }
     throw lastError||new Error('соединение с игровым сервером не установлено');
   }
+  async function syncLocalProfileFromGlobal(){
+    const p=window.DotaProfile?.getPublic?.()||{};
+    const nick=String(p.nick||'').trim();if(!nick)return null;
+    try{
+      const r=await lobbyFetch('/api/player?nick='+encodeURIComponent(nick),{cache:'no-store'});
+      if(!r.ok)return null;
+      const j=await r.json();
+      if(j?.player)window.DotaProfile?.applyGlobalStats?.(j.player);
+      return j?.player||null;
+    }catch{return null}
+  }
+  window.DotaSyncGlobalProfile=syncLocalProfileFromGlobal;
+  syncLocalProfileFromGlobal();
+
   async function loadLobbies(){
     err.textContent='';list.innerHTML='<div class="mp-help">Загрузка лобби…</div>';
     if(refresh){refresh.disabled=true;refresh.textContent='ОБНОВЛЕНИЕ…'}
@@ -590,6 +606,9 @@
     try{
       const r=await lobbyFetch('/api/leaderboard',{cache:'no-store'});
       const j=await r.json(),players=Array.isArray(j.players)?j.players:[];
+      const me=window.DotaProfile?.getPublic?.();
+      const mine=players.find(p=>String(p.nick||'').trim().toLowerCase()===String(me?.nick||'').trim().toLowerCase());
+      if(mine)window.DotaProfile?.applyGlobalStats?.(mine);
       leaderboardList.innerHTML='';
       if(!players.length){leaderboardList.innerHTML='<div class="mp-help">Рейтинг пока пуст.</div>';return}
       for(const p of players){
