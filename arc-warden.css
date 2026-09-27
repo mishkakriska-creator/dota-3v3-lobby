@@ -121,3 +121,22 @@ html.dota-landscape-mobile body.game-running #game .hero.arc-tempest-card .hero-
   object-fit:contain!important;
   object-position:center center!important;
 }
+
+
+/* v1.86.132 — Tempest Double portrait fills the entire portrait square. */
+#game .hero.arc-tempest-card .hero-portrait>video,
+#game .hero.arc-tempest-card .hero-portrait>.static-hero-portrait{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:100%!important;
+  min-height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  margin:0!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  transform:none!important;
+  border-radius:0!important;
+}
