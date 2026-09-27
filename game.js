@@ -142,8 +142,11 @@ function syncBattleResponsiveVars(logicalW,logicalH){
   const maxUnits=Math.max(...counts);
   const clamp=(a,v,b)=>Math.max(a,Math.min(b,v));
 
-  const compact=logicalH<=400||logicalW<=860;
-  const roomy=logicalH>=410&&logicalW>=880;
+  // iPhone 13-class landscape (≈844×390 CSS px) intentionally uses the
+  // exact same battle layout mode as iPhone 11 (≈896×414).
+  const matchIphone11Layout=logicalW>=830&&logicalW<=870&&logicalH>=380&&logicalH<=405;
+  const compact=!matchIphone11Layout&&(logicalH<=400||logicalW<=860);
+  const roomy=matchIphone11Layout||(logicalH>=410&&logicalW>=880);
 
   const middle=roomy
     ?(maxUnits>=5?88:116)
