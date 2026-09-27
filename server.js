@@ -164,7 +164,7 @@ function applyMatch(body){
     if(!key)return {ok:false,error:'invalid_player'};
     const existing=target.players[key];
     const base=Math.max(0,Math.floor(Number(existing?.rating ?? p.rating)||0));
-    const rating=Math.max(0,base+(t===winner?40:-20));
+    const rating=Math.max(0,base+(t===winner?45:-20));
     target.players[key]={nick:safeNick(p.nick),rating,updatedAt:Date.now()};
     changedPlayers.push({key,nick:target.players[key].nick,rating,team:t});
     for(const heroId of cleanHeroes(teams[t])){
