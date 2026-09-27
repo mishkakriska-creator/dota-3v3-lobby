@@ -122,8 +122,26 @@ function dotaPhoneLike(vw,vh){
 }
 async function lockDotaLandscape(){
  try{
-  if(screen.orientation?.lock)await screen.orientation.lock('landscape');
+  if(!dotaPhoneLike(window.innerWidth||0,window.innerHeight||0))return false;
+  if(screen.orientation?.lock){
+   try{await screen.orientation.lock('landscape-primary');return true}catch(_){}
+   try{await screen.orientation.lock('landscape');return true}catch(_){}
+  }
  }catch(_){}
+ return false;
+}
+async function requestDotaLandscape(){
+ try{
+  if(await lockDotaLandscape())return true;
+  // Chromium/Android often requires fullscreen before orientation.lock().
+  // iOS may reject this; the CSS virtual-landscape fallback below then stays active.
+  const el=document.documentElement;
+  if(document.fullscreenEnabled&&!document.fullscreenElement&&el.requestFullscreen){
+   try{await el.requestFullscreen({navigationUI:'hide'})}catch(_){}
+   if(await lockDotaLandscape())return true;
+  }
+ }catch(_){}
+ return false;
 }
 function syncBattleResponsiveVars(logicalW,logicalH){
  try{
@@ -193,9 +211,17 @@ function syncBattleResponsiveVars(logicalW,logicalH){
 function syncDotaViewport(){
  try{
   const vv=window.visualViewport;
-  const physicalH=Math.max(1,Math.round(vv?.height||window.innerHeight||document.documentElement.clientHeight||0));
-  const physicalW=Math.max(1,Math.round(vv?.width||window.innerWidth||document.documentElement.clientWidth||0));
-  const phone=dotaPhoneLike(physicalW,physicalH);
+  const layoutW=Math.max(1,Math.round(window.innerWidth||document.documentElement.clientWidth||vv?.width||0));
+  const layoutH=Math.max(1,Math.round(window.innerHeight||document.documentElement.clientHeight||vv?.height||0));
+  const vvW=Math.max(1,Math.round(vv?.width||layoutW));
+  const vvH=Math.max(1,Math.round(vv?.height||layoutH));
+  const editing=!!document.activeElement?.matches?.('input,textarea,select,[contenteditable="true"]');
+  // iOS shrinks visualViewport while the keyboard is open. Never treat that as
+  // a new phone size/orientation or the rotated UI collapses around the keyboard.
+  const keyboardOpen=editing&&vvH<layoutH*.82;
+  const physicalH=keyboardOpen?layoutH:vvH;
+  const physicalW=keyboardOpen?layoutW:vvW;
+  const phone=dotaPhoneLike(layoutW,layoutH);
   const forcedPortrait=phone&&physicalH>physicalW;
   const logicalW=forcedPortrait?physicalH:physicalW;
   const logicalH=forcedPortrait?physicalW:physicalH;
@@ -224,13 +250,13 @@ function syncDotaViewport(){
  }catch(_){}
 }
 syncDotaViewport();
-window.addEventListener('load',()=>{syncDotaViewport();lockDotaLandscape()});
-window.addEventListener('pageshow',()=>{syncDotaViewport();requestAnimationFrame(syncDotaViewport);setTimeout(syncDotaViewport,80);lockDotaLandscape()});
+window.addEventListener('load',()=>{syncDotaViewport();requestDotaLandscape()});
+window.addEventListener('pageshow',()=>{syncDotaViewport();requestAnimationFrame(syncDotaViewport);setTimeout(syncDotaViewport,80);requestDotaLandscape()});
 window.addEventListener('resize',syncDotaViewport);
-window.addEventListener('orientationchange',()=>{setTimeout(syncDotaViewport,20);setTimeout(syncDotaViewport,120);setTimeout(syncDotaViewport,320);lockDotaLandscape()});
+window.addEventListener('orientationchange',()=>{setTimeout(syncDotaViewport,20);setTimeout(syncDotaViewport,120);setTimeout(syncDotaViewport,320);requestDotaLandscape()});
 window.visualViewport?.addEventListener?.('resize',syncDotaViewport);
-window.addEventListener('pointerdown',lockDotaLandscape,{once:true,capture:true});
-window.addEventListener('touchstart',lockDotaLandscape,{once:true,capture:true,passive:true});
+window.addEventListener('pointerdown',requestDotaLandscape,{once:true,capture:true});
+window.addEventListener('touchstart',requestDotaLandscape,{once:true,capture:true,passive:true});
 function draftTeamForPick(i){return i%2}
 function localDraftPlayer(){return window.DOTA_OFFLINE_MODE?draftTeamForPick(chosen.length):(Number.isInteger(window.DOTA_NET_PLAYER)?window.DOTA_NET_PLAYER:0)}
 function draftTurn(){return draftTeamForPick(chosen.length)}
