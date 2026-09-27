@@ -4403,3 +4403,77 @@ html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlef
 html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield:has(.team.enigma-black-hole-team) .side{
   overflow:visible!important;
 }
+
+
+/* v1.86.125 — final roomy/iPhone 11 polish.
+   IMPORTANT: card width/height are unchanged from v1.86.124. */
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield{
+  grid-template-columns:minmax(0,1fr) var(--battle-mid-w,116px) minmax(0,1fr)!important;
+  column-gap:var(--battle-column-gap,2px)!important;
+}
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield .team{
+  gap:var(--battle-card-gap,8px)!important;
+  padding-left:8px!important;
+  padding-right:8px!important;
+  justify-content:center!important;
+}
+
+/* Hero names: always reserve their own row without changing outer card size. */
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield .team .hero .hero-name-row{
+  grid-column:1 / -1!important;
+  grid-row:1!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  width:100%!important;
+  height:15px!important;
+  min-height:15px!important;
+  max-height:15px!important;
+  margin:0!important;
+  padding:0 1px!important;
+  overflow:hidden!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield .team .hero .hero-name{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:15px!important;
+  margin:0!important;
+  padding:0!important;
+  font-size:8.5px!important;
+  line-height:15px!important;
+  font-weight:900!important;
+  color:#f3f6fb!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield .team .hero>.hero-body{
+  grid-template-rows:15px 26px 5px 18px 20px 21px!important;
+}
+
+/* Tempest Double: remove the stray clone lifetime/status circle only. */
+html.dota-landscape-mobile body.game-running #game .hero.arc-tempest-card .status .arc-tempest-badge{
+  display:none!important;
+}
+
+/* Center lane/log gets readable width; card dimensions stay untouched. */
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .mid{
+  width:var(--battle-mid-w,116px)!important;
+  min-width:var(--battle-mid-w,116px)!important;
+  max-width:var(--battle-mid-w,116px)!important;
+}
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .mid :is(#effects,.log){
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+  padding:6px!important;
+  font-size:7px!important;
+  line-height:1.12!important;
+}
