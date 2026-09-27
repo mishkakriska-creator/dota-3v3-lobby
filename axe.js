@@ -6,8 +6,8 @@
     deny:['assets/audio/axe_deny_15.mp3']
   };
 
-  DATA[AXE_ID]={name:'AXE',hp:8,atk:1,img:'assets/axe.jpg',skills:[
-    {id:'call',name:"Berserker's Call",cd:3,desc:'Axe получает +3 брони и на 3 общих хода вынуждает врагов при их активации бесплатно ударять его с руки, где бы он ни стоял. Такая вынужденная атака не тратит действие. Перезарядка: 3 хода Axe.'},
+  DATA[AXE_ID]={name:'AXE',hp:9,atk:1,img:'assets/axe.jpg',skills:[
+    {id:'call',name:"Berserker's Call",cd:3,desc:'Axe получает +2 брони и на 3 общих хода вынуждает врагов при их активации бесплатно ударять его с руки, где бы он ни стоял. Такая вынужденная атака не тратит действие. Перезарядка: 3 хода Axe.'},
     {id:'helix',name:'Counter Helix — ПАССИВНАЯ',cd:0,passive:true,desc:'После каждого 2-го полученного удара с руки Axe мгновенно прокручивается и наносит 2 чистого урона тому, кто нанёс второй удар.'},
     {id:'culling',name:'Culling Blade',cd:4,desc:'Разрубает выбранного врага на 2 чистого урона. Убивает сквозь невосприимчивость к эффектам, уклонение и Borrowed Time Abaddon. За каждое убийство этим навыком Axe получает +2 брони до конца матча. Если цель не убита — перезарядка 4 хода Axe; если убита — перезарядки нет.'}
   ]};
@@ -102,7 +102,7 @@
     const hit=attackDamageInfo(attacker,axe,physicalBaseDamage(attacker,axe),{allowCrit:true});
     damage(axe,hit.damage,attackSourceLabel(attacker,hit),attacker,{impactDelay:attackImpactMs(attacker)});
     afterSuccessfulBasicHit(attacker,axe,hit.damage);
-    const repeats=rollRepeatAttackCount(attacker);
+    const repeats=rollRepeatAttackCount(attacker,axe);
     if(!axe.dead&&repeats>0){G.resolving='multiattack';performFreeRepeatAttacks(attacker,axe,repeats).finally(()=>{if(G){G.resolving=false;render()}})}
     return true;
   }
@@ -306,15 +306,15 @@
     }
     if(id==='call'){
       if(h.axeCallArmor>0){h.armor=(Number(h.armor)||0)-Number(h.axeCallArmor||0);h.axeCallArmor=0}
-      h.armor=(Number(h.armor)||0)+3;
-      h.axeCallArmor=3;
+      h.armor=(Number(h.armor)||0)+2;
+      h.axeCallArmor=2;
       h.axeCallTurns=3;
       h.axeCallAppliedTurn=G.turnSerial||0;
       playSkillSound(h,'call');
       playAxeFx({kind:'axe-call',team:h.team,heroId:h.id});
       window.emitNetVfx?.('axe-call',h,{});
       putOnCooldown(h,'call');
-      addSkillLog(h,'call',`${h.name} использует Berserker's Call: +3 брони и на 3 общих хода заставляет врагов при их активации бесплатно бить его с руки.`);
+      addSkillLog(h,'call',`${h.name} использует Berserker's Call: +2 брони и на 3 общих хода заставляет врагов при их активации бесплатно бить его с руки.`);
       spend();
       return;
     }
