@@ -72,6 +72,16 @@
    window.dispatchEvent(new CustomEvent('dota-profile-ready',{detail:{profile:getPublic(),ready:true}}));
    return getPublic();
  }
+ function applyGlobalStats(p){
+   if(!p||String(p.nick||'').trim().toLowerCase()!==String(local.nick||'').trim().toLowerCase())return getPublic();
+   const rating=Math.max(0,Math.floor(Number(p.rating)||0));
+   if(rating===local.rating)return getPublic();
+   local=clean({...local,rating,heroMastery:localMastery},localPlayer);
+   ready=true;saveWebProfile();render();
+   localSig=JSON.stringify({nick:local.nick,avatar:local.avatar,rating:local.rating,wins:local.wins,losses:local.losses,heroMastery:localMastery});
+   window.dispatchEvent(new CustomEvent('dota-profile-ready',{detail:{profile:getPublic(),ready:true,globalSync:true}}));
+   return getPublic();
+ }
  function setLocalPlayer(n){localPlayer=Number.isInteger(n)?n:0;render()}
  function setRemote(n,p){if(n===localPlayer||!p)return;remotes[n]=clean(p,n);render()}
  function dataFor(n){if(n===localPlayer)return getPublic();return remotes[n]||blank(n)}
@@ -236,6 +246,6 @@
  }
  function masteryInfoFor(playerIndex,heroId){if(heroId==='arcwarden_clone')heroId='arcwarden';let p=dataFor(Number.isInteger(playerIndex)?playerIndex:localPlayer),xp=Math.max(0,Math.floor(Number(p?.heroMastery?.[heroId])||0));return masteryInfoFromXp(xp)}
  function masteryBadgeHTML(playerIndex,heroId,compact=false){let m=masteryInfoFor(playerIndex,heroId),title=`${m.tierName} • уровень ${m.level} • ${m.xp} XP${m.level<MASTERY_MAX_LEVEL?` • ${m.nextXp-m.levelXp} XP до уровня ${m.level+1}`:' • максимальный уровень'}`;return `<span class="hero-mastery ${compact?'compact':''} tier-${m.tier.key}" title="${esc(title)}"><img src="${m.icon}" alt="${esc(m.tierName)}"><b>${m.level}</b></span>`}
- window.DotaProfile={getPublic,setLocalPlayer,setRemote,render,load,recordResult,rankFor,rankIndexFor,rankIconFor,mmrFromWL,masteryInfoFor,masteryBadgeHTML,masteryLevelForXp,xpForLevel,xpToNext,topMasteriesForProfile,masteryProfileRowsHTML,openMasteryProfile,openEditor,setLocalProfile:updateLocalProfile,isReady:()=>ready};
+ window.DotaProfile={getPublic,applyGlobalStats,setLocalPlayer,setRemote,render,load,recordResult,rankFor,rankIndexFor,rankIconFor,mmrFromWL,masteryInfoFor,masteryBadgeHTML,masteryLevelForXp,xpForLevel,xpToNext,topMasteriesForProfile,masteryProfileRowsHTML,openMasteryProfile,openEditor,setLocalProfile:updateLocalProfile,isReady:()=>ready};
  document.addEventListener('DOMContentLoaded',()=>{render();retryLoad();setInterval(()=>load(),4000)});
 })();
