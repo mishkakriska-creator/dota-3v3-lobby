@@ -21,7 +21,8 @@ const RANKS=[
 
 function rankFor(mmr){mmr=Math.max(0,Math.floor(Number(mmr)||0));let r=RANKS[0];for(const x of RANKS){if(mmr>=x[0])r=x;else break}return {rank:r[1],rankIndex:r[2]}}
 function safeNick(v){return String(v||'Игрок').trim().slice(0,24)||'Игрок'}
-function playerKey(p){return String(p?.id||p?.profileId||safeNick(p?.nick)).trim().toLowerCase().slice(0,80)}
+function normalizedNick(v){return String(v||'').trim().replace(/\s+/g,' ').toLowerCase().slice(0,48)}
+function playerKey(p){const n=normalizedNick(p?.nick);return n?('nick:'+n):String(p?.id||p?.profileId||'').trim().toLowerCase().slice(0,80)}
 function cleanHeroes(arr){return [...new Set((Array.isArray(arr)?arr:[]).map(x=>String(x||'').trim()).filter(Boolean))].slice(0,3)}
 
 let stats={players:{},heroes:{},matches:{},updatedAt:0};
@@ -96,6 +97,33 @@ function createRoom(name='Лобби',hostProfile=null){
   rooms.set(id,r);
   return view(id,r);
 }
+function consolidatePlayers(source=stats){
+  const groups=new Map();
+  for(const [oldKey,p0] of Object.entries(source.players||{})){
+    const p=p0&&typeof p0==='object'?p0:{};
+    const nk=normalizedNick(p.nick);
+    const key=nk?('nick:'+nk):oldKey;
+    if(!groups.has(key))groups.set(key,[]);
+    groups.get(key).push({oldKey,p});
+  }
+  const next={};let changed=false;
+  for(const [key,items] of groups){
+    const latest=[...items].sort((a,b)=>(Number(b.p.updatedAt)||0)-(Number(a.p.updatedAt)||0))[0]?.p||{};
+    const ratings=items.map(x=>Math.max(0,Math.floor(Number(x.p.rating)||0)));
+    const rating=Math.round(ratings.reduce((a,b)=>a+b,0)/Math.max(1,ratings.length));
+    next[key]={nick:safeNick(latest.nick),rating,updatedAt:Math.max(...items.map(x=>Number(x.p.updatedAt)||0),0)};
+    if(items.length!==1||items[0].oldKey!==key||Number(items[0].p.rating)!==rating)changed=true;
+  }
+  if(changed)source.players=next;
+  return changed;
+}
+function playerByNick(nick,source=stats){
+  const nk=normalizedNick(nick);if(!nk)return null;
+  const p=source.players?.['nick:'+nk]||Object.values(source.players||{}).find(x=>normalizedNick(x?.nick)===nk);
+  if(!p)return null;
+  const rating=Math.max(0,Math.floor(Number(p.rating)||0));
+  return {nick:safeNick(p.nick),rating,...rankFor(rating)};
+}
 function leaderboard(source=stats){
   return Object.values(source.players)
     .sort((a,b)=>(b.rating||0)-(a.rating||0)||String(a.nick).localeCompare(String(b.nick)))
@@ -166,6 +194,7 @@ const server=http.createServer(async(req,res)=>{
     return send(res,201,createRoom(body.name,body.hostProfile||null));
   }
   if(u.pathname==='/api/leaderboard'&&req.method==='GET')return send(res,200,{players:leaderboard(),updatedAt:stats.updatedAt||0,matches:Object.keys(stats.matches).length});
+  if(u.pathname==='/api/player'&&req.method==='GET')return send(res,200,{player:playerByNick(u.searchParams.get('nick')||'')});
   if(u.pathname==='/api/heroes'&&req.method==='GET')return send(res,200,{heroes:heroStats(),updatedAt:stats.updatedAt||0,matches:Object.keys(stats.matches).length});
   if(u.pathname==='/api/stats-export'&&req.method==='GET')return send(res,200,stats);
   if(u.pathname==='/api/match'&&req.method==='POST'){
@@ -327,6 +356,10 @@ setInterval(()=>{
 },30000).unref();
 
 await restoreStatsBackup();
+if(consolidatePlayers(stats)){
+  saveStats();
+  console.log('Consolidated duplicate global players by nickname');
+}
 
 // Remove stale CI smoke-test pollution from the live global statistics.
 // This cleanup only resets the store when every recorded player is clearly a CI test account.
