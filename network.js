@@ -1,7 +1,7 @@
 // Dota Cards v0.41 — built-in portable multiplayer host.
 // If opened through HOST_GAME.bat, the page connects to the local WebSocket server.
 (() => {
-  const GAME_VERSION='1.86.133';
+  const GAME_VERSION='1.86.134';
   const PROTOCOL_VERSION=14;
   const DOTA_SERVER_CONFIG = {
     primary: localStorage.getItem('dota_server_primary') || 'https://dota-3v3-lobby.onrender.com',
@@ -677,5 +677,11 @@
   });
   browse.addEventListener('click',()=>{hidePanels();connectPanel.classList.remove('hidden');loadLobbies()});refresh?.addEventListener('click',loadLobbies);
   offline?.addEventListener('click',()=>{const version=String(window.DOTA_GAME_VERSION||'1.86.93'),build=version.replace(/\D/g,'');location.href=location.pathname+'?offline=1&build='+encodeURIComponent(build)});
-  hostContinue.addEventListener('click',()=>menu.classList.add('hidden'));const qs=new URLSearchParams(location.search);if(qs.has('room')||qs.has('offline'))menu.classList.add('hidden');if(qs.has('offline')){const draftText=document.querySelector('#draft > p');if(draftText)draftText.textContent='Офлайн-режим: управляй обеими командами на этом ПК. Нажми на портрет, чтобы открыть полную карту.'}
+  hostContinue.addEventListener('click',()=>menu.classList.add('hidden'));const qs=new URLSearchParams(location.search);if(qs.has('room')||qs.has('offline'))menu.classList.add('hidden');if(qs.has('offline')){
+    const draftText=document.querySelector('#draft > p');if(draftText)draftText.textContent='Офлайн-режим: управляй обеими командами на этом ПК. Нажми на портрет, чтобы открыть полную карту.';
+    document.getElementById('game')?.classList.add('hidden');
+    document.getElementById('draft')?.classList.remove('hidden');
+    const showOfflineDraft=()=>{try{window.syncDotaViewport?.();if(typeof draft==='function')draft();else if(typeof updateDraft==='function')updateDraft()}catch(e){console.warn('offline draft refresh failed',e)}};
+    requestAnimationFrame(showOfflineDraft);setTimeout(showOfflineDraft,80);setTimeout(showOfflineDraft,300);
+  }
 })();
