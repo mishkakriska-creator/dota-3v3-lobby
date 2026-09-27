@@ -4759,3 +4759,188 @@ html.dota-force-landscape body:has(.web-profile-editor input:focus){
   width:var(--dota-vw)!important;
   height:var(--dota-vh)!important;
 }
+
+
+/* v1.86.140 — VFX for Open Wounds / Overcharge / Curse of Avernus / Suicide Squad.
+   Purely visual: no card-size/layout changes. */
+#game .hero .hero-portrait::before,
+#game .hero .hero-portrait::after{
+  pointer-events:none;
+}
+
+/* Lifestealer — Open Wounds: red torn-flesh pulse on the victim. */
+#game .hero.open-wounds-active .hero-portrait::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:34;
+  border-radius:inherit;
+  background:
+    radial-gradient(circle at 50% 52%,transparent 0 24%,rgba(150,0,7,.18) 34%,rgba(230,15,22,.34) 48%,rgba(85,0,4,.22) 61%,transparent 74%),
+    repeating-conic-gradient(from 12deg at 50% 50%,rgba(255,45,45,.16) 0 5deg,transparent 5deg 18deg);
+  mix-blend-mode:screen;
+  filter:saturate(1.35) contrast(1.08);
+  animation:dotaOpenWoundsPulse .92s ease-in-out infinite;
+}
+#game .hero.open-wounds-active .hero-portrait::after{
+  content:"";
+  position:absolute;
+  inset:8%;
+  z-index:35;
+  border:2px solid rgba(255,45,45,.62);
+  border-radius:46% 54% 52% 48%/51% 42% 58% 49%;
+  box-shadow:
+    inset 0 0 12px rgba(255,30,30,.55),
+    0 0 10px rgba(180,0,10,.52),
+    0 0 24px rgba(90,0,0,.38);
+  transform:rotate(-4deg);
+  animation:dotaOpenWoundsRing 1.15s ease-in-out infinite alternate;
+}
+@keyframes dotaOpenWoundsPulse{
+  0%,100%{opacity:.42;transform:scale(.96)}
+  48%{opacity:.95;transform:scale(1.045)}
+}
+@keyframes dotaOpenWoundsRing{
+  0%{opacity:.48;transform:rotate(-5deg) scale(.94)}
+  100%{opacity:.98;transform:rotate(4deg) scale(1.04)}
+}
+
+/* Io — Overcharge: white-blue core with rotating energy rays. */
+#game .hero.io-overcharge-active .hero-portrait::before{
+  content:"";
+  position:absolute;
+  inset:-8%;
+  z-index:34;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 50% 50%,rgba(255,255,255,.98) 0 7%,rgba(220,249,255,.95) 8% 15%,rgba(80,220,255,.56) 22%,rgba(37,137,255,.30) 40%,transparent 66%);
+  filter:blur(.5px) brightness(1.25);
+  animation:dotaOverchargeCore .62s ease-in-out infinite alternate;
+}
+#game .hero.io-overcharge-active .hero-portrait::after{
+  content:"";
+  position:absolute;
+  inset:-16%;
+  z-index:33;
+  border-radius:50%;
+  background:
+    repeating-conic-gradient(from 0deg,
+      transparent 0 8deg,
+      rgba(205,247,255,.58) 9deg 11deg,
+      transparent 12deg 24deg);
+  -webkit-mask:radial-gradient(circle,transparent 0 23%,#000 29% 62%,transparent 72%);
+  mask:radial-gradient(circle,transparent 0 23%,#000 29% 62%,transparent 72%);
+  filter:drop-shadow(0 0 7px rgba(103,222,255,.9));
+  animation:dotaOverchargeSpin 1.8s linear infinite;
+}
+@keyframes dotaOverchargeCore{
+  from{opacity:.66;transform:scale(.94);filter:blur(.5px) brightness(1.1)}
+  to{opacity:1;transform:scale(1.08);filter:blur(1px) brightness(1.45)}
+}
+@keyframes dotaOverchargeSpin{to{transform:rotate(360deg)}}
+
+/* Abaddon — Curse of Avernus: cold cyan curse on the struck target. */
+#game .hero.avernus-cursed .hero-portrait::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:34;
+  border-radius:inherit;
+  background:
+    radial-gradient(circle at 50% 55%,rgba(35,238,255,.08),rgba(0,165,210,.16) 38%,rgba(0,43,72,.32) 72%),
+    linear-gradient(115deg,transparent 18%,rgba(92,241,255,.24) 34%,transparent 40% 57%,rgba(20,197,255,.18) 68%,transparent 78%);
+  box-shadow:inset 0 0 20px rgba(15,220,255,.48);
+  animation:dotaAvernusFrost 1.2s ease-in-out infinite;
+}
+#game .hero.avernus-cursed .hero-portrait::after{
+  content:"✦";
+  position:absolute;
+  left:50%;
+  top:50%;
+  z-index:35;
+  color:#baf8ff;
+  font-size:38px;
+  line-height:1;
+  text-shadow:
+    0 0 5px #d9ffff,
+    0 0 12px #48dcff,
+    0 0 24px #007caa;
+  transform:translate(-50%,-50%) rotate(0deg);
+  opacity:.7;
+  animation:dotaAvernusRune 2.2s linear infinite;
+}
+@keyframes dotaAvernusFrost{
+  0%,100%{opacity:.48;filter:saturate(1)}
+  50%{opacity:.94;filter:saturate(1.35) brightness(1.1)}
+}
+@keyframes dotaAvernusRune{
+  0%{transform:translate(-50%,-50%) rotate(0deg) scale(.78);opacity:.42}
+  50%{transform:translate(-50%,-50%) rotate(180deg) scale(1.08);opacity:.9}
+  100%{transform:translate(-50%,-50%) rotate(360deg) scale(.78);opacity:.42}
+}
+
+/* Techies — Suicide Squad, Attack!: charge flash + expanding orange shockwave. */
+#game .hero.techies-suicide-fx,
+#game .hero.techies-suicide-hit{
+  overflow:visible!important;
+}
+#game .hero.techies-suicide-fx .hero-portrait::before,
+#game .hero.techies-suicide-hit .hero-portrait::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:30%;
+  aspect-ratio:1;
+  z-index:60;
+  border-radius:50%;
+  background:radial-gradient(circle,#fff 0 12%,#fff5ae 15%,#ffbb35 31%,#ff5a00 48%,rgba(140,20,0,.48) 63%,transparent 75%);
+  box-shadow:0 0 18px #fff,0 0 36px #ffb329,0 0 62px #ff4b00;
+  transform:translate(-50%,-50%) scale(.05);
+  animation:dotaTechiesBlast .72s cubic-bezier(.08,.7,.12,1) both;
+}
+#game .hero.techies-suicide-fx .hero-portrait::after,
+#game .hero.techies-suicide-hit .hero-portrait::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:22%;
+  aspect-ratio:1;
+  z-index:59;
+  border:3px solid rgba(255,221,130,.95);
+  border-radius:50%;
+  box-shadow:0 0 14px #ff8d17,inset 0 0 10px #fff0af;
+  transform:translate(-50%,-50%) scale(.1);
+  animation:dotaTechiesShockwave .72s ease-out both;
+}
+#game .hero.techies-suicide-fx .hero-portrait{
+  animation:dotaTechiesCardFlash .72s ease-out both;
+}
+@keyframes dotaTechiesBlast{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.04)}
+  18%{opacity:1;transform:translate(-50%,-50%) scale(.5)}
+  46%{opacity:1;transform:translate(-50%,-50%) scale(2.2)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(3.5)}
+}
+@keyframes dotaTechiesShockwave{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.1)}
+  25%{opacity:1}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(5.8)}
+}
+@keyframes dotaTechiesCardFlash{
+  0%,100%{filter:none}
+  24%{filter:brightness(2.2) saturate(1.45)}
+  46%{filter:brightness(1.35) saturate(1.3)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  #game .hero.open-wounds-active .hero-portrait::before,
+  #game .hero.open-wounds-active .hero-portrait::after,
+  #game .hero.io-overcharge-active .hero-portrait::before,
+  #game .hero.io-overcharge-active .hero-portrait::after,
+  #game .hero.avernus-cursed .hero-portrait::before,
+  #game .hero.avernus-cursed .hero-portrait::after{
+    animation:none!important;
+  }
+}
