@@ -1,5 +1,5 @@
 // Phantom Lancer — rules run only on the acting client; VFX events contain no damage.
-DATA.phantomlancer={name:'PHANTOM LANCER',hp:7,atk:2,img:'assets/phantomlancer.png',skills:[
+DATA.phantomlancer={name:'PHANTOM LANCER',hp:8,atk:2,img:'assets/phantomlancer.png',skills:[
   {id:'lance',name:'Spirit Lance',cd:1,desc:'Магическое копьё наносит переднему врагу 1 урон и создаёт иллюзию Juxtapose. Иллюзия сразу атакует ту же цель и наносит на 50% меньше урона, чем оригинал, после чего может продолжить цепочку. После применения недоступно всю следующую активацию Phantom Lancer; снова готово через одну активацию.'},
   {id:'juxtapose',name:'Juxtapose — ПАССИВНАЯ',cd:0,passive:true,desc:'Обычная атака с шансом 50% создаёт иллюзию. Она сразу атакует ту же цель и наносит на 50% меньше урона, чем оригинал. Иллюзия копирует предметы Phantom Lancer и их атакующие пассивные эффекты; если у оригинала нет предметов, у копии их тоже нет. После её удара следующая копия появляется с шансом 40%, затем 30%, 20% и 10%. Каждая копия исчезает после удара. При гибели цели цепочка прекращается. Безмолвие не отключает пассивную способность.'}
 ]};
