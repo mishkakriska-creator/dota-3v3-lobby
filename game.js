@@ -160,10 +160,13 @@ function syncBattleResponsiveVars(logicalW,logicalH){
   const cardGap=roomy?(maxUnits>=5?3:8):(maxUnits>3?2:3);
 
   const widthFor=n=>{
-   const raw=Math.floor((sideWidth-6-cardGap*Math.max(0,n-1))/Math.max(1,n));
+   // Roomy layout uses 8px left + 8px right team padding.
+   // Account for it so iPhone 13 still fits 4/5 units without clipping.
+   const reserved=roomy?16:6;
+   const raw=Math.floor((sideWidth-reserved-cardGap*Math.max(0,n-1))/Math.max(1,n));
    if(roomy){
-    if(n>=5)return clamp(72,raw,76);
-    if(n===4)return clamp(80,raw,84);
+    if(n>=5)return clamp(68,raw,76);
+    if(n===4)return clamp(78,raw,84);
     return clamp(104,raw,108);
    }
    if(n>=4)return clamp(88,raw,92);
