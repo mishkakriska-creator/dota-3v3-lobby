@@ -4564,3 +4564,59 @@ html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlef
   padding:3px!important;
   box-sizing:border-box!important;
 }
+
+
+/* v1.86.128 — smaller Broodmother spiderling mini-cards on roomy/iPhone 11 only. */
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield .team .hero.has-broodlings>.broodlings-summons{
+  left:50%!important;
+  right:auto!important;
+  bottom:calc(100% + 2px)!important;
+  width:76%!important;
+  min-width:0!important;
+  max-width:76%!important;
+  transform:translateX(-50%)!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:2px!important;
+}
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield .team .hero.has-broodlings>.broodlings-summons>.broodling-summon-card{
+  min-height:0!important;
+  height:42px!important;
+  max-height:42px!important;
+  padding:2px!important;
+  gap:1px!important;
+  border-radius:5px!important;
+  flex-direction:column!important;
+  justify-content:flex-start!important;
+  overflow:hidden!important;
+}
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield .team .hero.has-broodlings .broodling-summon-media{
+  width:100%!important;
+  height:13px!important;
+  min-height:13px!important;
+  max-height:13px!important;
+  flex:0 0 13px!important;
+  overflow:hidden!important;
+}
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield .team .hero.has-broodlings .broodling-summon-media video{
+  width:100%!important;
+  height:13px!important;
+  min-height:13px!important;
+  max-height:13px!important;
+  object-fit:cover!important;
+}
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield .team .hero.has-broodlings .broodling-summon-copy{
+  width:100%!important;
+  min-height:0!important;
+  gap:0!important;
+  line-height:1!important;
+}
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield .team .hero.has-broodlings .broodling-summon-copy :is(b,span,small){
+  font-size:5px!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:clip!important;
+}
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield .team .hero.has-broodlings .broodling-summon-copy b{
+  font-size:5px!important;
+}
