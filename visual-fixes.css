@@ -4690,3 +4690,72 @@ html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlef
   flex-direction:column!important;
   justify-content:flex-start!important;
 }
+
+
+/* v1.86.134 — universal phone landscape shell fixes.
+   These are behavioral/layout-shell fixes for ALL phones, not iPhone 13 sizing tweaks. */
+
+/* In virtual landscape, vw/vh still describe the physical portrait viewport.
+   Use the rotated body's logical dimensions instead. */
+html.dota-force-landscape body>#app,
+html.dota-force-landscape body>.mp-menu,
+html.dota-force-landscape body>.asset-loader,
+html.dota-force-landscape body>.lobby-wait-overlay,
+html.dota-force-landscape body>.inspect-modal,
+html.dota-force-landscape body>.hero-pick-modal,
+html.dota-force-landscape body>.modal,
+html.dota-force-landscape body>.web-profile-editor{
+  width:var(--dota-vw)!important;
+  max-width:var(--dota-vw)!important;
+  height:var(--dota-vh)!important;
+  max-height:var(--dota-vh)!important;
+  box-sizing:border-box!important;
+}
+
+/* Offline/draft must use the logical landscape canvas instead of physical 100vw. */
+html.dota-force-landscape.dota-landscape-mobile body #draft.screen:not(.hidden){
+  left:0!important;
+  right:auto!important;
+  width:100%!important;
+  min-width:100%!important;
+  max-width:100%!important;
+  height:calc(100% - var(--dota-header-h,52px))!important;
+  max-height:calc(100% - var(--dota-header-h,52px))!important;
+}
+
+/* Profile editor: always scrollable and keep SAVE reachable in phone landscape. */
+html.dota-landscape-mobile body .web-profile-editor,
+html.dota-force-landscape body .web-profile-editor{
+  padding:8px!important;
+  overflow:auto!important;
+  place-items:center!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+html.dota-landscape-mobile body .web-profile-editor-box,
+html.dota-force-landscape body .web-profile-editor-box{
+  width:min(430px,calc(var(--dota-vw,100%) - 16px))!important;
+  max-width:calc(var(--dota-vw,100%) - 16px)!important;
+  max-height:calc(var(--dota-vh,100%) - 16px)!important;
+  overflow-y:auto!important;
+  box-sizing:border-box!important;
+  margin:auto!important;
+}
+html.dota-landscape-mobile body .web-profile-editor-actions,
+html.dota-force-landscape body .web-profile-editor-actions{
+  position:sticky!important;
+  bottom:-20px!important;
+  z-index:10!important;
+}
+html.dota-landscape-mobile body .web-profile-save,
+html.dota-force-landscape body .web-profile-save{
+  display:inline-flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+
+/* Prevent the iOS keyboard from making the whole fake-landscape page jump. */
+html.dota-force-landscape body:has(.web-profile-editor input:focus){
+  width:var(--dota-vw)!important;
+  height:var(--dota-vh)!important;
+}
