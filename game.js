@@ -146,7 +146,7 @@ function syncBattleResponsiveVars(logicalW,logicalH){
   const roomy=logicalH>=410&&logicalW>=880;
 
   const middle=roomy
-    ?(maxUnits>3?88:96)
+    ?(maxUnits>=5?88:116)
     :(maxUnits>3
       ?clamp(40,Math.round(logicalW*.048),44)
       :clamp(46,Math.round(logicalW*.054),50));
@@ -154,7 +154,7 @@ function syncBattleResponsiveVars(logicalW,logicalH){
   const columnGap=2;
   const outerAllowance=6;
   const sideWidth=Math.max(140,(logicalW-middle-outerAllowance-columnGap*2)/2);
-  const cardGap=maxUnits>3?2:3;
+  const cardGap=roomy?(maxUnits>=5?3:8):(maxUnits>3?2:3);
 
   const widthFor=n=>{
    const raw=Math.floor((sideWidth-6-cardGap*Math.max(0,n-1))/Math.max(1,n));
