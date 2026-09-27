@@ -5260,44 +5260,81 @@ html.dota-force-landscape body:has(.web-profile-editor input:focus){
 }
 @keyframes dotaOWClawImpact{0%,20%{opacity:0}48%{opacity:.78}100%{opacity:0}}
 
-/* Io / Overcharge: warm white-yellow glow around the card, not on portrait. */
-#game .hero.io-overcharge-active{position:relative!important;isolation:isolate!important;overflow:visible!important}
+/* Io / Overcharge: aura hugs the card edges. Do not use hero::after —
+   that pseudo-element belongs to the FRONT badge. */
+#game .hero.io-overcharge-active{
+  position:relative!important;
+  isolation:isolate!important;
+  overflow:visible!important;
+  border-color:rgba(255,248,210,.52)!important;
+  box-shadow:
+    0 0 0 1px rgba(255,255,242,.20),
+    0 0 8px rgba(255,255,245,.48),
+    0 0 18px rgba(255,241,185,.34),
+    0 0 30px rgba(255,221,120,.18),
+    inset 0 0 8px rgba(255,255,238,.08)!important;
+  animation:dotaIoCardEdgeGlow 1.65s ease-in-out infinite!important;
+}
 #game .hero.io-overcharge-active .hero-portrait::before,
 #game .hero.io-overcharge-active .hero-portrait::after{display:none!important}
 #game .hero.io-overcharge-active::before{
-  content:""!important;position:absolute!important;inset:-7px!important;z-index:-1!important;border-radius:20px!important;pointer-events:none!important;
-  background:radial-gradient(ellipse at 50% 45%,rgba(255,255,247,.17),rgba(255,244,196,.10) 48%,transparent 76%)!important;
-  box-shadow:0 0 8px rgba(255,255,245,.62),0 0 17px rgba(255,246,194,.45),0 0 32px rgba(255,229,138,.24)!important;
-  animation:dotaIoCardHalo 1.55s ease-in-out infinite!important;
+  content:""!important;
+  position:absolute!important;
+  inset:-8px!important;
+  z-index:-1!important;
+  border-radius:22px!important;
+  pointer-events:none!important;
+  background:
+    radial-gradient(ellipse at 50% 44%,rgba(255,255,247,.16),rgba(255,242,187,.09) 48%,transparent 74%)!important;
+  filter:blur(4px)!important;
+  opacity:.72;
+  animation:dotaIoCardHalo 1.65s ease-in-out infinite!important;
 }
-#game .hero.io-overcharge-active::after{
-  content:""!important;position:absolute!important;inset:-2px!important;z-index:5!important;border-radius:17px!important;pointer-events:none!important;
-  border:1px solid rgba(255,252,224,.50)!important;background:none!important;
-  box-shadow:inset 0 0 7px rgba(255,255,240,.18),0 0 8px rgba(255,255,243,.40),0 0 18px rgba(255,235,165,.28)!important;
-  animation:dotaIoCardEdge 1.7s ease-in-out infinite!important;
+@keyframes dotaIoCardHalo{0%,100%{opacity:.38;transform:scale(.995)}50%{opacity:.78;transform:scale(1.012)}}
+@keyframes dotaIoCardEdgeGlow{
+  0%,100%{box-shadow:0 0 0 1px rgba(255,255,242,.17),0 0 7px rgba(255,255,245,.40),0 0 15px rgba(255,241,185,.27),0 0 25px rgba(255,221,120,.13),inset 0 0 7px rgba(255,255,238,.06)}
+  50%{box-shadow:0 0 0 1px rgba(255,255,242,.30),0 0 10px rgba(255,255,248,.62),0 0 22px rgba(255,241,185,.45),0 0 34px rgba(255,221,120,.22),inset 0 0 10px rgba(255,255,238,.10)}
 }
-@keyframes dotaIoCardHalo{0%,100%{opacity:.42;transform:scale(.995)}50%{opacity:.82;transform:scale(1.012)}}
-@keyframes dotaIoCardEdge{0%,100%{opacity:.38}50%{opacity:.82}}
 
-/* Abaddon / Curse: clean portrait, dark navy smoke and white/light-blue edge glow. */
-#game .hero.avernus-cursed{position:relative!important;isolation:isolate!important;overflow:visible!important}
+/* Abaddon / Curse: dark navy smoke plus white/light-blue light ONLY on card edges.
+   hero::after stays untouched so the FRONT badge can never disappear. */
+#game .hero.avernus-cursed{
+  position:relative!important;
+  isolation:isolate!important;
+  overflow:visible!important;
+  border-color:rgba(189,225,255,.58)!important;
+  box-shadow:
+    0 0 0 1px rgba(242,251,255,.18),
+    0 0 7px rgba(255,255,255,.42),
+    0 0 16px rgba(177,224,255,.42),
+    0 0 30px rgba(83,160,255,.22),
+    inset 0 0 9px rgba(210,239,255,.10)!important;
+  animation:dotaAvernusEdgeLight 1.8s ease-in-out infinite!important;
+}
 #game .hero.avernus-cursed .hero-portrait video,
 #game .hero.avernus-cursed .hero-portrait .static-hero-portrait{filter:none!important}
 #game .hero.avernus-cursed .hero-portrait::before,
 #game .hero.avernus-cursed .hero-portrait::after{display:none!important}
 #game .hero.avernus-cursed::before{
-  content:""!important;position:absolute!important;inset:-12px!important;z-index:-1!important;border-radius:24px!important;pointer-events:none!important;
-  background:radial-gradient(ellipse at 10% 25%,rgba(9,19,70,.52),transparent 42%),radial-gradient(ellipse at 90% 68%,rgba(4,17,68,.54),transparent 44%),radial-gradient(ellipse at 45% 105%,rgba(2,9,46,.48),transparent 50%)!important;
-  filter:blur(9px)!important;opacity:.78;animation:dotaAvernusEdgeSmoke 2.35s ease-in-out infinite alternate!important;
+  content:""!important;
+  position:absolute!important;
+  inset:-11px!important;
+  z-index:-1!important;
+  border-radius:24px!important;
+  pointer-events:none!important;
+  background:
+    radial-gradient(ellipse at 8% 26%,rgba(9,19,70,.48),transparent 42%),
+    radial-gradient(ellipse at 92% 70%,rgba(4,17,68,.50),transparent 44%),
+    radial-gradient(ellipse at 46% 104%,rgba(2,9,46,.42),transparent 50%)!important;
+  filter:blur(9px)!important;
+  opacity:.74;
+  animation:dotaAvernusEdgeSmoke 2.35s ease-in-out infinite alternate!important;
 }
-#game .hero.avernus-cursed::after{
-  content:""!important;position:absolute!important;inset:-3px!important;z-index:6!important;border-radius:19px!important;pointer-events:none!important;
-  border:1px solid rgba(204,232,255,.48)!important;background:none!important;
-  box-shadow:0 0 5px rgba(255,255,255,.36),0 0 13px rgba(174,221,255,.38),0 0 25px rgba(89,167,255,.20),inset 0 0 8px rgba(214,239,255,.14)!important;
-  animation:dotaAvernusEdgeLight 1.8s ease-in-out infinite!important;
+@keyframes dotaAvernusEdgeSmoke{from{opacity:.48;transform:translate(-2px,2px) scale(.995)}to{opacity:.82;transform:translate(3px,-2px) scale(1.018)}}
+@keyframes dotaAvernusEdgeLight{
+  0%,100%{box-shadow:0 0 0 1px rgba(242,251,255,.15),0 0 6px rgba(255,255,255,.34),0 0 13px rgba(177,224,255,.32),0 0 24px rgba(83,160,255,.16),inset 0 0 7px rgba(210,239,255,.08)}
+  50%{box-shadow:0 0 0 1px rgba(242,251,255,.28),0 0 9px rgba(255,255,255,.60),0 0 20px rgba(177,224,255,.52),0 0 34px rgba(83,160,255,.27),inset 0 0 11px rgba(210,239,255,.13)}
 }
-@keyframes dotaAvernusEdgeSmoke{from{opacity:.50;transform:translate(-3px,2px) scale(.99)}to{opacity:.84;transform:translate(4px,-3px) scale(1.025)}}
-@keyframes dotaAvernusEdgeLight{0%,100%{opacity:.36}50%{opacity:.88}}
 
 /* Techies / Suicide Squad: slightly smaller than v141, but richer than mine explosion. */
 #game .hero.techies-suicide-fx,
@@ -5345,3 +5382,58 @@ html.dota-force-landscape body:has(.web-profile-editor input:focus){
 @keyframes dotaTechiesRichWave{0%{opacity:0;transform:translate(-50%,-50%) scale(.06)}17%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(4.8)}}
 @keyframes dotaTechiesSparkBurst{0%{opacity:0;transform:translate(-50%,-50%) scale(.18) rotate(0deg)}22%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.72) rotate(28deg)}}
 @keyframes dotaTechiesSmokePlume{0%{opacity:0;transform:translate(-50%,-50%) scale(.45)}34%{opacity:.78}100%{opacity:0;transform:translate(-50%,-50%) scale(1.3) translateY(-8px)}}
+
+
+/* v1.86.143 — VFX cleanup requested after desktop visual check. */
+#game .hero.open-wounds-active .hero-portrait,
+#game .hero.open-wounds-scratch .hero-portrait{
+  overflow:hidden!important;
+}
+#game .hero.open-wounds-active .hero-portrait::before{
+  inset:0!important;
+  border-radius:inherit!important;
+  transform:none!important;
+  background:
+    linear-gradient(rgba(170,14,18,.08),rgba(170,14,18,.08)),
+    radial-gradient(ellipse at 50% 50%,rgba(255,72,66,.05) 0 35%,rgba(172,0,8,.10) 72%,rgba(105,0,5,.11) 100%)!important;
+  box-shadow:none!important;
+  animation:dotaOWRedPulseAligned 1.55s ease-in-out infinite!important;
+}
+#game .hero.open-wounds-active .hero-portrait::after{
+  inset:0!important;
+  border-radius:inherit!important;
+  transform:none!important;
+  box-shadow:inset 0 0 11px rgba(220,20,26,.25),inset 0 0 2px rgba(255,85,80,.22)!important;
+}
+@keyframes dotaOWRedPulseAligned{0%,100%{opacity:.42}50%{opacity:.68}}
+
+#game .hero.open-wounds-scratch .hero-portrait::before{
+  inset:0!important;
+  border-radius:inherit!important;
+  opacity:0;
+  transform:translate3d(-10%,0,0) scale(1.01)!important;
+  animation:dotaOWClawSwipeSmooth .72s cubic-bezier(.22,.68,.24,1) both!important;
+}
+#game .hero.open-wounds-scratch .hero-portrait::after{
+  inset:0!important;
+  border-radius:inherit!important;
+  animation:dotaOWClawImpactSmooth .72s ease-out both!important;
+}
+@keyframes dotaOWClawSwipeSmooth{
+  0%{opacity:0;transform:translate3d(-10%,0,0) scale(1.01)}
+  15%{opacity:.32}
+  30%{opacity:1;transform:translate3d(-3%,0,0) scale(1.005)}
+  68%{opacity:.92;transform:translate3d(2%,0,0) scale(1)}
+  100%{opacity:0;transform:translate3d(6%,0,0) scale(1)}
+}
+@keyframes dotaOWClawImpactSmooth{
+  0%,14%{opacity:0}
+  34%{opacity:.46}
+  60%{opacity:.24}
+  100%{opacity:0}
+}
+
+/* FRONT is a UI badge, so combat VFX must always stay below it. */
+html body #game .battlefield .hero.front::after{
+  z-index:500!important;
+}
