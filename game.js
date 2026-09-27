@@ -136,6 +136,9 @@ async function lockDotaLandscape(){
 }
 async function requestDotaLandscape(){
  try{
+  // Fullscreen/orientation handling is mobile-only. On desktop, clicks must never
+  // force the site into fullscreen.
+  if(!dotaPhoneLike(window.innerWidth||0,window.innerHeight||0))return false;
   if(await lockDotaLandscape())return true;
   // Chromium/Android often requires fullscreen before orientation.lock().
   // iOS may reject this; the CSS virtual-landscape fallback below then stays active.
