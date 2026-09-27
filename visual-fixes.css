@@ -4477,3 +4477,43 @@ html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .mid :is
   font-size:7px!important;
   line-height:1.12!important;
 }
+
+
+/* v1.86.126 — restore Broodmother spiderlings above the card.
+   Only Broodmother's outer shell may overflow; the actual card still clips normally. */
+html.dota-landscape-mobile body.game-running #game .battlefield .hero.has-broodlings{
+  position:relative!important;
+  overflow:visible!important;
+  z-index:72!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .hero.has-broodlings>.hero-portrait,
+html.dota-landscape-mobile body.game-running #game .battlefield .hero.has-broodlings>.hero-body{
+  overflow:hidden!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .hero.has-broodlings>.broodlings-summons{
+  display:grid!important;
+  position:absolute!important;
+  left:0!important;
+  right:0!important;
+  top:auto!important;
+  bottom:calc(100% + 4px)!important;
+  width:100%!important;
+  max-width:100%!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:3px!important;
+  transform:none!important;
+  overflow:visible!important;
+  z-index:125!important;
+  pointer-events:none!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .hero.has-broodlings .broodling-summon-card{
+  display:flex!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  min-height:34px!important;
+  margin:0!important;
+  padding:3px!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
