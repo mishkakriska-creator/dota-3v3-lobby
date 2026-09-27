@@ -8,7 +8,7 @@
   bar.id='webLifecycleBar';
   bar.style.cssText = 'position:fixed;right:14px;bottom:12px;z-index:10000;display:flex;gap:8px;align-items:center;padding:8px;border:1px solid #3a4358;border-radius:12px;background:#11151ef2;color:#fff;font:12px Segoe UI,sans-serif';
   const label = document.createElement('span');
-  label.textContent = WEB_STATIC ? '1.86.139 • WEB' : '1.86.139 • Tinker';
+  label.textContent = WEB_STATIC ? '1.86.140 • WEB' : '1.86.140 • Tinker';
   bar.append(label);
   function button(text, action) {
     const b = document.createElement('button');
@@ -60,7 +60,7 @@
   function connect() {
     if (leaving) return;
     socket = new WebSocket(`ws://${location.host}/_launcher/live?token=${encodeURIComponent(token)}`);
-    socket.onopen = () => {label.textContent = '1.86.139 • Tinker';};
+    socket.onopen = () => {label.textContent = '1.86.140 • Tinker';};
     socket.onclose = () => {
       if (leaving) return;
       label.textContent = 'Связь с запускателем потеряна';
@@ -82,7 +82,7 @@
   }).catch(() => {
     if(WEB_STATIC){
       exit.style.display='none';
-      label.textContent='1.86.139 • WEB';
+      label.textContent='1.86.140 • WEB';
       const style=document.createElement('style');style.textContent='body{padding-bottom:64px}#game .action-panel{bottom:68px!important}';document.head.append(style);
       if(!bar.isConnected)document.body.append(bar);
     }
