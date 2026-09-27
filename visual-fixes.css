@@ -4365,3 +4365,41 @@ html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .mid :is
   max-width:none!important;
   box-sizing:border-box!important;
 }
+
+
+/* v1.86.124 — fix top clipping + restore Enigma Black Hole on iPhone 11.
+   Geometry keeps cards below profile; overflow is NOT used as a clipping hack anymore. */
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield{
+  overflow:visible!important;
+}
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield .side{
+  overflow:visible!important;
+}
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield .team{
+  overflow:visible!important;
+  padding-top:6px!important;
+  box-sizing:border-box!important;
+}
+
+/* Normal cards stay in their calculated slots. Do not override transformed spell victims. */
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield .side-left .team .hero:not(.enigma-black-hole-victim),
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield .side-right .team .hero:not(.enigma-black-hole-victim){
+  transform:none!important;
+}
+
+/* Black Hole must be allowed to leave the normal card slot and move toward the vortex. */
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield .team.enigma-black-hole-team{
+  overflow:visible!important;
+  isolation:isolate!important;
+  z-index:30!important;
+}
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield .team.enigma-black-hole-team .hero.enigma-black-hole-victim{
+  transform:translate(var(--bh-dx,0px),var(--bh-dy,0px)) rotate(var(--bh-rot,0deg)) scale(var(--bh-scale,.78))!important;
+  transform-origin:center center!important;
+  overflow:visible!important;
+  z-index:var(--bh-z,58)!important;
+}
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield:has(.team.enigma-black-hole-team),
+html.dota-landscape-mobile.dota-landscape-roomy body.game-running #game .battlefield:has(.team.enigma-black-hole-team) .side{
+  overflow:visible!important;
+}
