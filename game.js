@@ -177,7 +177,7 @@ function syncBattleResponsiveVars(logicalW,logicalH){
   const mobile=root.classList.contains('dota-landscape-mobile');
   if(!mobile||!bf){
    root.classList.remove('dota-landscape-compact','dota-landscape-roomy');
-   if(bf)for(const k of ['--team0-card-w','--team1-card-w','--battle-card-h','--battle-mid-w','--battle-card-gap','--battle-column-gap'])bf.style.removeProperty(k);
+   if(bf)for(const k of ['--team0-card-w','--team1-card-w','--battle-card-h','--battle-mid-w','--battle-card-gap','--battle-column-gap','--battle-side-pad'])bf.style.removeProperty(k);
    return;
   }
 
@@ -188,41 +188,25 @@ function syncBattleResponsiveVars(logicalW,logicalH){
   const maxUnits=Math.max(...counts);
   const clamp=(a,v,b)=>Math.max(a,Math.min(b,v));
 
-  // Keep short iPhones (12/13/14-class, ~844x390) on their own compact layout.
-  // iPhone 11-class (~896x414) remains roomy and is not resized by this branch.
-  const compact=(logicalH<=400||logicalW<=860);
-  const roomy=(logicalH>=410&&logicalW>=880);
+  // One layout for every phone. Size changes smoothly with the real logical viewport;
+  // there are no iPhone 11 / 12 / 13 / 14 branches anymore.
+  root.classList.remove('dota-landscape-compact','dota-landscape-roomy');
 
-  const middle=roomy
-    ?(maxUnits>=5?88:116)
-    :(maxUnits>3
-      ?clamp(40,Math.round(logicalW*.048),44)
-      :clamp(46,Math.round(logicalW*.054),50));
-
-  const columnGap=2;
-  const outerAllowance=6;
-  const sideWidth=Math.max(140,(logicalW-middle-outerAllowance-columnGap*2)/2);
-  const cardGap=roomy?(maxUnits>=5?3:8):(maxUnits>3?2:3);
+  const middle=clamp(maxUnits>=5?58:68,Math.round(logicalW*(maxUnits>=5?.072:.088)),maxUnits>=5?70:86);
+  const columnGap=clamp(2,Math.round(logicalW*.0035),4);
+  const sidePad=clamp(3,Math.round(logicalW*.0055),6);
+  const cardGap=clamp(2,Math.round(logicalW*.0042),5);
+  const outerAllowance=8;
+  const sideWidth=Math.max(136,(logicalW-middle-outerAllowance-columnGap*2)/2);
 
   const widthFor=n=>{
-   // Roomy layout uses 8px left + 8px right team padding.
-   // Account for it so iPhone 13 still fits 4/5 units without clipping.
-   const reserved=roomy?16:6;
-   const raw=Math.floor((sideWidth-reserved-cardGap*Math.max(0,n-1))/Math.max(1,n));
-   if(roomy){
-    if(n>=5)return clamp(68,raw,76);
-    if(n===4)return clamp(78,raw,84);
-    return clamp(104,raw,108);
-   }
-   if(n>=4)return clamp(88,raw,92);
-   return clamp(116,raw,120);
+   const raw=Math.floor((sideWidth-sidePad*2-cardGap*Math.max(0,n-1))/Math.max(1,n));
+   if(n>=5)return clamp(62,raw,76);
+   if(n===4)return clamp(76,raw,92);
+   return clamp(104,raw,122);
   };
 
-  const cardH=roomy
-    ?(maxUnits>3?216:220)
-    :(maxUnits>3
-      ?clamp(232,Math.round(logicalH*.565),236)
-      :clamp(232,Math.round(logicalH*.58),236));
+  const cardH=clamp(220,Math.round(logicalH*.585),250);
 
   bf.style.setProperty('--team0-card-w',widthFor(counts[0])+'px');
   bf.style.setProperty('--team1-card-w',widthFor(counts[1])+'px');
@@ -230,9 +214,7 @@ function syncBattleResponsiveVars(logicalW,logicalH){
   bf.style.setProperty('--battle-mid-w',middle+'px');
   bf.style.setProperty('--battle-card-gap',cardGap+'px');
   bf.style.setProperty('--battle-column-gap',columnGap+'px');
-
-  root.classList.toggle('dota-landscape-compact',compact);
-  root.classList.toggle('dota-landscape-roomy',roomy);
+  bf.style.setProperty('--battle-side-pad',sidePad+'px');
  }catch(_){}
 }
 function syncDotaViewport(){

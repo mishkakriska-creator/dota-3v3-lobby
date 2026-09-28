@@ -12,13 +12,13 @@
 @media(max-width:980px){.chen-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.chen-choice-panel{max-height:92vh;overflow:auto}.chen-choice-grid video{aspect-ratio:1.45/1}#game .chen-creep-tabs button{height:32px}#game .chen-creep-tabs span,#game .chen-creep-tabs small{font-size:7px}}
 .chen-persuasion-roster{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:10px}
 .chen-persuasion-roster .chen-creep-roster-card{display:flex;flex-direction:column;gap:6px;min-width:0;padding:7px;border:1px solid #354257;border-radius:9px;background:#141c28;color:#eaf0f8}
-.chen-persuasion-roster .chen-creep-roster-head{display:flex;align-items:center;gap:7px;min-width:0}
-.chen-persuasion-roster .chen-creep-roster-head>img{width:58px;height:40px;object-fit:cover;border-radius:6px;flex:0 0 auto;background:#0b1018}
-.chen-persuasion-roster b{min-width:0;font-size:10px;line-height:1.12;overflow-wrap:normal;word-break:normal;hyphens:none;color:#f3f6fb}
+.chen-persuasion-roster .chen-creep-roster-head{display:grid;grid-template-rows:48px auto;gap:5px;align-items:start;min-width:0;width:100%}
+.chen-persuasion-roster .chen-creep-roster-head>img{width:100%;height:48px;object-fit:cover;object-position:center;border-radius:6px;display:block;background:#0b1018}
+.chen-persuasion-roster b{display:block;width:100%;min-width:0;font-size:clamp(8.2px,.72vw,9.6px);line-height:1.08;letter-spacing:-.14px;text-align:center;white-space:nowrap;overflow:visible;overflow-wrap:normal;word-break:normal;hyphens:none;color:#f3f6fb}
 .chen-persuasion-roster small{display:block;font-size:9px;line-height:1.3;color:#b8c2d1;overflow-wrap:anywhere}
 .chen-persuasion-roster small strong{color:#d8e1ee}
-@media(max-width:900px){.chen-persuasion-roster{grid-template-columns:repeat(2,minmax(0,1fr))}.chen-persuasion-roster .chen-creep-roster-head>img{width:48px;height:36px}}
-@media(max-width:520px){.chen-persuasion-roster{grid-template-columns:1fr}.chen-persuasion-roster .chen-creep-roster-head>img{width:58px;height:42px}.chen-persuasion-roster small{font-size:9px}}
+@media(max-width:900px){.chen-persuasion-roster{grid-template-columns:repeat(2,minmax(0,1fr))}.chen-persuasion-roster .chen-creep-roster-head{grid-template-rows:52px auto}.chen-persuasion-roster .chen-creep-roster-head>img{width:100%;height:52px}.chen-persuasion-roster b{font-size:9.5px}}
+@media(max-width:520px){.chen-persuasion-roster{grid-template-columns:1fr}.chen-persuasion-roster .chen-creep-roster-head{grid-template-columns:76px minmax(0,1fr);grid-template-rows:auto;align-items:center}.chen-persuasion-roster .chen-creep-roster-head>img{width:76px;height:50px}.chen-persuasion-roster b{text-align:left;font-size:10px}.chen-persuasion-roster small{font-size:9px}}
 
 /* Chen creep ability feedback */
 #game .hero.chen-creep-slot.chen-creep-cast .hero-portrait{animation:chen-creep-cast-pulse .58s cubic-bezier(.18,.75,.22,1)}

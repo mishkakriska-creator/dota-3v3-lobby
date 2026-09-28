@@ -5532,3 +5532,175 @@ html body #game .battlefield .hero.targetable:hover{
 html.dota-landscape-mobile body.game-running #game .battlefield .hero[data-hero="arcwarden_clone"]>.hero-portrait>video{
   transform:translate(-50%,-50%) scale(1.20,1.42)!important;
 }
+
+/* v1.86.147 — unified phone sizing.
+   All landscape phones use the same proportional rules; no model-specific card sizing. */
+html.dota-landscape-mobile body.game-running #game .battlefield{
+  grid-template-columns:minmax(0,1fr) var(--battle-mid-w,76px) minmax(0,1fr)!important;
+  column-gap:var(--battle-column-gap,3px)!important;
+  overflow:hidden!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .side{
+  min-width:0!important;
+  overflow:hidden!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team{
+  width:100%!important;
+  min-width:0!important;
+  height:100%!important;
+  gap:var(--battle-card-gap,4px)!important;
+  padding-left:var(--battle-side-pad,5px)!important;
+  padding-right:var(--battle-side-pad,5px)!important;
+  align-items:flex-end!important;
+  align-content:flex-end!important;
+  justify-content:center!important;
+  overflow:visible!important;
+}
+html.dota-landscape-mobile body.game-running #game #team0 .hero{
+  width:var(--team0-card-w,116px)!important;
+  min-width:var(--team0-card-w,116px)!important;
+  max-width:var(--team0-card-w,116px)!important;
+  flex:0 0 var(--team0-card-w,116px)!important;
+}
+html.dota-landscape-mobile body.game-running #game #team1 .hero{
+  width:var(--team1-card-w,116px)!important;
+  min-width:var(--team1-card-w,116px)!important;
+  max-width:var(--team1-card-w,116px)!important;
+  flex:0 0 var(--team1-card-w,116px)!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero,
+html.dota-landscape-mobile body.game-running #game .battlefield .team.has-extra .hero,
+html.dota-landscape-mobile body.game-running #game .battlefield .team.has-four .hero{
+  height:var(--battle-card-h,228px)!important;
+  min-height:0!important;
+  max-height:var(--battle-card-h,228px)!important;
+  margin:0 0 2px!important;
+  align-self:flex-end!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:40% minmax(0,60%)!important;
+  overflow:hidden!important;
+  scale:1!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero:not(.enigma-black-hole-victim){
+  transform:none!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero>.hero-portrait{
+  grid-row:1!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:hidden!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero>.hero-body{
+  grid-row:2!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  padding:clamp(4px,calc(var(--dota-vh,390px)*.012),6px)!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  grid-template-rows:
+    clamp(12px,calc(var(--dota-vh,390px)*.032),14px)
+    clamp(24px,calc(var(--dota-vh,390px)*.066),28px)
+    clamp(4px,calc(var(--dota-vh,390px)*.013),6px)
+    clamp(17px,calc(var(--dota-vh,390px)*.047),20px)
+    clamp(19px,calc(var(--dota-vh,390px)*.052),22px)
+    clamp(20px,calc(var(--dota-vh,390px)*.055),23px)!important;
+  column-gap:clamp(3px,calc(var(--dota-vw,844px)*.0045),5px)!important;
+  row-gap:1px!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .hero-name-row{
+  grid-column:1/-1!important;
+  grid-row:1!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  align-items:center!important;
+  overflow:hidden!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .hero-name{
+  width:100%!important;
+  height:auto!important;
+  max-height:none!important;
+  font-size:clamp(8px,calc(var(--dota-vh,390px)*.022),9.5px)!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats{display:contents!important}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats>.hpstat,
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .stats>.atkstat{
+  grid-row:2!important;
+  position:static!important;
+  width:100%!important;
+  min-width:0!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+  padding:3px 4px!important;
+  font-size:clamp(7.5px,calc(var(--dota-vh,390px)*.021),9px)!important;
+  line-height:1!important;
+  box-sizing:border-box!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .status{
+  grid-column:1/-1!important;
+  grid-row:4!important;
+  min-height:0!important;
+  max-height:100%!important;
+  overflow:hidden!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .item-inventory{
+  grid-column:1/-1!important;
+  grid-row:5!important;
+  min-height:0!important;
+  max-height:100%!important;
+  margin:0!important;
+  align-self:center!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .inspect-hero{
+  grid-column:1/-1!important;
+  grid-row:6!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:2px 4px!important;
+  font-size:clamp(6.5px,calc(var(--dota-vh,390px)*.018),8px)!important;
+  line-height:1!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+html.dota-landscape-mobile body.game-running #game .mid{
+  width:var(--battle-mid-w,76px)!important;
+  min-width:var(--battle-mid-w,76px)!important;
+  max-width:var(--battle-mid-w,76px)!important;
+}
+html.dota-landscape-mobile body.game-running #game .mid :is(#effects,.log){
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+  padding:clamp(3px,calc(var(--dota-vh,390px)*.011),5px)!important;
+  font-size:clamp(5.8px,calc(var(--dota-vh,390px)*.017),7.2px)!important;
+  line-height:1.15!important;
+}
+
+/* Keep special summoned elements visible without changing card dimensions. */
+html.dota-landscape-mobile body.game-running #game .battlefield .hero.has-broodlings,
+html.dota-landscape-mobile body.game-running #game .battlefield .hero.enigma-black-hole-victim{
+  overflow:visible!important;
+}
+
