@@ -107,7 +107,7 @@ const ITEMS={
  heart:{name:'Heart of Tarrasque',cost:10,img:'assets/items/heart_of_tarrasque.png',category:'armor',desc:'Даёт +2 к максимальному здоровью, но при покупке не лечит владельца. Каждый общий ход восстанавливает 1 HP за каждые полные 5 единиц максимального здоровья владельца. Например, при 10 максимального HP восстанавливает 2 HP за общий ход.'},
  sange:{name:'Sange',cost:8,img:'assets/items/sange.png',category:'armor',desc:'Даёт +1 к максимальному и текущему здоровью. Все новые отрицательные эффекты на владельце становятся на 1 ход короче.'},
  skadi:{name:'Eye of Skadi',cost:8,img:'assets/items/eye_of_skadi.png',category:'weapon',desc:'После попадания обычной атакой накладывает на цель эффект на 5 общих ходов: любое лечение по этой цели уменьшается на 2.'},
- butterfly:{name:'Butterfly',cost:13,img:'assets/items/butterfly.png',category:'weapon',desc:'Даёт +60% шанса на дополнительную тычку после обычной атаки и +40% уклонения. Собирается из Eaglesong.'}
+ butterfly:{name:'Butterfly',cost:13,img:'assets/items/butterfly.png',category:'weapon',desc:'Даёт +60% шанса на дополнительную тычку после обычной атаки и +40% уклонения. Собирается из Talisman of Evasion и Eaglesong.'}
 };
 const ITEM_RECIPES={
  daedalus:['crystalys'],bloodthorn:['orchid'],parasma:['witch'],vladmir:['morbid'],satanic:['morbid'],radiance:['talisman'],
