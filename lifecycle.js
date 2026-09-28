@@ -3,12 +3,13 @@
   if (window.top !== window) return;
   let socket, token, leaving = false, reconnect;
   const WEB_STATIC=/\.github\.io$/i.test(location.hostname);
+  const BUILD_VERSION=window.DOTA_GAME_VERSION||'1.86.151';
   if(location.pathname==='/profile-editor'){const css=document.createElement('link');css.rel='stylesheet';css.href='/visual-fixes.css?v=176';document.head.appendChild(css)}
   const bar = document.createElement('div');
   bar.id='webLifecycleBar';
   bar.style.cssText = 'position:fixed;right:14px;bottom:12px;z-index:10000;display:flex;gap:8px;align-items:center;padding:8px;border:1px solid #3a4358;border-radius:12px;background:#11151ef2;color:#fff;font:12px Segoe UI,sans-serif';
   const label = document.createElement('span');
-  label.textContent = WEB_STATIC ? '1.86.142 • WEB' : '1.86.142 • Tinker';
+  label.textContent = WEB_STATIC ? BUILD_VERSION+' • WEB' : BUILD_VERSION+' • Tinker';
   bar.append(label);
   function button(text, action) {
     const b = document.createElement('button');
@@ -60,7 +61,7 @@
   function connect() {
     if (leaving) return;
     socket = new WebSocket(`ws://${location.host}/_launcher/live?token=${encodeURIComponent(token)}`);
-    socket.onopen = () => {label.textContent = '1.86.142 • Tinker';};
+    socket.onopen = () => {label.textContent = BUILD_VERSION+' • Tinker';};
     socket.onclose = () => {
       if (leaving) return;
       label.textContent = 'Связь с запускателем потеряна';
@@ -82,7 +83,7 @@
   }).catch(() => {
     if(WEB_STATIC){
       exit.style.display='none';
-      label.textContent='1.86.142 • WEB';
+      label.textContent=BUILD_VERSION+' • WEB';
       const style=document.createElement('style');style.textContent='body{padding-bottom:64px}#game .action-panel{bottom:68px!important}';document.head.append(style);
       if(!bar.isConnected)document.body.append(bar);
     }
