@@ -5517,6 +5517,7 @@ html body #game .battlefield .hero.targetable:hover{
 }
 #game .battlefield .hero[data-hero="arcwarden_clone"]>.hero-portrait>video{
   position:absolute!important;
+  inset:auto!important;
   left:50%!important;
   top:50%!important;
   width:100%!important;
