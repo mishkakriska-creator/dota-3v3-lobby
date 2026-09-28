@@ -116,7 +116,7 @@
   abilitySheetHTML=function(id,useSplash=false){
     const html=baseAbilitySheetHTML(id,useSplash);if(id!==CHEN_ID)return html;
     const roster='<div class="chen-persuasion-roster">'+
-      CREEP_ORDER.map(k=>{const c=CREEPS[k];return '<span class="chen-creep-roster-card"><span class="chen-creep-roster-head"><img src="'+c.rosterIcon+'" alt=""><b>'+c.name.replace('ОГР-ГРОМИЛА','Огр-громила').replace('ДИКОКРЫЛ-ПОТРОШИТЕЛЬ','Дикокрыл-потрошитель').replace('САТИР-МУЧИТЕЛЬ','Сатир-мучитель').replace('СОСНОВЫЙ НАЛЁТЧИК','Сосновый налётчик')+'</b></span><small><strong>'+c.skill+':</strong> '+c.skillDesc+'</small></span>'}).join('')+
+      CREEP_ORDER.map(k=>{const c=CREEPS[k];return '<span class="chen-creep-roster-card"><span class="chen-creep-roster-head"><img src="'+c.rosterIcon+'" alt=""><b>'+c.name.replace('ОГР-ГРОМИЛА','Огр‑громила').replace('ДИКОКРЫЛ-ПОТРОШИТЕЛЬ','Дикокрыл‑потрошитель').replace('САТИР-МУЧИТЕЛЬ','Сатир‑мучитель').replace('СОСНОВЫЙ НАЛЁТЧИК','Сосновый налётчик')+'</b></span><small><strong>'+c.skill+':</strong> '+c.skillDesc+'</small></span>'}).join('')+
       '</div>';
     const needle='<div class="ability-desc">'+CHEN_SKILLS[0].desc+'</div>';
     return html.replace(needle,needle+roster);
