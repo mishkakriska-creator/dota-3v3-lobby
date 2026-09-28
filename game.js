@@ -111,7 +111,7 @@ const ITEMS={
 };
 const ITEM_RECIPES={
  daedalus:['crystalys'],bloodthorn:['orchid'],parasma:['witch'],vladmir:['morbid'],satanic:['morbid'],radiance:['talisman'],
- greaves:['mekanism'],pipe:['cloak'],butterfly:['eaglesong'],
+ greaves:['mekanism'],pipe:['cloak'],butterfly:['talisman','eaglesong'],
  sange_yasha:['sange','yasha'],kaya_sange:['kaya','sange'],yasha_kaya:['yasha','kaya']
 };
 const ITEM_UPGRADES=Object.fromEntries(Object.entries(ITEM_RECIPES).map(([k,v])=>[k,v[0]]));
