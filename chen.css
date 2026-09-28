@@ -11,11 +11,11 @@
 #game .chen-switch-creep{background:#273246!important;border-color:#4c5f7b!important;color:#e7eef8!important}
 @media(max-width:980px){.chen-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.chen-choice-panel{max-height:92vh;overflow:auto}.chen-choice-grid video{aspect-ratio:1.45/1}#game .chen-creep-tabs button{height:32px}#game .chen-creep-tabs span,#game .chen-creep-tabs small{font-size:7px}}
 .chen-persuasion-roster{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:10px}
-.chen-persuasion-roster .chen-creep-roster-card{display:flex;align-items:flex-start;gap:7px;min-width:0;padding:7px;border:1px solid #354257;border-radius:9px;background:#141c28;color:#eaf0f8}
-.chen-persuasion-roster .chen-creep-roster-card>img{width:54px;height:40px;object-fit:cover;border-radius:6px;flex:0 0 auto;background:#0b1018}
-.chen-persuasion-roster .chen-creep-roster-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
+.chen-persuasion-roster .chen-creep-roster-card{display:flex;flex-direction:column;gap:6px;min-width:0;padding:7px;border:1px solid #354257;border-radius:9px;background:#141c28;color:#eaf0f8}
+.chen-persuasion-roster .chen-creep-roster-head{display:flex;align-items:center;gap:7px;min-width:0}
+.chen-persuasion-roster .chen-creep-roster-head>img{width:58px;height:40px;object-fit:cover;border-radius:6px;flex:0 0 auto;background:#0b1018}
 .chen-persuasion-roster b{min-width:0;font-size:10px;line-height:1.15;overflow-wrap:anywhere;color:#f3f6fb}
-.chen-persuasion-roster small{font-size:8px;line-height:1.25;color:#b8c2d1;overflow-wrap:anywhere}
+.chen-persuasion-roster small{display:block;font-size:9px;line-height:1.3;color:#b8c2d1;overflow-wrap:anywhere}
 .chen-persuasion-roster small strong{color:#d8e1ee}
-@media(max-width:900px){.chen-persuasion-roster{grid-template-columns:repeat(2,minmax(0,1fr))}.chen-persuasion-roster .chen-creep-roster-card>img{width:48px;height:36px}}
-@media(max-width:520px){.chen-persuasion-roster{grid-template-columns:1fr}.chen-persuasion-roster .chen-creep-roster-card>img{width:58px;height:42px}.chen-persuasion-roster small{font-size:9px}}
+@media(max-width:900px){.chen-persuasion-roster{grid-template-columns:repeat(2,minmax(0,1fr))}.chen-persuasion-roster .chen-creep-roster-head>img{width:48px;height:36px}}
+@media(max-width:520px){.chen-persuasion-roster{grid-template-columns:1fr}.chen-persuasion-roster .chen-creep-roster-head>img{width:58px;height:42px}.chen-persuasion-roster small{font-size:9px}}
