@@ -5,19 +5,19 @@
     {id:'favor',name:'Divine Favor',cd:0,passive:true,desc:'Пассивно: все союзники и подконтрольные крипы восстанавливают 0.25 HP каждый общий ход и получают +1 броню.'},
     {id:'hand',name:'Hand of God',cd:4,desc:'Лечит всех союзных героев и подконтрольных крипов на 3 HP, затем ещё 2 общих хода лечит их на 1 HP за общий ход. Перезарядка: 4 хода Chen.'}
   ];
-  DATA[CHEN_ID]={name:'CHEN',hp:8,atk:1,img:'assets/chen.jpg',skills:CHEN_SKILLS};
-  DATA[SLOT_ID]={name:'ПОДКОНТРОЛЬНЫЙ КРИП',hp:5,atk:.5,img:'assets/skills/chen_holy_persuasion.png',skills:[]};
-  HERO_ICONS[CHEN_ID]='assets/chen_icon.png';
-  HERO_ICONS[SLOT_ID]='assets/skills/chen_holy_persuasion.png';
-  SKILL_ICONS[CHEN_ID]=['assets/skills/chen_holy_persuasion.png','assets/skills/chen_divine_favor.png','assets/skills/chen_hand_of_god.png'];
+  DATA[CHEN_ID]={name:'CHEN',hp:8,atk:1,img:'assets/chen_art.webp',skills:CHEN_SKILLS};
+  DATA[SLOT_ID]={name:'ПОДКОНТРОЛЬНЫЙ КРИП',hp:5,atk:.5,img:'assets/skills/chen_holy_persuasion.webp',skills:[]};
+  HERO_ICONS[CHEN_ID]='assets/chen_icon.webp';
+  HERO_ICONS[SLOT_ID]='assets/skills/chen_holy_persuasion.webp';
+  SKILL_ICONS[CHEN_ID]=['assets/skills/chen_holy_persuasion.webp','assets/skills/chen_divine_favor.webp','assets/skills/chen_hand_of_god.webp'];
   if(!DRAFT_ORDER.includes(CHEN_ID))DRAFT_ORDER.push(CHEN_ID);
   if(typeof draft==='function')draft();
 
   const CREEPS={
-    ogre:{name:'ОГР-ГРОМИЛА',hp:5,atk:.5,portrait:'assets/portraits/chen_ogre.webm',icon:'assets/skills/chen_ogre_smash.png',skill:'Ogre Smash!'},
-    wildwing:{name:'ДИКОКРЫЛ-ПОТРОШИТЕЛЬ',hp:4,atk:.5,portrait:'assets/portraits/chen_wildwing.webm',icon:'assets/skills/chen_hurricane.png',skill:'Hurricane'},
-    satyr:{name:'САТИР-МУЧИТЕЛЬ',hp:5,atk:.5,portrait:'assets/portraits/chen_satyr.webm',icon:'assets/skills/chen_shockwave.png',skill:'Shockwave'},
-    pinecone:{name:'СОСНОВЫЙ НАЛЁТЧИК',hp:4,atk:.5,portrait:'assets/portraits/chen_pinecone.webm',icon:'assets/skills/chen_seed_shot.png',skill:'Seed Shot'}
+    ogre:{name:'ОГР-ГРОМИЛА',hp:5,atk:.5,portrait:'assets/portraits/chen_ogre.webm',icon:'assets/skills/chen_ogre_smash.webp',skill:'Ogre Smash!'},
+    wildwing:{name:'ДИКОКРЫЛ-ПОТРОШИТЕЛЬ',hp:4,atk:.5,portrait:'assets/portraits/chen_wildwing.webm',icon:'assets/skills/chen_hurricane.webp',skill:'Hurricane'},
+    satyr:{name:'САТИР-МУЧИТЕЛЬ',hp:5,atk:.5,portrait:'assets/portraits/chen_satyr.webm',icon:'assets/skills/chen_shockwave.webp',skill:'Shockwave'},
+    pinecone:{name:'СОСНОВЫЙ НАЛЁТЧИК',hp:4,atk:.5,portrait:'assets/portraits/chen_pinecone.webm',icon:'assets/skills/chen_seed_shot.webp',skill:'Seed Shot'}
   };
   const CREEP_ORDER=['ogre','wildwing','satyr','pinecone'];
 
@@ -33,7 +33,7 @@
     if(!slot.chenCreeps.length){slot.dead=true;slot.hp=0;return}
     slot.chenCreepIndex=Math.max(0,Math.min(slot.chenCreeps.length-1,Number(slot.chenCreepIndex)||0));
     const c=currentCreep(slot),d=CREEPS[c.kind];
-    slot.dead=false;slot.name=d.name;slot.maxHp=c.maxHp;slot.hp=c.hp;slot.atk=d.atk;slot.baseAtk=d.atk;slot.armor=0;slot.portrait=d.portrait;slot.img='assets/skills/chen_holy_persuasion.png';slot.staticPortrait=false;
+    slot.dead=false;slot.name=d.name;slot.maxHp=c.maxHp;slot.hp=c.hp;slot.atk=d.atk;slot.baseAtk=d.atk;slot.armor=0;slot.portrait=d.portrait;slot.img='assets/skills/chen_holy_persuasion.webp';slot.staticPortrait=false;
   }
   function storeSlot(slot){const c=currentCreep(slot);if(!c)return;c.hp=Math.max(0,Number(slot.hp)||0);c.maxHp=Math.max(1,Number(slot.maxHp)||c.maxHp)}
   function makeCreep(kind){const d=CREEPS[kind];return{uid:`chen_${kind}_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,kind,hp:d.hp,maxHp:d.hp,life:8,hotTurns:0}}
@@ -174,5 +174,5 @@
     const r=baseRender();if(G){for(const team of G.teams||[])for(const h of team||[])if(isChenSlot(h)&&!h.dead)patchCard(h);patchActions()}return r;
   };
 
-  try{if(Array.isArray(HERO_IDS)&&!HERO_IDS.includes(CHEN_ID))HERO_IDS.push(CHEN_ID);if(HERO_META&&!HERO_META[CHEN_ID])HERO_META[CHEN_ID]={name:'CHEN',icon:'assets/chen_icon.png'}}catch(_){}
+  try{if(Array.isArray(HERO_IDS)&&!HERO_IDS.includes(CHEN_ID))HERO_IDS.push(CHEN_ID);if(HERO_META&&!HERO_META[CHEN_ID])HERO_META[CHEN_ID]={name:'CHEN',icon:'assets/chen_icon.webp'}}catch(_){}
 })();
