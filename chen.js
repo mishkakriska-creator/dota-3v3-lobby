@@ -14,10 +14,10 @@
   if(typeof draft==='function')draft();
 
   const CREEPS={
-    ogre:{name:'ОГР-ГРОМИЛА',hp:5,atk:.5,portrait:'assets/portraits/chen_ogre.webm?v=3',icon:'assets/skills/chen_ogre_smash.webp',rosterIcon:'assets/chen_creep_ogre.webp',skill:'Ogre Smash!',skillDesc:'Оглушает переднего врага на 1 активацию и наносит ему 0.5 урона.'},
-    wildwing:{name:'ДИКОКРЫЛ-ПОТРОШИТЕЛЬ',hp:4,atk:.5,portrait:'assets/portraits/chen_wildwing.webm?v=3',icon:'assets/skills/chen_hurricane.webp',rosterIcon:'assets/chen_creep_wildwing.webp',skill:'Hurricane',skillDesc:'Выбирает первого или второго врага и толкает его вперёд или назад на 1 позицию.'},
-    satyr:{name:'САТИР-МУЧИТЕЛЬ',hp:5,atk:.5,portrait:'assets/portraits/chen_satyr.webm?v=3',icon:'assets/skills/chen_shockwave.webp',rosterIcon:'assets/chen_creep_satyr.webp',skill:'Shockwave',skillDesc:'Шоковая волна проходит по вражеской линии и наносит всем задетым врагам 0.75 урона.'},
-    pinecone:{name:'СОСНОВЫЙ НАЛЁТЧИК',hp:4,atk:.5,portrait:'assets/portraits/chen_pinecone.webm?v=3',icon:'assets/skills/chen_seed_shot.webp',rosterIcon:'assets/chen_creep_pinecone.webp',skill:'Seed Shot',skillDesc:'Наносит выбранной цели 0.5 урона и может отскочить ещё в случайных врагов, нанося по 0.5.'}
+    ogre:{name:'ОГР-ГРОМИЛА',hp:5,atk:.5,portrait:'assets/portraits/chen_ogre.webm?v=4',icon:'assets/skills/chen_ogre_smash.webp',rosterIcon:'assets/chen_creep_ogre.webp',skill:'Ogre Smash!',skillDesc:'Оглушает переднего врага на 1 активацию и наносит ему 0.5 урона.'},
+    wildwing:{name:'ДИКОКРЫЛ-ПОТРОШИТЕЛЬ',hp:4,atk:.5,portrait:'assets/portraits/chen_wildwing.webm?v=4',icon:'assets/skills/chen_hurricane.webp',rosterIcon:'assets/chen_creep_wildwing.webp',skill:'Hurricane',skillDesc:'Выбирает первого или второго врага и толкает его вперёд или назад на 1 позицию.'},
+    satyr:{name:'САТИР-МУЧИТЕЛЬ',hp:5,atk:.5,portrait:'assets/portraits/chen_satyr.webm?v=4',icon:'assets/skills/chen_shockwave.webp',rosterIcon:'assets/chen_creep_satyr.webp',skill:'Shockwave',skillDesc:'Шоковая волна проходит по вражеской линии и наносит всем задетым врагам 0.75 урона.'},
+    pinecone:{name:'СОСНОВЫЙ НАЛЁТЧИК',hp:4,atk:.5,portrait:'assets/portraits/chen_pinecone.webm?v=4',icon:'assets/skills/chen_seed_shot.webp',rosterIcon:'assets/chen_creep_pinecone.webp',skill:'Seed Shot',skillDesc:'Наносит выбранной цели 0.5 урона и может отскочить ещё в случайных врагов, нанося по 0.5.'}
   };
   const CREEP_ORDER=['ogre','wildwing','satyr','pinecone'];
   const CHEN_AUDIO_SRC='assets/audio/chen_audio_sprite.ogg?v=3';
@@ -54,7 +54,7 @@
   abilitySheetHTML=function(id,useSplash=false){
     const html=baseAbilitySheetHTML(id,useSplash);if(id!==CHEN_ID)return html;
     const roster='<div class="chen-persuasion-roster">'+
-      CREEP_ORDER.map(k=>{const c=CREEPS[k];return '<span class="chen-creep-roster-card"><img src="'+c.rosterIcon+'" alt=""><span class="chen-creep-roster-copy"><b>'+c.name.replace('ОГР-ГРОМИЛА','Огр-громила').replace('ДИКОКРЫЛ-ПОТРОШИТЕЛЬ','Дикокрыл-потрошитель').replace('САТИР-МУЧИТЕЛЬ','Сатир-мучитель').replace('СОСНОВЫЙ НАЛЁТЧИК','Сосновый налётчик')+'</b><small><strong>'+c.skill+':</strong> '+c.skillDesc+'</small></span></span>'}).join('')+
+      CREEP_ORDER.map(k=>{const c=CREEPS[k];return '<span class="chen-creep-roster-card"><span class="chen-creep-roster-head"><img src="'+c.rosterIcon+'" alt=""><b>'+c.name.replace('ОГР-ГРОМИЛА','Огр-громила').replace('ДИКОКРЫЛ-ПОТРОШИТЕЛЬ','Дикокрыл-потрошитель').replace('САТИР-МУЧИТЕЛЬ','Сатир-мучитель').replace('СОСНОВЫЙ НАЛЁТЧИК','Сосновый налётчик')+'</b></span><small><strong>'+c.skill+':</strong> '+c.skillDesc+'</small></span>'}).join('')+
       '</div>';
     const needle='<div class="ability-desc">'+CHEN_SKILLS[0].desc+'</div>';
     return html.replace(needle,needle+roster);
@@ -62,8 +62,10 @@
 
   const basePlayTurnVoice=playTurnVoice;
   playTurnVoice=function(h,noNet=false){
-    if(h?.id===SLOT_ID)return;
-    if(h?.id!==CHEN_ID)return basePlayTurnVoice(h,noNet);
+    if(!h)return;
+    if(G&&active()!==h)return;
+    if(h.id===SLOT_ID)return;
+    if(h.id!==CHEN_ID)return basePlayTurnVoice(h,noNet);
     if(!noNet)window.emitNetVfx?.('audio-turn',h);
     playChenRandom(['spawn1','spawn2','cast1','item04'],.72);
   };
@@ -176,7 +178,7 @@
   function summonCreep(chen,kind){
     let slot=slotForTeam(chen.team);
     if(slot){storeSlot(slot);if(slot.chenCreeps.length>=2)return;slot.chenCreeps.push(makeCreep(kind));syncSlot(slot)}
-    else{slot=makeSlot(chen.team,kind);const arr=G.teams[chen.team],front=G.front[chen.team]||0;arr.splice(front,0,slot);G.front[chen.team]=front+1}
+    else{slot=makeSlot(chen.team,kind);const arr=G.teams[chen.team],front=G.front[chen.team]||0;/* insert immediately before circular front, then shift front: this is the true last/back slot in currentLineOrder */arr.splice(front,0,slot);G.front[chen.team]=front+1}
     putOnCooldown(chen,'persuasion');addSkillLog(chen,'persuasion',`${chen.name} подчиняет ${CREEPS[kind].name} на 8 общих ходов.`);spend();render();
   }
   function switchCreep(slot,index){if(!slot||active()!==slot||targetMode||index===slot.chenCreepIndex||!slot.chenCreeps?.[index])return;storeSlot(slot);slot.chenCreepIndex=index;syncSlot(slot);render()}
