@@ -38,6 +38,16 @@
     if(a.readyState>=1)start();else a.addEventListener('loadedmetadata',start,{once:true});
   }
   function playChenRandom(keys,volume=.72){if(!keys?.length)return;playChenClip(keys[Math.floor(Math.random()*keys.length)],volume)}
+  const CREEP_REMOTE_SFX={
+    ogre:[['https://dota2.fandom.com/wiki/Special:Redirect/file/Ogre_Bruiser_Ogre_Smash%21_1.mp3',0],['https://dota2.fandom.com/wiki/Special:Redirect/file/Ogre_Bruiser_Ogre_Smash%21_2.mp3',1850]],
+    satyr:[['https://dota2.fandom.com/wiki/Special:Redirect/file/Satyr_Tormenter_Shockwave_1.mp3',0],['https://dota2.fandom.com/wiki/Special:Redirect/file/Satyr_Tormenter_Shockwave_2.mp3',550]],
+    wildwing:[['https://dota2.fandom.com/wiki/Special:Redirect/file/Wildwing_Ripper_Hurricane_1.mp3',0]],
+    pinecone:[['https://dota2.fandom.com/wiki/Special:Redirect/file/Warpine_Raider_Seed_Shot_1.mp3',0],['https://dota2.fandom.com/wiki/Special:Redirect/file/Warpine_Raider_Seed_Shot_2.mp3',300]]
+  };
+  function playCreepSkillSound(kind){
+    const parts=CREEP_REMOTE_SFX[kind]||[];
+    parts.forEach(([src,delay])=>setTimeout(()=>{try{const a=new Audio(src);a.volume=.72;a.preload='auto';a.play().catch(()=>{});if(kind==='wildwing')setTimeout(()=>{try{a.pause();a.removeAttribute('src');a.load()}catch(_){}},2600)}catch(_){}},delay||0));
+  }
   try{ATTACK_IMPACT_MS[CHEN_ID]=1080}catch(_){}
 
   const baseAbilitySheetHTML=abilitySheetHTML;
@@ -181,22 +191,22 @@
     const order=currentLineOrder(target.team),d=order.indexOf(target),canF=d>0,canB=d>=0&&d<order.length-1;
     const ov=document.createElement('div');ov.className='chen-direction-overlay';ov.innerHTML=`<div class="chen-direction-panel"><b>HURRICANE — направление</b><span>${target.name}</span><div><button data-dir="forward" ${canF?'':'disabled'}>ТОЛКНУТЬ ВПЕРЁД</button><button data-dir="back" ${canB?'':'disabled'}>ТОЛКНУТЬ НАЗАД</button></div><button class="chen-direction-cancel">Отмена</button></div>`;document.body.appendChild(ov);
     ov.querySelector('.chen-direction-cancel').onclick=()=>ov.remove();
-    ov.querySelectorAll('[data-dir]').forEach(b=>b.onclick=()=>{const dir=b.dataset.dir,moved=dir==='forward'?moveForwardOne(target):knockBackOne(target);ov.remove();markCreepSkillUsed(slot);addLog(`${creepLogIcon('wildwing')}<span>Hurricane: ${target.name} ${moved?(dir==='forward'?'сдвинут вперёд на 1 позицию':'отброшен назад на 1 позицию'):'остаётся на месте'}.</span>`);spend();render()});
+    ov.querySelectorAll('[data-dir]').forEach(b=>b.onclick=()=>{playCreepSkillSound('wildwing');const dir=b.dataset.dir,moved=dir==='forward'?moveForwardOne(target):knockBackOne(target);ov.remove();markCreepSkillUsed(slot);addLog(`${creepLogIcon('wildwing')}<span>Hurricane: ${target.name} ${moved?(dir==='forward'?'сдвинут вперёд на 1 позицию':'отброшен назад на 1 позицию'):'остаётся на месте'}.</span>`);spend();render()});
   }
   function useCreepSkill(slot){
     if(!G||active()!==slot||slot.dead||G.actions<1||targetMode)return;const c=currentCreep(slot);if(!c||c.skillCd>0)return;const kind=c.kind;
     if(kind==='ogre'){
       const t=frontHero(1-slot.team);if(!t||t.dead){alert('Нет переднего врага для Ogre Smash!.');return}
-      damage(t,.5,`${creepLogIcon(kind)} Ogre Smash!: `,slot,{impactDelay:100});t.stun=Math.max(Number(t.stun)||0,1);addLog(`${creepLogIcon(kind)}<span>Ogre Smash! оглушает ${t.name} на 1 активацию.</span>`);markCreepSkillUsed(slot);spend();return;
+      playCreepSkillSound(kind);damage(t,.5,`${creepLogIcon(kind)} Ogre Smash!: `,slot,{impactDelay:100});t.stun=Math.max(Number(t.stun)||0,1);addLog(`${creepLogIcon(kind)}<span>Ogre Smash! оглушает ${t.name} на 1 активацию.</span>`);markCreepSkillUsed(slot);spend();return;
     }
     if(kind==='satyr'){
-      const targets=currentLineOrder(1-slot.team).filter(x=>!x.dead);if(!targets.length)return;for(const t of targets)spellDamage(t,.75,`${creepLogIcon(kind)} Shockwave: `,slot,{impactDelay:120});addLog(`${creepLogIcon(kind)}<span>Shockwave проходит по вражеской линии и наносит каждому задетому врагу 0.75 урона.</span>`);markCreepSkillUsed(slot);spend();return;
+      const targets=currentLineOrder(1-slot.team).filter(x=>!x.dead);if(!targets.length)return;playCreepSkillSound(kind);for(const t of targets)spellDamage(t,.75,`${creepLogIcon(kind)} Shockwave: `,slot,{impactDelay:120});addLog(`${creepLogIcon(kind)}<span>Shockwave проходит по вражеской линии и наносит каждому задетому врагу 0.75 урона.</span>`);markCreepSkillUsed(slot);spend();return;
     }
     if(kind==='wildwing'){
       const opts=currentLineOrder(1-slot.team).slice(0,2);if(!opts.length)return;targetMode={promptText:'Выберите первого или второго врага для Hurricane',filter:h=>opts.includes(h),onPick:t=>directionChoice(slot,t),team:1-slot.team,frontOnly:false,icon:creepIcon(kind)};render();return;
     }
     if(kind==='pinecone'){
-      chooseEnemyAny('Выберите врага для Seed Shot',()=>true,t=>{const hit=[t];damage(t,.5,`${creepLogIcon(kind)} Seed Shot: `,slot,{impactDelay:100});let pool=currentLineOrder(1-slot.team).filter(x=>!x.dead&&!hit.includes(x));for(let i=0;i<2&&pool.length;i++){const n=pool.splice(Math.floor(Math.random()*pool.length),1)[0];hit.push(n);setTimeout(()=>damage(n,.5,`${creepLogIcon(kind)} Seed Shot — отскок: `,slot,{impactDelay:80}),180*(i+1))}addLog(`${creepLogIcon(kind)}<span>Seed Shot поражает ${hit.map(x=>x.name).join(' → ')} по 0.5 урона.</span>`);markCreepSkillUsed(slot);spend()},'');if(targetMode){targetMode.icon=creepIcon(kind);render()}return;
+      chooseEnemyAny('Выберите врага для Seed Shot',()=>true,t=>{playCreepSkillSound(kind);const hit=[t];damage(t,.5,`${creepLogIcon(kind)} Seed Shot: `,slot,{impactDelay:100});let pool=currentLineOrder(1-slot.team).filter(x=>!x.dead&&!hit.includes(x));for(let i=0;i<2&&pool.length;i++){const n=pool.splice(Math.floor(Math.random()*pool.length),1)[0];hit.push(n);setTimeout(()=>damage(n,.5,`${creepLogIcon(kind)} Seed Shot — отскок: `,slot,{impactDelay:80}),180*(i+1))}addLog(`${creepLogIcon(kind)}<span>Seed Shot поражает ${hit.map(x=>x.name).join(' → ')} по 0.5 урона.</span>`);markCreepSkillUsed(slot);spend()},'');if(targetMode){targetMode.icon=creepIcon(kind);render()}return;
     }
   }
 
