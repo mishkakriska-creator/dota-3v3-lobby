@@ -78,7 +78,7 @@ DATA.mars={name:'MARS',hp:9,atk:2,img:'assets/mars_draft.png',skills:[
 ]};
 
 const ITEMS={
- satanic:{name:'Satanic',cost:11,img:'assets/items/satanic.png',category:'weapon',cd:3,active:true,free:true,desc:'В свой ход без траты действия применяет нормальное развеивание и даёт 100% вампиризм от атак до конца текущего хода. Fiend’s Grip нормальным развеиванием не снимается. Перезарядка: 3 хода героя. Собирается из Morbid Mask.'},
+ satanic:{name:'Satanic',cost:11,img:'assets/items/satanic.png',category:'weapon',cd:3,active:true,free:true,desc:'Пассивно: после обычной атаки владелец восстанавливает 1 HP. Активно в свой ход без траты действия применяет нормальное развеивание и даёт 100% вампиризм от атак до конца текущего хода. Fiend’s Grip нормальным развеиванием не снимается. Перезарядка: 3 хода героя. Собирается из Morbid Mask.'},
  assault:{name:'Assault Cuirass',cost:12,img:'assets/items/assault.png',category:'armor',desc:'Аура: +2 брони всей команде, включая владельца. Если владелец впереди своей линии, передний враг получает −1 брони. Одинаковые ауры не складываются.'},
  crystalys:{name:'Crystalys',cost:6,img:'assets/items/crystalys.png',category:'weapon',desc:'30% шанс при обычной атаке нанести критический урон в размере 150% от текущей тычки. Дробная часть округляется вниз.'},
  daedalus:{name:'Daedalus',cost:10,img:'assets/items/daedalus.png',category:'weapon',desc:'Даёт +1 к урону. 30% шанс при обычной атаке нанести критический урон в размере 200% от текущей тычки. Дробная часть округляется вниз.'},
