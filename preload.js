@@ -34,37 +34,59 @@
     'assets/audio/enigma_move_13_ru.mp3','assets/audio/enigma_spawn_06_ru.mp3','assets/audio/enigma_midnight_pulse_cast.mp3','assets/audio/enigma_black_hole_cast.mp3','assets/audio/enigma_kill_01_ru.mp3','assets/audio/enigma_kill_05_ru.mp3','assets/audio/enigma_kill_09_ru.mp3','assets/audio/enigma_rival_14_ru.mp3','assets/audio/enigma_rival_15_ru.mp3','assets/audio/enigma_rival_16_ru.mp3','assets/audio/enigma_rival_17_ru.mp3','assets/audio/enigma_killspecial_01_ru.mp3',
     'assets/audio/pudge_attack_combo.mp3','assets/audio/pudge_meat_hook.mp3','assets/audio/pudge_rot_loop.mp3','assets/audio/pudge_dismember.mp3','assets/audio/pudge_spawn_01.mp3','assets/audio/pudge_spawn_06.mp3','assets/audio/pudge_battlebegins_01.mp3','assets/audio/pudge_voice_hook_01.mp3','assets/audio/pudge_voice_hook_02.mp3','assets/audio/pudge_voice_hook_10.mp3','assets/audio/pudge_voice_rot_07.mp3','assets/audio/pudge_voice_rot_10.mp3','assets/audio/pudge_voice_dismember_02.mp3','assets/audio/pudge_voice_dismember_03.mp3','assets/audio/pudge_voice_dismember_12.mp3','assets/audio/pudge_kill_07.mp3','assets/audio/pudge_laugh_05.mp3','assets/audio/pudge_rival_silencer_12.mp3','assets/audio/pudge_item_heart_04.mp3','assets/audio/abaddon_attack_combo.mp3','assets/audio/abaddon_turn_levelup_01.mp3','assets/audio/abaddon_turn_spawn_02.mp3','assets/audio/mist_coil_cast.mp3','assets/audio/aphotic_shield_cast.mp3','assets/audio/borrowed_time_cast.mp3','assets/audio/abaddon_voice_mist_coil_02.mp3','assets/audio/abaddon_voice_mist_coil_06.mp3','assets/audio/abaddon_voice_aphotic_shield_01.mp3','assets/audio/abaddon_voice_aphotic_shield_05.mp3','assets/audio/abaddon_voice_borrowed_time_02.mp3','assets/audio/abaddon_voice_borrowed_time_07.mp3','assets/audio/abaddon_kill_06.mp3','assets/audio/abaddon_kill_09.mp3','assets/audio/abaddon_rival_bane_12.mp3','assets/audio/abaddon_rival_axe_14.mp3','assets/audio/abaddon_rival_silencer_09.mp3','assets/audio/tinker_defense_matrix.mp3','assets/audio/lifestealer_rage.mp3','assets/audio/tinker_spawn_01.mp3','assets/audio/tinker_spawn_04.mp3','assets/audio/tinker_voice_laser_01.mp3','assets/audio/tinker_voice_laser_04.mp3','assets/audio/tinker_voice_missile_01.mp3','assets/audio/tinker_voice_missile_05.mp3','assets/audio/tinker_voice_rearm_01.mp3','assets/audio/tinker_voice_rearm_09.mp3','assets/audio/tinker_laser.mp3','assets/audio/tinker_heat_missile.mp3','assets/audio/tinker_heat_missile_target.mp3','assets/audio/tinker_rearm_fx.mp3','assets/audio/tinker_kill_11.mp3','assets/audio/axe_preattack1.mp3','assets/audio/axe_attack1.mp3','assets/audio/axe_berserkers_call.mp3','assets/audio/axe_counter_helix.mp3','assets/audio/axe_culling_blade.mp3','assets/audio/axe_culling_blade_fail.mp3','assets/audio/axe_turn1.mp3','assets/audio/axe_turn2.mp3','assets/audio/axe_berserk_voice1.mp3','assets/audio/axe_berserk_voice2.mp3','assets/audio/axe_kill_07.mp3','assets/audio/axe_kill_01.mp3','assets/audio/axe_deny_15.mp3','assets/audio/mars_attack_combo.mp3','assets/audio/mars_spear_cast.mp3','assets/audio/mars_spear_target.mp3','assets/audio/mars_rebuke.mp3','assets/audio/mars_arena_combo.mp3','assets/audio/mars_wall_hit.mp3','assets/audio/mars_turn_01.mp3','assets/audio/mars_turn_02.mp3','assets/audio/mars_turn_03.mp3','assets/audio/mars_voice_spear_01.mp3','assets/audio/mars_voice_spear_02.mp3','assets/audio/mars_voice_rebuke_01.mp3','assets/audio/mars_voice_rebuke_02.mp3','assets/audio/mars_voice_arena_06.mp3','assets/audio/mars_voice_arena_09.mp3','assets/audio/mars_kill_01.mp3','assets/audio/mars_kill_12.mp3','assets/audio/mars_rival_abaddon.mp3','assets/audio/mars_rival_arcwarden.mp3','assets/audio/mars_rival_axe.mp3','assets/audio/mars_rival_bane.mp3','assets/audio/mars_rival_lifestealer.mp3','assets/audio/enigma_attack_pre.mp3','assets/audio/enigma_attack_launch.mp3','assets/audio/enigma_attack_impact.mp3'
   ];
-  const startupAssets=[...new Set([...critical,...lazy])];
-  let done=0;
-  let total=startupAssets.length+100;
-  const update=(extraPct=null)=>{
-    const pct=extraPct===null?Math.round(done/Math.max(1,total)*100):Math.max(0,Math.min(100,extraPct));
-    bar.style.width=pct+'%';
-    text.textContent=`Загрузка всех ассетов… ${pct}%`;
-  };
-  async function warm(url){try{const r=await fetch(url,{cache:'force-cache'});if(r.ok)await r.blob()}catch(_){}}
+  const bootAssets=[
+    'assets/ui/gold.png',
+    'assets/mastery/bronze.png',
+    'assets/mastery/silver.png',
+    'assets/mastery/gold.png',
+    'assets/mastery/platinum.png',
+    'assets/mastery/master.png',
+    'assets/mastery/grandmaster.png'
+  ];
+  const visualBackground=[...new Set(critical)].filter(x=>!bootAssets.includes(x));
+  const audioBackground=[...new Set(lazy)];
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  async function warm(url){
+    try{const r=await fetch(url,{cache:'force-cache'});if(r.ok)await r.blob()}catch(_){}
+  }
+  async function warmQueue(list,workers=2){
+    const q=[...list];
+    await Promise.all(Array.from({length:Math.max(1,workers)},async()=>{
+      while(q.length){
+        const url=q.shift();
+        await warm(url);
+        // Yield regularly so background warming never makes the UI feel stuck.
+        if(q.length%8===0)await sleep(0);
+      }
+    }));
+  }
+  function idle(fn,timeout=1800){
+    if('requestIdleCallback'in window)requestIdleCallback(()=>fn(),{timeout});
+    else setTimeout(fn,Math.min(timeout,1200));
+  }
   async function run(){
-    // Phase 1: every explicitly known image/audio/video file.
-    total=startupAssets.length+100;
-    const q=[...startupAssets];
-    const workers=Array.from({length:(window.innerHeight<=700?6:10)},async()=>{
-      while(q.length){await warm(q.shift());done++;update()}
-    });
-    await Promise.all(workers);
-
-    // Phase 2: dynamically discovered hero portraits/skills/audio from the current build.
-    if(typeof window.DotaWarmAllGameAssets==='function'){
-      await window.DotaWarmAllGameAssets((pct)=>{
-        const mapped=Math.round((startupAssets.length+pct)/Math.max(1,startupAssets.length+100)*100);
-        update(mapped);
-      }).catch(()=>{});
-    }
+    // Only a few tiny UI images may delay the first menu, and never for more than ~550 ms.
+    text.textContent='Запуск игры…';
+    bar.style.width='18%';
+    await Promise.race([
+      Promise.allSettled(bootAssets.map(warm)),
+      sleep(550)
+    ]);
 
     window.DOTA_ASSETS_READY=true;
-    text.textContent='Все ассеты загружены';
     bar.style.width='100%';
-    setTimeout(()=>loader.classList.add('asset-loader-done'),100);
-    setTimeout(()=>loader.remove(),380);
+    text.textContent='Готово';
+    loader.classList.add('asset-loader-done');
+    setTimeout(()=>loader.remove(),180);
+
+    // The rest is opportunistic. It never blocks the menu or lobby.
+    idle(()=>warmQueue(visualBackground,window.innerHeight<=700?2:3),1400);
+
+    // Audio is the heaviest/least useful part of the old startup preload.
+    // Warm it much later, one request at a time, and skip it on Save-Data connections.
+    if(!navigator.connection?.saveData){
+      setTimeout(()=>idle(()=>warmQueue(audioBackground,1),3000),4500);
+    }
   }
-  update(0);run();
+  run();
 })();
