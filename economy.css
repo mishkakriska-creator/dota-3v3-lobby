@@ -19,3 +19,14 @@
 
 .kill-notice .kill-hero[src$="turn_pudge.png"]{background:transparent!important;filter:none!important;box-shadow:none!important;border-color:#536069!important;image-rendering:auto!important}
 .turn-token img[src$="turn_pudge.png"]{background:transparent!important;filter:none!important;box-shadow:none!important;image-rendering:auto!important}
+
+
+/* v1.86.145 — keep gold icon the same visual weight as combat-log skill icons. */
+#game .log .gold-icon{
+  width:16px!important;
+  height:16px!important;
+  flex:0 0 16px!important;
+  background-size:16px 16px!important;
+  vertical-align:-3px!important;
+  margin-right:3px!important;
+}
