@@ -35,82 +35,121 @@
     'assets/audio/pudge_attack_combo.mp3','assets/audio/pudge_meat_hook.mp3','assets/audio/pudge_rot_loop.mp3','assets/audio/pudge_dismember.mp3','assets/audio/pudge_spawn_01.mp3','assets/audio/pudge_spawn_06.mp3','assets/audio/pudge_battlebegins_01.mp3','assets/audio/pudge_voice_hook_01.mp3','assets/audio/pudge_voice_hook_02.mp3','assets/audio/pudge_voice_hook_10.mp3','assets/audio/pudge_voice_rot_07.mp3','assets/audio/pudge_voice_rot_10.mp3','assets/audio/pudge_voice_dismember_02.mp3','assets/audio/pudge_voice_dismember_03.mp3','assets/audio/pudge_voice_dismember_12.mp3','assets/audio/pudge_kill_07.mp3','assets/audio/pudge_laugh_05.mp3','assets/audio/pudge_rival_silencer_12.mp3','assets/audio/pudge_item_heart_04.mp3','assets/audio/abaddon_attack_combo.mp3','assets/audio/abaddon_turn_levelup_01.mp3','assets/audio/abaddon_turn_spawn_02.mp3','assets/audio/mist_coil_cast.mp3','assets/audio/aphotic_shield_cast.mp3','assets/audio/borrowed_time_cast.mp3','assets/audio/abaddon_voice_mist_coil_02.mp3','assets/audio/abaddon_voice_mist_coil_06.mp3','assets/audio/abaddon_voice_aphotic_shield_01.mp3','assets/audio/abaddon_voice_aphotic_shield_05.mp3','assets/audio/abaddon_voice_borrowed_time_02.mp3','assets/audio/abaddon_voice_borrowed_time_07.mp3','assets/audio/abaddon_kill_06.mp3','assets/audio/abaddon_kill_09.mp3','assets/audio/abaddon_rival_bane_12.mp3','assets/audio/abaddon_rival_axe_14.mp3','assets/audio/abaddon_rival_silencer_09.mp3','assets/audio/tinker_defense_matrix.mp3','assets/audio/lifestealer_rage.mp3','assets/audio/tinker_spawn_01.mp3','assets/audio/tinker_spawn_04.mp3','assets/audio/tinker_voice_laser_01.mp3','assets/audio/tinker_voice_laser_04.mp3','assets/audio/tinker_voice_missile_01.mp3','assets/audio/tinker_voice_missile_05.mp3','assets/audio/tinker_voice_rearm_01.mp3','assets/audio/tinker_voice_rearm_09.mp3','assets/audio/tinker_laser.mp3','assets/audio/tinker_heat_missile.mp3','assets/audio/tinker_heat_missile_target.mp3','assets/audio/tinker_rearm_fx.mp3','assets/audio/tinker_kill_11.mp3','assets/audio/axe_preattack1.mp3','assets/audio/axe_attack1.mp3','assets/audio/axe_berserkers_call.mp3','assets/audio/axe_counter_helix.mp3','assets/audio/axe_culling_blade.mp3','assets/audio/axe_culling_blade_fail.mp3','assets/audio/axe_turn1.mp3','assets/audio/axe_turn2.mp3','assets/audio/axe_berserk_voice1.mp3','assets/audio/axe_berserk_voice2.mp3','assets/audio/axe_kill_07.mp3','assets/audio/axe_kill_01.mp3','assets/audio/axe_deny_15.mp3','assets/audio/mars_attack_combo.mp3','assets/audio/mars_spear_cast.mp3','assets/audio/mars_spear_target.mp3','assets/audio/mars_rebuke.mp3','assets/audio/mars_arena_combo.mp3','assets/audio/mars_wall_hit.mp3','assets/audio/mars_turn_01.mp3','assets/audio/mars_turn_02.mp3','assets/audio/mars_turn_03.mp3','assets/audio/mars_voice_spear_01.mp3','assets/audio/mars_voice_spear_02.mp3','assets/audio/mars_voice_rebuke_01.mp3','assets/audio/mars_voice_rebuke_02.mp3','assets/audio/mars_voice_arena_06.mp3','assets/audio/mars_voice_arena_09.mp3','assets/audio/mars_kill_01.mp3','assets/audio/mars_kill_12.mp3','assets/audio/mars_rival_abaddon.mp3','assets/audio/mars_rival_arcwarden.mp3','assets/audio/mars_rival_axe.mp3','assets/audio/mars_rival_bane.mp3','assets/audio/mars_rival_lifestealer.mp3','assets/audio/enigma_attack_pre.mp3','assets/audio/enigma_attack_launch.mp3','assets/audio/enigma_attack_impact.mp3'
   ];
   const ASSET_CACHE='dota-cards-assets-v1';
-  const visualAssets=[...new Set(critical)];
-  const audioAssets=[...new Set(lazy)];
+  const PRELOAD_MARKER='__dota_full_preload_v1__';
+  const allExplicit=[...new Set([...critical,...lazy])];
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-  let visualDone=0;
-  let visualFinished=false;
-
-  const updateVisualProgress=()=>{
-    const pct=Math.max(1,Math.min(99,Math.round(visualDone/Math.max(1,visualAssets.length)*100)));
-    bar.style.width=pct+'%';
-    text.textContent=`Подготовка игровых ассетов… ${pct}%`;
-  };
 
   async function assetCache(){
     try{return await caches.open(ASSET_CACHE)}catch(_){return null}
   }
+  function markerRequest(){
+    return new Request(new URL(PRELOAD_MARKER,location.href).href,{credentials:'same-origin'});
+  }
+  async function hasCompleteMarker(){
+    try{
+      const cache=await assetCache();
+      return !!(cache&&await cache.match(markerRequest()));
+    }catch(_){return false}
+  }
+  async function writeCompleteMarker(){
+    try{
+      const cache=await assetCache();
+      if(cache)await cache.put(markerRequest(),new Response(JSON.stringify({completedAt:Date.now(),version:1}),{headers:{'content-type':'application/json'}}));
+    }catch(_){}
+  }
 
   async function warm(url){
+    if(!url)return true;
     try{
       const cache=await assetCache();
       const req=new Request(url,{credentials:'same-origin'});
       const hit=cache?await cache.match(req,{ignoreSearch:true}):null;
       if(hit)return true;
-      const r=await fetch(req,{cache:'no-store'});
-      if(!r.ok)return false;
+
+      // force-cache also benefits the CURRENT first page before the new service worker
+      // has taken control; Cache Storage keeps the file for future sessions.
+      const ctrl=new AbortController();
+      const timer=setTimeout(()=>ctrl.abort(),18000);
+      let r;
+      try{r=await fetch(req,{cache:'force-cache',signal:ctrl.signal})}finally{clearTimeout(timer)}
+      if(!r||!r.ok)return false;
       if(cache)await cache.put(req,r.clone()).catch(()=>{});
-      else await r.blob().catch(()=>{});
+      // Consume a clone so the browser is encouraged to retain the normal HTTP cache too.
+      await r.blob().catch(()=>{});
       return true;
     }catch(_){return false}
   }
+  window.DotaPersistentWarmAsset=warm;
 
-  async function warmQueue(list,workers,onDone){
+  async function warmQueue(list,workers,onProgress){
     const q=[...list];
+    let done=0,ok=0;
     await Promise.all(Array.from({length:Math.max(1,workers)},async()=>{
       while(q.length){
         const url=q.shift();
-        await warm(url);
-        onDone?.();
-        if(q.length%10===0)await sleep(0);
+        if(await warm(url))ok++;
+        done++;
+        try{onProgress?.(done,list.length,ok)}catch(_){}
+        if(done%10===0)await sleep(0);
       }
     }));
+    return {done,total:list.length,ok};
   }
 
-  function idle(fn,timeout=1600){
-    if('requestIdleCallback'in window)requestIdleCallback(()=>fn(),{timeout});
-    else setTimeout(fn,Math.min(timeout,900));
+  async function finishLoader(copy='Все ассеты сохранены'){
+    window.DOTA_ASSETS_READY=true;
+    bar.style.width='100%';
+    text.textContent=copy;
+    await sleep(120);
+    loader.classList.add('asset-loader-done');
+    setTimeout(()=>loader.remove(),260);
   }
 
   async function run(){
-    // Bring back the useful preload: portraits, skill/item icons and videos are warmed
-    // before the menu, but the screen can never hold the player for ages.
-    updateVisualProgress();
-    const visualPromise=warmQueue(
-      visualAssets,
-      window.innerHeight<=700?6:8,
-      ()=>{visualDone++;updateVisualProgress()}
-    ).then(()=>{visualFinished=true});
+    // Already completed once on this browser: do NOT repeat the long loader.
+    if(await hasCompleteMarker()){
+      bar.style.width='100%';
+      text.textContent='Ассеты уже загружены';
+      await finishLoader('Ассеты уже загружены');
+      return;
+    }
 
-    // First install gets up to 4.5s of real preloading. On later launches almost
-    // everything is already in persistent Cache Storage, so this normally finishes instantly.
-    await Promise.race([visualPromise,sleep(4500)]);
+    // First install (or an interrupted previous attempt): preload everything.
+    // Cached files are skipped, so a restarted preload resumes rather than re-downloads.
+    let explicitDone=0;
+    const explicitTotal=Math.max(1,allExplicit.length);
+    const drawExplicit=()=>{
+      const pct=Math.min(72,Math.max(1,Math.round(explicitDone/explicitTotal*72)));
+      bar.style.width=pct+'%';
+      text.textContent=`Первичная загрузка ассетов… ${pct}%`;
+    };
+    drawExplicit();
 
-    window.DOTA_ASSETS_READY=true;
-    bar.style.width='100%';
-    text.textContent=visualFinished?'Ассеты готовы':'Основные ассеты готовы';
-    loader.classList.add('asset-loader-done');
-    setTimeout(()=>loader.remove(),240);
+    const explicit=await warmQueue(
+      allExplicit,
+      window.innerHeight<=700?6:10,
+      done=>{explicitDone=done;drawExplicit()}
+    );
 
-    // If first launch hit the time cap, finish the exact same queue in the background.
-    visualPromise.catch(()=>{});
+    // Second pass discovers anything not listed above from the live hero/item data.
+    // game.js is wired to DotaPersistentWarmAsset, so these files go into the SAME cache.
+    if(typeof window.DotaWarmAllGameAssets==='function'){
+      text.textContent='Проверка героев, эффектов и звуков… 72%';
+      await window.DotaWarmAllGameAssets((pct)=>{
+        const mapped=72+Math.round(Math.max(0,Math.min(100,pct))*0.27);
+        bar.style.width=Math.min(99,mapped)+'%';
+        text.textContent=`Проверка героев, эффектов и звуков… ${Math.min(99,mapped)}%`;
+      }).catch(()=>{});
+    }
 
-    // Sound is not allowed to hold the startup screen. It is cached persistently too,
-    // so after one background pass future matches reuse the files locally.
-    if(!navigator.connection?.saveData){
-      const warmAudio=()=>warmQueue(audioAssets,window.innerHeight<=700?2:3);
-      if(visualFinished)idle(warmAudio,1200);
-      else visualPromise.finally(()=>idle(warmAudio,900));
+    // Don't permanently mark a clearly broken/offline preload as complete.
+    const successRatio=explicit.total?explicit.ok/explicit.total:1;
+    if(successRatio>=0.9){
+      await writeCompleteMarker();
+      await finishLoader('Все ассеты загружены и сохранены');
+    }else{
+      // Let the user in, but next launch will resume missing files.
+      await finishLoader('Основные ассеты сохранены — остаток догрузится при следующем запуске');
     }
   }
 

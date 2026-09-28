@@ -758,17 +758,24 @@ function gameplayAudioUrls(){
   Object.values(MATCH_AUDIO_INDEX).forEach(collect);collect(AUDIO);collect(ATTACK_AUDIO);collect(IO_ATTACK_AUDIO);
   return [...urls];
 }
-function warmAudioNetworkOnly(url){return fetch(audioCacheKey(url),{cache:'force-cache'}).then(r=>r.ok?r.blob():null).catch(()=>null)}
-function warmVideoNetworkOnly(url){return fetch(url,{cache:'force-cache'}).then(r=>r.ok?r.blob():null).catch(()=>null)}
+function warmAudioNetworkOnly(url){
+  const src=audioCacheKey(url);
+  if(typeof window.DotaPersistentWarmAsset==='function')return window.DotaPersistentWarmAsset(src);
+  return fetch(src,{cache:'force-cache'}).then(r=>r.ok?r.blob():null).catch(()=>null);
+}
+function warmVideoNetworkOnly(url){
+  if(typeof window.DotaPersistentWarmAsset==='function')return window.DotaPersistentWarmAsset(url);
+  return fetch(url,{cache:'force-cache'}).then(r=>r.ok?r.blob():null).catch(()=>null);
+}
 function warmAllGameAssets(onProgress){
   if(allGameAssetWarmPromise)return allGameAssetWarmPromise;
   const ids=[...new Set([...DRAFT_ORDER,...Object.keys(DATA)])].filter(id=>DATA[id]);
   const jobs=[];
   for(const id of ids){
     const d=DATA[id]||{};
-    jobs.push(()=>preloadMatchImage(d.img||draftPortraitSrc(id)||''));
+    jobs.push(async()=>{const src=d.img||draftPortraitSrc(id)||'';if(window.DotaPersistentWarmAsset)await window.DotaPersistentWarmAsset(src);return preloadMatchImage(src)});
     jobs.push(()=>warmVideoNetworkOnly(battlePortraitSrcFor(id)));
-    for(const sk of d.skills||[]){const icon=skillIcon(id,sk.id);if(icon)jobs.push(()=>preloadMatchImage(icon))}
+    for(const sk of d.skills||[]){const icon=skillIcon(id,sk.id);if(icon)jobs.push(async()=>{if(window.DotaPersistentWarmAsset)await window.DotaPersistentWarmAsset(icon);return preloadMatchImage(icon)})}
   }
   ['assets/portraits/forge_spirit.webm','assets/portraits/spiderling.webm','assets/portraits/arcwarden_clone.webm','assets/portraits/phantomlancer_illusion.webm'].forEach(url=>jobs.push(()=>warmVideoNetworkOnly(url)));
   gameplayAudioUrls().forEach(url=>jobs.push(()=>warmAudioNetworkOnly(url)));
