@@ -6,7 +6,7 @@
     {id:'hand',name:'Hand of God',cd:4,desc:'Лечит всех союзных героев и подконтрольных крипов на 3 HP, затем ещё 2 общих хода лечит их на 1 HP за общий ход. Перезарядка: 4 хода Chen.'}
   ];
   DATA[CHEN_ID]={name:'CHEN',hp:8,atk:1,img:'assets/chen.jpg',skills:CHEN_SKILLS};
-  DATA[SLOT_ID]={name:'ПОДКОНТРОЛЬНЫЙ КРИП',hp:5,atk:.5,img:'assets/chen_creep_icon.png',skills:[]};
+  DATA[SLOT_ID]={name:'ПОДКОНТРОЛЬНЫЙ КРИП',hp:5,atk:.5,img:'assets/skills/chen_holy_persuasion.png',skills:[]};
   HERO_ICONS[CHEN_ID]='assets/chen_icon.png';
   HERO_ICONS[SLOT_ID]='assets/skills/chen_holy_persuasion.png';
   SKILL_ICONS[CHEN_ID]=['assets/skills/chen_holy_persuasion.png','assets/skills/chen_divine_favor.png','assets/skills/chen_hand_of_god.png'];
@@ -33,7 +33,7 @@
     if(!slot.chenCreeps.length){slot.dead=true;slot.hp=0;return}
     slot.chenCreepIndex=Math.max(0,Math.min(slot.chenCreeps.length-1,Number(slot.chenCreepIndex)||0));
     const c=currentCreep(slot),d=CREEPS[c.kind];
-    slot.dead=false;slot.name=d.name;slot.maxHp=c.maxHp;slot.hp=c.hp;slot.atk=d.atk;slot.baseAtk=d.atk;slot.armor=0;slot.portrait=d.portrait;slot.img='assets/chen_creep_icon.png';slot.staticPortrait=false;
+    slot.dead=false;slot.name=d.name;slot.maxHp=c.maxHp;slot.hp=c.hp;slot.atk=d.atk;slot.baseAtk=d.atk;slot.armor=0;slot.portrait=d.portrait;slot.img='assets/skills/chen_holy_persuasion.png';slot.staticPortrait=false;
   }
   function storeSlot(slot){const c=currentCreep(slot);if(!c)return;c.hp=Math.max(0,Number(slot.hp)||0);c.maxHp=Math.max(1,Number(slot.maxHp)||c.maxHp)}
   function makeCreep(kind){const d=CREEPS[kind];return{uid:`chen_${kind}_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,kind,hp:d.hp,maxHp:d.hp,life:8,hotTurns:0}}
