@@ -5508,3 +5508,26 @@ html body #game .battlefield .hero.targetable:hover{
     border-radius:4px!important;
   }
 }
+
+
+/* v1.86.147 — Tempest Double portrait: crop out black letterbox bars on every viewport. */
+#game .battlefield .hero[data-hero="arcwarden_clone"]>.hero-portrait{
+  overflow:hidden!important;
+  background:#101722!important;
+}
+#game .battlefield .hero[data-hero="arcwarden_clone"]>.hero-portrait>video{
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:100%!important;
+  min-height:100%!important;
+  object-fit:cover!important;
+  object-position:center center!important;
+  transform:translate(-50%,-50%) scale(1.18,1.38)!important;
+  transform-origin:center center!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .hero[data-hero="arcwarden_clone"]>.hero-portrait>video{
+  transform:translate(-50%,-50%) scale(1.20,1.42)!important;
+}
