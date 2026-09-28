@@ -217,6 +217,7 @@
     if(!DATA[h.id].skills.some(s=>s.id===id&&!s.passive))return;
     if(isHeroSilenced(h)){alert('Герой обезмолвлен и не может использовать способности.');return}
     if((h.cd[id]||0)>1)return;
+    armTargetSkillHint(h,id);
     if(id==='spark'){
       chooseEnemy('Выберите переднего врага для Spark Wraith',()=>true,t=>{
         playSkillSound(h,'spark');
