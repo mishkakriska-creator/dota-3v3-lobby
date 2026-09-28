@@ -341,7 +341,7 @@
           addSkillLog(h,'culling',`${h.name} наносит ${t.name} ${cullDamage} чистого урона Culling Blade, но не добивает его. Перезарядка: 4 хода Axe.`);
         }
         spend();
-      });
+      },'culling');
       return;
     }
   };
