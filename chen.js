@@ -127,7 +127,7 @@
   function useCreepSkill(slot){
     if(!G||active()!==slot||slot.dead||G.actions<1||targetMode)return;const c=currentCreep(slot);if(!c)return;const kind=c.kind;
     if(kind==='ogre'){
-      const t=lineEnemyAtSameDepth(slot);if(!t||t.dead){alert('Перед Огром нет врага на той же позиции линии.');return}
+      const t=frontHero(1-slot.team);if(!t||t.dead){alert('Нет переднего врага для Ogre Smash!.');return}
       damage(t,.5,`${creepLogIcon(kind)} Ogre Smash!: `,slot,{impactDelay:100});t.stun=Math.max(Number(t.stun)||0,1);addLog(`${creepLogIcon(kind)}<span>Ogre Smash! оглушает ${t.name} на 1 активацию.</span>`);spend();return;
     }
     if(kind==='satyr'){
