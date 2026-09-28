@@ -121,7 +121,25 @@ let targetSkillHint=null;
 function targetHeroHintIcon(hero){
  const rawId=hero?.id||'';
  const id=rawId==='arcwarden_clone'?'arcwarden':rawId;
- return (id&&HERO_ICONS?.[id])||hero?.img||(id&&DATA?.[id]?.img)||'';
+ const turnIcons={
+  phantomlancer:'assets/turn_phantomlancer.webp',
+  techies:'assets/turn_techies.png',
+  morphling:'assets/turn_morphling.png',
+  silencer:'assets/turn_silencer.png',
+  bane:'assets/turn_bane.png',
+  shadowfiend:'assets/turn_shadowfiend.png',
+  lifestealer:'assets/turn_lifestealer.png',
+  abaddon:'assets/turn_abaddon.png',
+  io:'assets/turn_io.png',
+  tinker:'assets/turn_tinker.png',
+  invoker:'assets/turn_invoker.png',
+  arcwarden:'assets/arcwarden_queue_icon.png',
+  axe:'assets/axe_icon.png',
+  broodmother:'assets/turn_broodmother_mini.png',
+  mars:'assets/turn_mars.png',
+  pudge:'assets/turn_pudge.png'
+ };
+ return turnIcons[id]||(id&&HERO_ICONS?.[id])||hero?.img||(id&&DATA?.[id]?.img)||'';
 }
 function armTargetSkillHint(hero,id){
  const hint={heroId:hero?.id||'',skillId:id||'',icon:targetHeroHintIcon(hero)};
