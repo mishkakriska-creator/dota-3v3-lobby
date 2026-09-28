@@ -14,10 +14,10 @@
   if(typeof draft==='function')draft();
 
   const CREEPS={
-    ogre:{name:'ОГР-ГРОМИЛА',hp:5,atk:.5,portrait:'assets/portraits/chen_ogre.webm',icon:'assets/skills/chen_ogre_smash.webp',skill:'Ogre Smash!'},
-    wildwing:{name:'ДИКОКРЫЛ-ПОТРОШИТЕЛЬ',hp:4,atk:.5,portrait:'assets/portraits/chen_wildwing.webm',icon:'assets/skills/chen_hurricane.webp',skill:'Hurricane'},
-    satyr:{name:'САТИР-МУЧИТЕЛЬ',hp:5,atk:.5,portrait:'assets/portraits/chen_satyr.webm',icon:'assets/skills/chen_shockwave.webp',skill:'Shockwave'},
-    pinecone:{name:'СОСНОВЫЙ НАЛЁТЧИК',hp:4,atk:.5,portrait:'assets/portraits/chen_pinecone.webm',icon:'assets/skills/chen_seed_shot.webp',skill:'Seed Shot'}
+    ogre:{name:'ОГР-ГРОМИЛА',hp:5,atk:.5,portrait:'assets/portraits/chen_ogre.webm?v=2',icon:'assets/skills/chen_ogre_smash.webp',skill:'Ogre Smash!'},
+    wildwing:{name:'ДИКОКРЫЛ-ПОТРОШИТЕЛЬ',hp:4,atk:.5,portrait:'assets/portraits/chen_wildwing.webm?v=2',icon:'assets/skills/chen_hurricane.webp',skill:'Hurricane'},
+    satyr:{name:'САТИР-МУЧИТЕЛЬ',hp:5,atk:.5,portrait:'assets/portraits/chen_satyr.webm?v=2',icon:'assets/skills/chen_shockwave.webp',skill:'Shockwave'},
+    pinecone:{name:'СОСНОВЫЙ НАЛЁТЧИК',hp:4,atk:.5,portrait:'assets/portraits/chen_pinecone.webm?v=2',icon:'assets/skills/chen_seed_shot.webp',skill:'Seed Shot'}
   };
   const CREEP_ORDER=['ogre','wildwing','satyr','pinecone'];
   const CHEN_AUDIO_SRC='assets/audio/chen_audio_sprite.ogg?v=2';
