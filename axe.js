@@ -299,6 +299,7 @@
     if(!G||G.resolving||G.winner!==null||G.actions<1||targetMode)return;
     if(isHeroSilenced(h)){alert('Герой обезмолвлен и не может использовать способности.');return}
     if((h.cd[id]||0)>1)return;
+    armTargetSkillHint(h,id);
 
     if(id==='helix'){
       alert('Counter Helix — пассивная способность. Она срабатывает автоматически после каждого 2-го полученного удара с руки.');
