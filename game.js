@@ -79,7 +79,7 @@ DATA.mars={name:'MARS',hp:9,atk:2,img:'assets/mars_draft.png',skills:[
 
 const ITEMS={
  satanic:{name:'Satanic',cost:11,img:'assets/items/satanic.png',category:'weapon',cd:3,active:true,free:true,desc:'В свой ход без траты действия применяет нормальное развеивание и даёт 100% вампиризм от атак до конца текущего хода. Fiend’s Grip нормальным развеиванием не снимается. Перезарядка: 3 хода героя. Собирается из Morbid Mask.'},
- assault:{name:'Assault Cuirass',cost:12,img:'assets/items/assault.png',category:'armor',desc:'Аура: +1 броня всей команде, включая владельца. Если владелец впереди своей линии, передний враг получает −1 брони. Одинаковые ауры не складываются.'},
+ assault:{name:'Assault Cuirass',cost:12,img:'assets/items/assault.png',category:'armor',desc:'Аура: +2 брони всей команде, включая владельца. Если владелец впереди своей линии, передний враг получает −1 брони. Одинаковые ауры не складываются.'},
  crystalys:{name:'Crystalys',cost:6,img:'assets/items/crystalys.png',category:'weapon',desc:'30% шанс при обычной атаке нанести критический урон в размере 150% от текущей тычки. Дробная часть округляется вниз.'},
  daedalus:{name:'Daedalus',cost:10,img:'assets/items/daedalus.png',category:'weapon',desc:'Даёт +1 к урону. 30% шанс при обычной атаке нанести критический урон в размере 200% от текущей тычки. Дробная часть округляется вниз.'},
  bloodthorn:{name:'Bloodthorn',cost:11,img:'assets/items/bloodthorn.png',category:'weapon',cd:3,active:true,desc:'Активно, стоит 1 действие: обезмолвливает переднюю цель на 2 хода команды цели. По окончании второго такого хода наносит 60% всего урона, полученного целью во время эффекта, с округлением вниз. Пока эффект активен, обычные атаки и атаки иллюзий по цели наносят ещё +1 урон, а при наличии уклонения имеют 40% шанс пробить его.'},
@@ -468,7 +468,7 @@ function shadowfiendPresencePenalty(target){if(!target||!G||effectImmune(target)
 function shadowfiendRazeTarget(team,mode){let order=currentLineOrder(team);if(!order.length)return null;if(mode==='near')return order[0]||null;if(mode==='mid')return order[Math.min(1,order.length-1)]||null;if(mode==='far')return order[order.length-1]||null;return null}
 function assaultArmorBonus(h){
  if(!G||!h||h.dead)return 0;
- const own=G.teams[h.team].some(x=>!x.dead&&!x.infested&&x.items?.includes('assault'))?1:0;
+ const own=G.teams[h.team].some(x=>!x.dead&&!x.infested&&x.items?.includes('assault'))?2:0;
  const enemy=frontHero(1-h.team);
  return own-(h===frontHero(h.team)&&enemy&&!enemy.dead&&enemy.items?.includes('assault')?1:0);
 }
