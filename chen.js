@@ -163,7 +163,7 @@
     }
   }
   const baseBeginActivation=beginActivation;
-  beginActivation=function(){const r=baseBeginActivation();if(G&&G.winner===null){const h=active();if(isChenSlot(h)){const c=currentCreep(h);if(c&&c.skillCd>0)c.skillCd=Math.max(0,c.skillCd-1)}tickChenGlobal();render()}return r};
+  beginActivation=function(){const r=baseBeginActivation();if(G&&G.winner===null){const h=active();if(isChenSlot(h)){for(const c of h.chenCreeps||[])if(c.skillCd>0)c.skillCd=Math.max(0,c.skillCd-1)}tickChenGlobal();render()}return r};
 
   function summonChoice(chen){
     if(slotForTeam(chen.team)?.chenCreeps?.length>=2){alert('У Chen уже максимум 2 подконтрольных крипа.');return}
