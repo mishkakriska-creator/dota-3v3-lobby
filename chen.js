@@ -1,7 +1,7 @@
 (() => {
   const CHEN_ID='chen', SLOT_ID='chen_creeps';
   const CHEN_SKILLS=[
-    {id:'persuasion',name:'Holy Persuasion',cd:1,desc:'Призывает одного крипа на выбор: Огр-громила, Дикокрыл-потрошитель, Сатир-мучитель или Сосновый налётчик. Одновременно можно контролировать максимум 2 крипов. Каждый живёт 16 общих ходов. За убийство крипа противник получает 1 золото. Перезарядка: 1 ход Chen.'},
+    {id:'persuasion',name:'Holy Persuasion',cd:1,desc:'Призывает одного крипа на выбор: Огр-громила, Дикокрыл-потрошитель, Сатир-мучитель или Сосновый налётчик. Одновременно можно контролировать максимум 2 крипов. Каждый живёт 14 общих ходов. За убийство крипа противник получает 1 золото. Перезарядка: 1 ход Chen.'},
     {id:'favor',name:'Divine Favor',cd:0,passive:true,desc:'Пассивно: все союзники и подконтрольные крипы восстанавливают 0.25 HP каждый общий ход и получают +0.5 брони.'},
     {id:'hand',name:'Hand of God',cd:4,desc:'Лечит всех союзных героев и подконтрольных крипов на 3 HP, затем ещё 2 общих хода лечит их на 1 HP за общий ход. Перезарядка: 4 хода Chen.'}
   ];
@@ -195,7 +195,7 @@
     slot.dead=false;slot.name=d.name;slot.maxHp=c.maxHp;slot.hp=c.hp;slot.atk=d.atk;slot.baseAtk=d.atk;slot.armor=0;slot.portrait=d.portrait;slot.img='assets/skills/chen_holy_persuasion.webp';slot.staticPortrait=false;
   }
   function storeSlot(slot){const c=currentCreep(slot);if(!c)return;c.hp=Math.max(0,Number(slot.hp)||0);c.maxHp=Math.max(1,Number(slot.maxHp)||c.maxHp)}
-  function makeCreep(kind){const d=CREEPS[kind];return{uid:`chen_${kind}_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,kind,hp:d.hp,maxHp:d.hp,life:16,hotTurns:0,skillCd:0}}
+  function makeCreep(kind){const d=CREEPS[kind];return{uid:`chen_${kind}_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,kind,hp:d.hp,maxHp:d.hp,life:14,hotTurns:0,skillCd:0}}
   function makeSlot(team,kind){const slot=mkHero(SLOT_ID,team);slot.chenCreeps=[makeCreep(kind)];slot.chenCreepIndex=0;slot.ownerId=CHEN_ID;slot.items=[];slot.cd={};slot.itemCd={};syncSlot(slot);return slot}
   function removeSlotFromTeam(slot){
     if(!G||!slot)return;const arr=G.teams[slot.team],idx=arr.indexOf(slot);if(idx<0)return;
@@ -209,7 +209,7 @@
     const dead=slot.chenCreeps[index],name=CREEPS[dead.kind].name;
     slot.chenCreeps.splice(index,1);
     if(killed){const rewardTeam=1-slot.team;G.gold[rewardTeam]=(G.gold[rewardTeam]||0)+1;addLog(`${goldIcon()} Игрок ${rewardTeam+1} получает 1 золото за убийство ${name}.`)}
-    if(expired)addLog(`${creepLogIcon(dead.kind)}<span>${name} исчезает: закончились 16 общих ходов.</span>`);
+    if(expired)addLog(`${creepLogIcon(dead.kind)}<span>${name} исчезает: закончились 14 общих ходов.</span>`);
     if(!slot.chenCreeps.length){slot.dead=true;slot.hp=0;removeSlotFromTeam(slot);checkWin();return}
     slot.chenCreepIndex=Math.min(slot.chenCreepIndex||0,slot.chenCreeps.length-1);syncSlot(slot);
   }
@@ -283,7 +283,7 @@
       arr.splice(insertAt,0,slot);
       if(insertAt<=front)G.front[chen.team]=front+1;
     }
-    putOnCooldown(chen,'persuasion');addSkillLog(chen,'persuasion',`${chen.name} подчиняет ${CREEPS[kind].name} на 16 общих ходов.`);spend();render();
+    putOnCooldown(chen,'persuasion');addSkillLog(chen,'persuasion',`${chen.name} подчиняет ${CREEPS[kind].name} на 14 общих ходов.`);spend();render();
   }
   function switchCreep(slot,index){if(!slot||active()!==slot||targetMode||index===slot.chenCreepIndex||!slot.chenCreeps?.[index])return;storeSlot(slot);slot.chenCreepIndex=index;syncSlot(slot);render()}
 
