@@ -20,7 +20,7 @@
     pinecone:{name:'СОСНОВЫЙ НАЛЁТЧИК',hp:4,atk:.5,portrait:'assets/portraits/chen_pinecone.webm?v=2',icon:'assets/skills/chen_seed_shot.webp',skill:'Seed Shot'}
   };
   const CREEP_ORDER=['ogre','wildwing','satyr','pinecone'];
-  const CHEN_AUDIO_SRC='assets/audio/chen_audio_sprite.ogg?v=2';
+  const CHEN_AUDIO_SRC='assets/audio/chen_audio_sprite.ogg?v=3';
   const CHEN_AUDIO_CLIPS={
     spawn1:[.200,.836],spawn2:[1.216,2.272],cast1:[3.668,1.646],item04:[5.494,2.090],
     test:[7.764,2.862],holyp1:[10.806,2.220],holyp3:[13.206,2.299],
