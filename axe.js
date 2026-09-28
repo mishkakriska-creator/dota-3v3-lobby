@@ -70,11 +70,11 @@
   function playAxeKillVoice(){playRandomVoice(AXE_VOICES.kill)}
   function findBerserkerCallTarget(team){return (G?.teams?.[team]||[]).find(h=>h.id===AXE_ID&&!h.dead&&(h.axeCallTurns||0)>0&&!h.infested)||null}
   function isAxeCallActive(h){return !!h&&h.id===AXE_ID&&!h.dead&&(h.axeCallTurns||0)>0}
-  function expireAxeCall(h){if(!h)return;let bonus=Number(h.axeCallArmor)||0;if(bonus){h.armor=(Number(h.armor)||0)-bonus;h.axeCallArmor=0}h.axeCallTurns=0;h.axeCallAppliedTurn=0;addLog(`🪓 Berserker's Call на ${h.name} заканчивается.`)}
+  function expireAxeCall(h){if(!h)return;let bonus=Number(h.axeCallArmor)||0;if(bonus){h.armor=(Number(h.armor)||0)-bonus;h.axeCallArmor=0}h.axeCallTurns=0;h.axeCallAppliedTurn=0;addLog(`${logIcon(AXE_ID,'call')}<span>Berserker's Call на ${h.name} заканчивается.</span>`)}
   function redirectBasicAttackTarget(attacker,target,announce=true){
     const forced=findBerserkerCallTarget(1-attacker.team);
     if(!forced||forced===target||effectImmune(attacker))return target;
-    if(announce)addLog(`🪓 Berserker's Call: атака ${attacker.name} перенаправляется на ${forced.name}.`);
+    if(announce)addLog(`${logIcon(AXE_ID,'call')}<span>Berserker's Call: атака ${attacker.name} перенаправляется на ${forced.name}.</span>`);
     return forced;
   }
   function tickAxeCallDurations(){
@@ -93,10 +93,10 @@
     setTimeout(()=>playFile(sfxAudio,'assets/audio/axe_attack1.mp3'),105);
   }
   function performForcedCallAttack(attacker,axe){
-    if(!attacker||!axe||attacker.dead||axe.dead)return false;if(effectImmune(attacker)){addLog(`🩸 Rage: ${attacker.name} игнорирует Berserker's Call.`);return false}
-    if((attacker.disarmTurns||0)>0){addLog(`🪓 Berserker's Call тянет ${attacker.name} к атаке, но он обезоружен.`);return false}
-    if(attacker.sleep||attacker.nightmare){addLog(`🪓 ${attacker.name} под эффектом сна и не может выполнить вынужденную атаку по ${axe.name}.`);return false}
-    addLog(`🪓 Berserker's Call: ${attacker.name} вынужденно атакует ${axe.name} с руки. Эта атака не тратит действие.`);
+    if(!attacker||!axe||attacker.dead||axe.dead)return false;if(effectImmune(attacker)){addLog(`${logIcon(AXE_ID,'call')}<span>Rage: ${attacker.name} игнорирует Berserker's Call.</span>`);return false}
+    if((attacker.disarmTurns||0)>0){addLog(`${logIcon(AXE_ID,'call')}<span>Berserker's Call тянет ${attacker.name} к атаке, но он обезоружен.</span>`);return false}
+    if(attacker.sleep||attacker.nightmare){addLog(`${logIcon(AXE_ID,'call')}<span>${attacker.name} под эффектом сна и не может выполнить вынужденную атаку по ${axe.name}.</span>`);return false}
+    addLog(`${logIcon(AXE_ID,'call')}<span>Berserker's Call: ${attacker.name} вынужденно атакует ${axe.name} с руки. Эта атака не тратит действие.</span>`);
     playAttackSound(attacker);
     if(attackMisses(attacker,axe)){addLog(`💨 ${attacker.name} промахивается по ${axe.name}.`);return true}
     const hit=attackDamageInfo(attacker,axe,physicalBaseDamage(attacker,axe),{allowCrit:true});
