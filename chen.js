@@ -48,6 +48,68 @@
     const parts=CREEP_REMOTE_SFX[kind]||[];
     parts.forEach(([src,delay])=>setTimeout(()=>{try{const a=new Audio(src);a.volume=.72;a.preload='auto';a.play().catch(()=>{});if(kind==='wildwing')setTimeout(()=>{try{a.pause();a.removeAttribute('src');a.load()}catch(_){}},2600)}catch(_){}},delay||0));
   }
+
+  function creepFxLayer(){
+    let layer=document.getElementById('combatFx');
+    if(!layer){layer=document.createElement('div');layer.id='combatFx';layer.setAttribute('aria-hidden','true');document.body.appendChild(layer)}
+    return layer;
+  }
+  function creepFxPoint(h){
+    if(!h)return null;let el=null;
+    if(typeof isForgeSpiritTarget==='function'&&isForgeSpiritTarget(h)){
+      const owner=typeof forgeSpiritOwner==='function'?forgeSpiritOwner(h):null;
+      if(owner)el=document.querySelector(`#hero-${h.team}-${owner.id} .forge-spirit-card`);
+    }else el=document.querySelector(`#hero-${h.team}-${h.id} .hero-portrait`);
+    const r=el?.getBoundingClientRect?.();return r?{x:r.left+r.width/2,y:r.top+r.height/2}:null;
+  }
+  function pulseCreepCast(slot){
+    const node=document.getElementById(`hero-${slot.team}-${SLOT_ID}`);if(!node)return;
+    node.classList.remove('chen-creep-cast');void node.offsetWidth;node.classList.add('chen-creep-cast');
+    setTimeout(()=>node.classList.remove('chen-creep-cast'),620);
+  }
+  function playSeedShotFx(slot,targets){
+    pulseCreepCast(slot);
+    const points=[creepFxPoint(slot),...(targets||[]).map(creepFxPoint)].filter(Boolean);
+    if(points.length<2)return;
+    const layer=creepFxLayer(),match=G?.matchId;
+    for(let i=0;i<points.length-1;i++){
+      const a=points[i],b=points[i+1],dx=b.x-a.x,dy=b.y-a.y,delay=i*190;
+      setTimeout(()=>{
+        if(!G||G.matchId!==match)return;
+        const nut=document.createElement('div');nut.className='chen-seed-shot-fx';nut.style.left=a.x+'px';nut.style.top=a.y+'px';nut.innerHTML='<i></i>';layer.appendChild(nut);
+        nut.animate([
+          {transform:'translate(-50%,-50%) rotate(0deg) scale(.82)',opacity:.35},
+          {transform:`translate(calc(-50% + ${dx*.5}px),calc(-50% + ${dy*.5-42}px)) rotate(190deg) scale(1.08)`,opacity:1,offset:.55},
+          {transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) rotate(380deg) scale(.92)`,opacity:1}
+        ],{duration:230,easing:'cubic-bezier(.18,.72,.24,1)',fill:'forwards'});
+        setTimeout(()=>{
+          if(!nut.isConnected)return;
+          const impact=document.createElement('div');impact.className='chen-seed-shot-impact';impact.style.left=b.x+'px';impact.style.top=b.y+'px';layer.appendChild(impact);setTimeout(()=>impact.remove(),360);
+        },205);
+        setTimeout(()=>nut.remove(),300);
+      },delay);
+    }
+  }
+  function creepTargetRef(h){
+    if(!h)return null;
+    if(typeof isForgeSpiritTarget==='function'&&isForgeSpiritTarget(h))return{team:h.team,id:h.id||'forge_spirit',summon:true,ownerId:h.ownerId};
+    return{team:h.team,id:h.id};
+  }
+  function creepTargetFromRef(ref){
+    if(!ref||!Number.isInteger(ref.team))return null;
+    if(ref.summon){
+      const owner=typeof findHero==='function'?findHero(ref.team,ref.ownerId):null;
+      return owner?.forgeSpirit||null;
+    }
+    if(ref.id===SLOT_ID)return slotForTeam(ref.team);
+    return typeof findHero==='function'?findHero(ref.team,ref.id):null;
+  }
+  window.playChenSeedShotFx=function(ev){
+    if(!ev||!Number.isInteger(ev.team))return;
+    const slot=slotForTeam(ev.team);if(!slot)return;
+    const targets=(Array.isArray(ev.targets)?ev.targets:[]).map(creepTargetFromRef).filter(Boolean);
+    playSeedShotFx(slot,targets);
+  };
   try{ATTACK_IMPACT_MS[CHEN_ID]=1080}catch(_){}
 
   const baseAbilitySheetHTML=abilitySheetHTML;
@@ -178,7 +240,15 @@
   function summonCreep(chen,kind){
     let slot=slotForTeam(chen.team);
     if(slot){storeSlot(slot);if(slot.chenCreeps.length>=2)return;slot.chenCreeps.push(makeCreep(kind));syncSlot(slot)}
-    else{slot=makeSlot(chen.team,kind);const arr=G.teams[chen.team],front=G.front[chen.team]||0;/* insert immediately before circular front, then shift front: this is the true last/back slot in currentLineOrder */arr.splice(front,0,slot);G.front[chen.team]=front+1}
+    else{
+      slot=makeSlot(chen.team,kind);
+      const arr=G.teams[chen.team],front=G.front[chen.team]||0,chenIndex=arr.indexOf(chen);
+      const insertAt=chenIndex>=0?chenIndex+1:arr.length;
+      // The controlled-creep card lives directly behind Chen in the CURRENT circular line,
+      // not at the very back of the whole team.
+      arr.splice(insertAt,0,slot);
+      if(insertAt<=front)G.front[chen.team]=front+1;
+    }
     putOnCooldown(chen,'persuasion');addSkillLog(chen,'persuasion',`${chen.name} подчиняет ${CREEPS[kind].name} на 8 общих ходов.`);spend();render();
   }
   function switchCreep(slot,index){if(!slot||active()!==slot||targetMode||index===slot.chenCreepIndex||!slot.chenCreeps?.[index])return;storeSlot(slot);slot.chenCreepIndex=index;syncSlot(slot);render()}
@@ -193,22 +263,32 @@
     const order=currentLineOrder(target.team),d=order.indexOf(target),canF=d>0,canB=d>=0&&d<order.length-1;
     const ov=document.createElement('div');ov.className='chen-direction-overlay';ov.innerHTML=`<div class="chen-direction-panel"><b>HURRICANE — направление</b><span>${target.name}</span><div><button data-dir="forward" ${canF?'':'disabled'}>ТОЛКНУТЬ ВПЕРЁД</button><button data-dir="back" ${canB?'':'disabled'}>ТОЛКНУТЬ НАЗАД</button></div><button class="chen-direction-cancel">Отмена</button></div>`;document.body.appendChild(ov);
     ov.querySelector('.chen-direction-cancel').onclick=()=>ov.remove();
-    ov.querySelectorAll('[data-dir]').forEach(b=>b.onclick=()=>{playCreepSkillSound('wildwing');const dir=b.dataset.dir,moved=dir==='forward'?moveForwardOne(target):knockBackOne(target);ov.remove();markCreepSkillUsed(slot);addLog(`${creepLogIcon('wildwing')}<span>Hurricane: ${target.name} ${moved?(dir==='forward'?'сдвинут вперёд на 1 позицию':'отброшен назад на 1 позицию'):'остаётся на месте'}.</span>`);spend();render()});
+    ov.querySelectorAll('[data-dir]').forEach(b=>b.onclick=()=>{playCreepSkillSound('wildwing');pulseCreepCast(slot);const dir=b.dataset.dir,moved=dir==='forward'?moveForwardOne(target):knockBackOne(target);ov.remove();markCreepSkillUsed(slot);addLog(`${creepLogIcon('wildwing')}<span>Hurricane: ${target.name} ${moved?(dir==='forward'?'сдвинут вперёд на 1 позицию':'отброшен назад на 1 позицию'):'остаётся на месте'}.</span>`);spend();render()});
   }
   function useCreepSkill(slot){
     if(!G||active()!==slot||slot.dead||G.actions<1||targetMode)return;const c=currentCreep(slot);if(!c||c.skillCd>0)return;const kind=c.kind;
     if(kind==='ogre'){
       const t=frontHero(1-slot.team);if(!t||t.dead){alert('Нет переднего врага для Ogre Smash!.');return}
-      playCreepSkillSound(kind);damage(t,.5,`${creepLogIcon(kind)} Ogre Smash!: `,slot,{impactDelay:100});t.stun=Math.max(Number(t.stun)||0,1);addLog(`${creepLogIcon(kind)}<span>Ogre Smash! оглушает ${t.name} на 1 активацию.</span>`);markCreepSkillUsed(slot);spend();return;
+      playCreepSkillSound(kind);pulseCreepCast(slot);damage(t,.5,`${creepLogIcon(kind)} Ogre Smash!: `,slot,{impactDelay:100});t.stun=Math.max(Number(t.stun)||0,1);addLog(`${creepLogIcon(kind)}<span>Ogre Smash! оглушает ${t.name} на 1 активацию.</span>`);markCreepSkillUsed(slot);spend();return;
     }
     if(kind==='satyr'){
-      const targets=currentLineOrder(1-slot.team).filter(x=>!x.dead);if(!targets.length)return;playCreepSkillSound(kind);for(const t of targets)spellDamage(t,.75,`${creepLogIcon(kind)} Shockwave: `,slot,{impactDelay:120});addLog(`${creepLogIcon(kind)}<span>Shockwave проходит по вражеской линии и наносит каждому задетому врагу 0.75 урона.</span>`);markCreepSkillUsed(slot);spend();return;
+      const targets=currentLineOrder(1-slot.team).filter(x=>!x.dead);if(!targets.length)return;playCreepSkillSound(kind);pulseCreepCast(slot);for(const t of targets)spellDamage(t,.75,`${creepLogIcon(kind)} Shockwave: `,slot,{impactDelay:120});addLog(`${creepLogIcon(kind)}<span>Shockwave проходит по вражеской линии и наносит каждому задетому врагу 0.75 урона.</span>`);markCreepSkillUsed(slot);spend();return;
     }
     if(kind==='wildwing'){
       const opts=currentLineOrder(1-slot.team).slice(0,2);if(!opts.length)return;targetMode={promptText:'Выберите первого или второго врага для Hurricane',filter:h=>opts.includes(h),onPick:t=>directionChoice(slot,t),team:1-slot.team,frontOnly:false,icon:creepIcon(kind)};render();return;
     }
     if(kind==='pinecone'){
-      chooseEnemyAny('Выберите врага для Seed Shot',()=>true,t=>{playCreepSkillSound(kind);const hit=[t];damage(t,.5,`${creepLogIcon(kind)} Seed Shot: `,slot,{impactDelay:100});let pool=currentLineOrder(1-slot.team).filter(x=>!x.dead&&!hit.includes(x));for(let i=0;i<2&&pool.length;i++){const n=pool.splice(Math.floor(Math.random()*pool.length),1)[0];hit.push(n);setTimeout(()=>damage(n,.5,`${creepLogIcon(kind)} Seed Shot — отскок: `,slot,{impactDelay:80}),180*(i+1))}addLog(`${creepLogIcon(kind)}<span>Seed Shot поражает ${hit.map(x=>x.name).join(' → ')} по 0.5 урона.</span>`);markCreepSkillUsed(slot);spend()},'');if(targetMode){targetMode.icon=creepIcon(kind);render()}return;
+      chooseEnemyAny('Выберите врага для Seed Shot',()=>true,t=>{
+        const hit=[t],pool=currentLineOrder(1-slot.team).filter(x=>!x.dead);
+        // Each bounce rolls independently. The same hero — including the first target —
+        // may be selected again on the next bounce.
+        for(let i=0;i<2&&pool.length;i++)hit.push(pool[Math.floor(Math.random()*pool.length)]);
+        playCreepSkillSound(kind);playSeedShotFx(slot,hit);
+        window.emitNetVfx?.('chen-seed-shot',slot,{targets:hit.map(creepTargetRef).filter(Boolean)});
+        damage(t,.5,`${creepLogIcon(kind)} Seed Shot: `,slot,{impactDelay:210});
+        for(let i=1;i<hit.length;i++){const n=hit[i];setTimeout(()=>damage(n,.5,`${creepLogIcon(kind)} Seed Shot — отскок: `,slot,{impactDelay:30}),190*i)}
+        addLog(`${creepLogIcon(kind)}<span>Seed Shot поражает ${hit.map(x=>x.name).join(' → ')} по 0.5 урона.</span>`);markCreepSkillUsed(slot);spend()
+      },'');if(targetMode){targetMode.icon=creepIcon(kind);render()}return;
     }
   }
 

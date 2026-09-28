@@ -19,3 +19,19 @@
 .chen-persuasion-roster small strong{color:#d8e1ee}
 @media(max-width:900px){.chen-persuasion-roster{grid-template-columns:repeat(2,minmax(0,1fr))}.chen-persuasion-roster .chen-creep-roster-head>img{width:48px;height:36px}}
 @media(max-width:520px){.chen-persuasion-roster{grid-template-columns:1fr}.chen-persuasion-roster .chen-creep-roster-head>img{width:58px;height:42px}.chen-persuasion-roster small{font-size:9px}}
+
+/* Chen creep ability feedback */
+#game .hero.chen-creep-slot.chen-creep-cast .hero-portrait{animation:chen-creep-cast-pulse .58s cubic-bezier(.18,.75,.22,1)}
+@keyframes chen-creep-cast-pulse{
+  0%{filter:brightness(1) saturate(1);box-shadow:inset 0 0 0 rgba(255,221,128,0)}
+  32%{filter:brightness(1.34) saturate(1.28);box-shadow:inset 0 0 22px rgba(255,218,112,.72),0 0 18px rgba(255,193,67,.45)}
+  100%{filter:brightness(1) saturate(1);box-shadow:inset 0 0 0 rgba(255,221,128,0)}
+}
+.chen-seed-shot-fx{position:absolute;width:22px;height:22px;z-index:78;pointer-events:none;filter:drop-shadow(0 0 7px rgba(255,207,92,.78))}
+.chen-seed-shot-fx>i{position:absolute;left:3px;top:1px;width:16px;height:20px;border-radius:50% 50% 46% 46%;background:radial-gradient(circle at 38% 28%,#f6d07c 0 12%,#b67931 34%,#6d3c1f 70%,#321a10 100%);box-shadow:inset -2px -3px 3px rgba(34,14,5,.45),inset 2px 2px 2px rgba(255,227,154,.28);clip-path:polygon(50% 0,73% 15%,92% 43%,78% 72%,51% 100%,22% 74%,7% 44%,27% 15%)}
+.chen-seed-shot-fx::after{content:"";position:absolute;left:9px;top:8px;width:6px;height:6px;border-radius:50%;background:#ffe5a0;box-shadow:0 0 9px #ffca55;opacity:.72}
+.chen-seed-shot-impact{position:absolute;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;z-index:77;pointer-events:none;border:2px solid rgba(255,210,105,.9);box-shadow:0 0 12px rgba(255,185,64,.75),inset 0 0 10px rgba(255,227,153,.55);animation:chen-seed-impact .34s ease-out forwards}
+.chen-seed-shot-impact::before,.chen-seed-shot-impact::after{content:"";position:absolute;left:50%;top:50%;width:5px;height:18px;border-radius:4px;background:linear-gradient(#ffe09a,#9b5c25);box-shadow:0 0 5px rgba(255,191,70,.6)}
+.chen-seed-shot-impact::before{transform:translate(-50%,-50%) rotate(58deg) translateY(-19px)}
+.chen-seed-shot-impact::after{transform:translate(-50%,-50%) rotate(-58deg) translateY(-19px)}
+@keyframes chen-seed-impact{0%{transform:scale(.28);opacity:1}70%{opacity:.9}100%{transform:scale(1.35);opacity:0}}
