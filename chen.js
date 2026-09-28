@@ -49,7 +49,7 @@
     if(!slot?.chenCreeps?.[index])return;
     const dead=slot.chenCreeps[index],name=CREEPS[dead.kind].name;
     slot.chenCreeps.splice(index,1);
-    if(killed&&attacker&&Number.isInteger(attacker.team)&&attacker.team!==slot.team){G.gold[attacker.team]=(G.gold[attacker.team]||0)+1;addLog(`${goldIcon()} Игрок ${attacker.team+1} получает 1 золото за убийство ${name}.`)}
+    if(killed){const rewardTeam=1-slot.team;G.gold[rewardTeam]=(G.gold[rewardTeam]||0)+1;addLog(`${goldIcon()} Игрок ${rewardTeam+1} получает 1 золото за убийство ${name}.`)}
     if(expired)addLog(`${creepLogIcon(dead.kind)}<span>${name} исчезает: закончились 8 общих ходов.</span>`);
     if(!slot.chenCreeps.length){slot.dead=true;slot.hp=0;removeSlotFromTeam(slot);checkWin();return}
     slot.chenCreepIndex=Math.min(slot.chenCreepIndex||0,slot.chenCreeps.length-1);syncSlot(slot);
@@ -137,7 +137,7 @@
       const opts=currentLineOrder(1-slot.team).slice(0,2);if(!opts.length)return;targetMode={promptText:'Выберите первого или второго врага для Hurricane',filter:h=>opts.includes(h),onPick:t=>directionChoice(slot,t),team:1-slot.team,frontOnly:false,icon:creepIcon(kind)};render();return;
     }
     if(kind==='pinecone'){
-      chooseEnemyAny('Выберите врага для Seed Shot',()=>true,t=>{const hit=[t];damage(t,.5,`${creepLogIcon(kind)} Seed Shot: `,slot,{impactDelay:100});let pool=currentLineOrder(1-slot.team).filter(x=>!x.dead&&!hit.includes(x));for(let i=0;i<2&&pool.length;i++){const n=pool.splice(Math.floor(Math.random()*pool.length),1)[0];hit.push(n);setTimeout(()=>damage(n,.5,`${creepLogIcon(kind)} Seed Shot — отскок: `,slot,{impactDelay:80}),180*(i+1))}addLog(`${creepLogIcon(kind)}<span>Seed Shot поражает ${hit.map(x=>x.name).join(' → ')} по 0.5 урона.</span>`);spend()},'');return;
+      chooseEnemyAny('Выберите врага для Seed Shot',()=>true,t=>{const hit=[t];damage(t,.5,`${creepLogIcon(kind)} Seed Shot: `,slot,{impactDelay:100});let pool=currentLineOrder(1-slot.team).filter(x=>!x.dead&&!hit.includes(x));for(let i=0;i<2&&pool.length;i++){const n=pool.splice(Math.floor(Math.random()*pool.length),1)[0];hit.push(n);setTimeout(()=>damage(n,.5,`${creepLogIcon(kind)} Seed Shot — отскок: `,slot,{impactDelay:80}),180*(i+1))}addLog(`${creepLogIcon(kind)}<span>Seed Shot поражает ${hit.map(x=>x.name).join(' → ')} по 0.5 урона.</span>`);spend()},'');if(targetMode){targetMode.icon=creepIcon(kind);render()}return;
     }
   }
 
