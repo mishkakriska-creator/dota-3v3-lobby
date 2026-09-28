@@ -20,6 +20,56 @@
     pinecone:{name:'СОСНОВЫЙ НАЛЁТЧИК',hp:4,atk:.5,portrait:'assets/portraits/chen_pinecone.webm',icon:'assets/skills/chen_seed_shot.webp',skill:'Seed Shot'}
   };
   const CREEP_ORDER=['ogre','wildwing','satyr','pinecone'];
+  const CHEN_AUDIO_PARTS=[0,1,2,3,4].map(i=>'assets/audio/chen_sprite_'+i+'.b64');
+  const CHEN_AUDIO_CLIPS={
+    spawn1:[.200,.836],spawn2:[1.216,2.272],cast1:[3.668,1.646],item04:[5.494,2.090],
+    test:[7.764,2.862],holyp1:[10.806,2.220],holyp3:[13.206,2.299],
+    hand0:[15.685,2.727],hand1:[18.592,2.727],hand2:[21.499,2.727],hand5:[24.406,2.728],
+    handv1:[27.313,2.247],handv2:[29.740,2.455],handv3:[32.375,2.430],
+    kill1:[34.984,2.639],kill4:[37.803,1.881],kill11:[39.863,2.195],
+    attack:[42.238,1.658]
+  };
+  let chenAudioUrlPromise=null;
+  function chenAudioUrl(){
+    if(chenAudioUrlPromise)return chenAudioUrlPromise;
+    chenAudioUrlPromise=Promise.all(CHEN_AUDIO_PARTS.map(p=>fetch(p,{cache:'force-cache'}).then(r=>{if(!r.ok)throw new Error('Chen audio '+p);return r.text()}))).then(parts=>{
+      const b64=parts.join('').replace(/\s+/g,''),raw=atob(b64),buf=new Uint8Array(raw.length);
+      for(let i=0;i<raw.length;i++)buf[i]=raw.charCodeAt(i);
+      return URL.createObjectURL(new Blob([buf],{type:'audio/ogg'}));
+    }).catch(e=>{console.warn('Chen audio sprite failed',e);chenAudioUrlPromise=null;return null});
+    return chenAudioUrlPromise;
+  }
+  function playChenClip(key,volume=.72){
+    const clip=CHEN_AUDIO_CLIPS[key];if(!clip)return;
+    chenAudioUrl().then(url=>{if(!url)return;const a=new Audio(url);a.preload='auto';a.volume=volume;
+      let started=false;const start=()=>{if(started)return;started=true;try{a.currentTime=clip[0]}catch(_){}
+        a.play().catch(()=>{});setTimeout(()=>{try{a.pause();a.removeAttribute('src');a.load()}catch(_){}},Math.ceil(clip[1]*1000)+90)};
+      if(a.readyState>=1)start();else a.addEventListener('loadedmetadata',start,{once:true});
+    });
+  }
+  function playChenRandom(keys,volume=.72){if(!keys?.length)return;playChenClip(keys[Math.floor(Math.random()*keys.length)],volume)}
+  chenAudioUrl();
+
+  const basePlayTurnVoice=playTurnVoice;
+  playTurnVoice=function(h,noNet=false){
+    if(h?.id!==CHEN_ID)return basePlayTurnVoice(h,noNet);
+    if(!noNet)window.emitNetVfx?.('audio-turn',h);
+    playChenRandom(['spawn1','spawn2','cast1','item04'],.72);
+  };
+  const basePlayAttackSound=playAttackSound;
+  playAttackSound=function(h,noNet=false){
+    if(h?.id!==CHEN_ID)return basePlayAttackSound(h,noNet);
+    if(!noNet)window.emitNetVfx?.('audio-attack',h);
+    playChenClip('attack',.70);
+  };
+  const basePlaySkillSound=playSkillSound;
+  playSkillSound=function(h,id,noNet=false){
+    if(h?.id!==CHEN_ID)return basePlaySkillSound(h,id,noNet);
+    if(!noNet)window.emitNetVfx?.('audio-skill',h,{skillId:id});
+    if(id==='persuasion'){playChenClip('test',.74);playChenRandom(['holyp1','holyp3'],.72);return}
+    if(id==='hand'){playChenRandom(['hand0','hand1','hand2','hand5'],.76);playChenRandom(['handv1','handv2','handv3'],.72);return}
+  };
+
 
   function chenForTeam(team){return (G?.teams?.[team]||[]).find(h=>h?.id===CHEN_ID&&!h.dead)||null}
   function slotForTeam(team){return (G?.teams?.[team]||[]).find(h=>h?.id===SLOT_ID&&!h.dead)||null}
@@ -58,7 +108,14 @@
 
   const baseDamage=damage;
   damage=function(h,n,src='',attacker=null,fx={}){
-    if(!isChenSlot(h))return baseDamage(h,n,src,attacker,fx);
+    if(!isChenSlot(h)){
+      const wasAlive=!!h&&!h.dead&&(Number(h.hp)||0)>0;
+      const out=baseDamage(h,n,src,attacker,fx);
+      if(wasAlive&&h&&(h.dead||(Number(h.hp)||0)<=0)&&(attacker?.id===CHEN_ID||isChenSlot(attacker))&&!h._chenKillVoice){
+        h._chenKillVoice=true;playChenRandom(['kill1','kill4','kill11'],.74);
+      }
+      return out;
+    }
     if(!h||h.dead)return;storeSlot(h);n=Math.max(0,Number(n)||0);
     if(n>0){try{playDamageFx({team:h.team,heroId:h.id,amount:n,delay:Math.max(0,Number(fx?.impactDelay)||0)})}catch(_){} }
     h.hp=Math.max(0,(Number(h.hp)||0)-n);storeSlot(h);addLog(`${src}${h.name} получает ${n} урона.`);
@@ -146,8 +203,8 @@
     const h=active();if(h?.id!==CHEN_ID)return baseSkill(id);
     if(!G||G.resolving||G.winner!==null||targetMode||G.actions<1)return;if(isHeroSilenced(h)){alert('Chen обезмолвлен и не может использовать способности.');return}if((h.cd?.[id]||0)>1)return;
     armTargetSkillHint(h,id);
-    if(id==='persuasion'){summonChoice(h);return}
-    if(id==='hand'){healChenTeam(h.team,3,'Hand of God');setHandHot(h.team,2);putOnCooldown(h,'hand');addSkillLog(h,'hand',`${h.name} использует Hand of God: вся команда и подконтрольные крипы получают 3 HP, затем ещё 2 общих хода будут лечиться на 1 HP.`);spend();return}
+    if(id==='persuasion'){playSkillSound(h,'persuasion');summonChoice(h);return}
+    if(id==='hand'){playSkillSound(h,'hand');healChenTeam(h.team,3,'Hand of God');setHandHot(h.team,2);putOnCooldown(h,'hand');addSkillLog(h,'hand',`${h.name} использует Hand of God: вся команда и подконтрольные крипы получают 3 HP, затем ещё 2 общих хода будут лечиться на 1 HP.`);spend();return}
     return baseSkill(id);
   };
 
