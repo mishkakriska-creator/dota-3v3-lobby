@@ -12,7 +12,7 @@
     const after=Math.max(0,DRAFT_ORDER.indexOf('lifestealer')+1);
     DRAFT_ORDER.splice(after,0,PUDGE_ID);
   }
-  SKILL_ICONS[PUDGE_ID]=['assets/skills/pudge_dismember.png','assets/skills/pudge_rot.png','assets/skills/pudge_hook.png'];
+  SKILL_ICONS[PUDGE_ID]=['assets/skills/pudge_hook.png','assets/skills/pudge_rot.png','assets/skills/pudge_dismember.png'];
   AUDIO[PUDGE_ID]={turn:['assets/audio/pudge_spawn_01.mp3','assets/audio/pudge_spawn_06.mp3'],skills:{hook:'assets/audio/pudge_meat_hook.mp3',rot:'assets/audio/pudge_rot_loop.mp3',dismember:'assets/audio/pudge_dismember.mp3'}};
   ATTACK_AUDIO[PUDGE_ID]='assets/audio/pudge_attack_combo.mp3';
   ATTACK_IMPACT_MS[PUDGE_ID]=150;
