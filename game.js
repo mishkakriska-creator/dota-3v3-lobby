@@ -118,38 +118,16 @@ const ITEM_UPGRADES=Object.fromEntries(Object.entries(ITEM_RECIPES).map(([k,v])=
 let chosen=[],G=null,targetMode=null,draftPreview=null;
 let shopTargetResume=null;
 let targetSkillHint=null;
-function targetHeroHintIcon(hero){
- const rawId=hero?.id||'';
- const id=rawId==='arcwarden_clone'?'arcwarden':rawId;
- const turnIcons={
-  phantomlancer:'assets/turn_phantomlancer.webp',
-  techies:'assets/turn_techies.png',
-  morphling:'assets/turn_morphling.png',
-  silencer:'assets/turn_silencer.png',
-  bane:'assets/turn_bane.png',
-  shadowfiend:'assets/turn_shadowfiend.png',
-  lifestealer:'assets/turn_lifestealer.png',
-  abaddon:'assets/turn_abaddon.png',
-  io:'assets/turn_io.png',
-  tinker:'assets/turn_tinker.png',
-  invoker:'assets/turn_invoker.png',
-  arcwarden:'assets/arcwarden_queue_icon.png',
-  axe:'assets/axe_icon.png',
-  broodmother:'assets/turn_broodmother_mini.png',
-  mars:'assets/turn_mars.png',
-  pudge:'assets/turn_pudge.png'
- };
- return turnIcons[id]||(id&&HERO_ICONS?.[id])||hero?.img||(id&&DATA?.[id]?.img)||'';
-}
 function armTargetSkillHint(hero,id){
- const hint={heroId:hero?.id||'',skillId:id||'',icon:targetHeroHintIcon(hero)};
+ const heroId=hero?.id==='arcwarden_clone'?'arcwarden':hero?.id;
+ const hint={heroId:hero?.id||'',skillId:id||'',icon:(heroId&&id)?skillIcon(heroId,id):''};
  targetSkillHint=hint;
  queueMicrotask(()=>{if(targetSkillHint===hint)targetSkillHint=null});
 }
 function consumeTargetSkillHint(){
  const hint=targetSkillHint;
  targetSkillHint=null;
- return hint?.icon||targetHeroHintIcon(typeof active==='function'?active():null)||'';
+ return hint?.icon||'';
 }
 function setHTMLCached(el,html){if(!el)return;if(el._dotaCachedHTML===html)return;el._dotaCachedHTML=html;el.innerHTML=html}
 function closeShopsForTargeting(team,id){let panel=document.getElementById(`shop${team}`);shopTargetResume={team,id,wasOpen:!!panel?.classList?.contains?.('open')};document.querySelectorAll('.shop-panel.open').forEach(x=>x.classList.remove('open'));document.body.classList.add('shop-targeting')}
