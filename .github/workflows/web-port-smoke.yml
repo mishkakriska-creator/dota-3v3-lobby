@@ -16,7 +16,7 @@ jobs:
           for f in *.js; do
             node --check "$f"
           done
-      - name: Check 1.86.94 web files
+      - name: Check web files
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -28,7 +28,13 @@ jobs:
           missing=[p for p in required if not Path(p).is_file()]
           assert not missing, f"Missing required files: {missing}"
           html=Path('index.html').read_text(encoding='utf-8')
-          assert 'v1.86.94' in html
+          import re
+          net=Path('network.js').read_text(encoding='utf-8')
+          title_match=re.search(r'v(1\\.86\\.\\d+)', html)
+          net_match=re.search(r"GAME_VERSION='(1\\.86\\.\\d+)'", net)
+          assert title_match, 'Version missing from index.html title'
+          assert net_match, 'GAME_VERSION missing from network.js'
+          assert title_match.group(1)==net_match.group(1), f"Version mismatch: title={title_match.group(1)} network={net_match.group(1)}"
           assert 'ОФЛАЙН ИГРА' in html
           assert 'СОЗДАТЬ ЛОББИ' in html
           assert len(list(Path('assets').rglob('*'))) > 400
