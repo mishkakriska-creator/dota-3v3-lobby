@@ -129,6 +129,15 @@ function consumeTargetSkillHint(){
  targetSkillHint=null;
  return hint?.icon||'';
 }
+function targetPromptSkillIcon(skillId=''){
+ const h=typeof active==='function'?active():null;
+ const heroId=h?.id==='arcwarden_clone'?'arcwarden':h?.id;
+ if(heroId&&skillId){
+  const direct=skillIcon(heroId,skillId);
+  if(direct)return direct;
+ }
+ return consumeTargetSkillHint();
+}
 function setHTMLCached(el,html){if(!el)return;if(el._dotaCachedHTML===html)return;el._dotaCachedHTML=html;el.innerHTML=html}
 function closeShopsForTargeting(team,id){let panel=document.getElementById(`shop${team}`);shopTargetResume={team,id,wasOpen:!!panel?.classList?.contains?.('open')};document.querySelectorAll('.shop-panel.open').forEach(x=>x.classList.remove('open'));document.body.classList.add('shop-targeting')}
 function restoreShopAfterTargeting(){let st=shopTargetResume;shopTargetResume=null;document.body.classList.remove('shop-targeting');if(!st?.wasOpen)return;let panel=document.getElementById(`shop${st.team}`);if(panel){panel.classList.add('open');if(st.id)showShopItemInfo(st.team,st.id)}}
@@ -447,7 +456,7 @@ function forgeSpiritOwner(spirit){return isForgeSpiritTarget(spirit)?G?.teams?.[
 function forgeSpiritTargets(team){if(!G)return[];let out=[];for(const owner of G.teams[team]||[]){if(isForgeSpiritTarget(owner.forgeSpirit))out.push(owner.forgeSpirit)}return out}
 function canTargetHero(h,spellId=''){if(!h||h.dead||h.infested)return false;if(isForgeSpiritTarget(h)){if((h.tornadoAirborne||0)>0&&!['sunstrike','meteor'].includes(spellId))return false;return true}if((h.ghostWalkTurns||0)>0)return false;if((h.tornadoAirborne||0)>0&&!['sunstrike','meteor'].includes(spellId))return false;return true}
 function enemyTargetPool(allHeroes=false,spellId=''){let team=1-G.team,heroes=allHeroes?living(team):[frontHero(team)].filter(Boolean);return heroes.filter(h=>canTargetHero(h,spellId)).concat(forgeSpiritTargets(team))}
-function chooseEnemyAny(promptText,filter=()=>true,onPick=null,spellId=''){let realFilter=h=>canTargetHero(h,spellId)&&filter(h);let opts=enemyTargetPool(true,spellId).filter(realFilter);if(!opts.length){alert('Нет подходящих целей.');return null}targetMode={promptText,filter:realFilter,onPick,team:1-G.team,frontOnly:false,icon:consumeTargetSkillHint()};render();return null}
+function chooseEnemyAny(promptText,filter=()=>true,onPick=null,spellId=''){let realFilter=h=>canTargetHero(h,spellId)&&filter(h);let opts=enemyTargetPool(true,spellId).filter(realFilter);if(!opts.length){alert('Нет подходящих целей.');return null}targetMode={promptText,filter:realFilter,onPick,team:1-G.team,frontOnly:false,icon:targetPromptSkillIcon(spellId)};render();return null}
 function heroSkillName(heroId,id){return DATA[heroId]?.skills?.find(s=>s.id===id)?.name||id}
 function currentLineOrder(team){let arr=G?.teams?.[team]||[],start=G?.front?.[team]||0,out=[];for(let i=0;i<arr.length;i++){let idx=(start+i)%arr.length,h=arr[idx];if(h&&!h.dead&&!h.infested)out.push(h)}return out}
 function lineDepthOf(hero){if(!hero||!G)return-1;return currentLineOrder(hero.team).findIndex(x=>x===hero)}
@@ -966,7 +975,7 @@ function renderTurnQueue(){
 function spend(){if(!G)return;const fallen=G.teams[G.team].find(h=>h._fellDuringAttack);if(fallen){delete fallen._fellDuringAttack;if(G.winner===null)endTurn(true,fallen);return}G.actions--;render();const match=G,serial=G.turnSerial;if(G.actions<=0)setTimeout(()=>{if(G===match&&G.turnSerial===serial)endTurn()},350)}
 function chooseEnemy(promptText,filter=()=>true,onPick=null,spellId=''){
  let realFilter=h=>canTargetHero(h,spellId)&&filter(h);let opts=enemyTargetPool(false,spellId).filter(realFilter);if(!opts.length){alert('Нет допустимой цели.');return null}
- targetMode={promptText,filter:realFilter,onPick,team:1-G.team,frontOnly:true,icon:consumeTargetSkillHint()};render();return null
+ targetMode={promptText,filter:realFilter,onPick,team:1-G.team,frontOnly:true,icon:targetPromptSkillIcon(spellId)};render();return null
 }
 function chooseAlly(promptText,filter=()=>true,onPick=null){
  let opts=living(G.team).filter(h=>!h.dead&&!h.infested&&filter(h));if(!opts.length){alert('Нет подходящего союзника.');return null}
@@ -978,7 +987,7 @@ function chooseHeroes(promptText,teams=[G.team],filter=()=>true,onPick=null,spel
  let realFilter=h=>uniq.includes(h.team)&&canTargetHero(h,spellId)&&filter(h);
  let opts=pools.filter((h,i,arr)=>arr.indexOf(h)===i&&realFilter(h));
  if(!opts.length){alert('Нет подходящих целей.');return null}
- targetMode={promptText,filter:realFilter,onPick,teams:uniq,team:uniq.length===1?uniq[0]:null,frontOnly:false,icon:consumeTargetSkillHint()};render();return null
+ targetMode={promptText,filter:realFilter,onPick,teams:uniq,team:uniq.length===1?uniq[0]:null,frontOnly:false,icon:targetPromptSkillIcon(spellId)};render();return null
 }
 function chooseMistCoilTarget(promptText,onPick){
  const teams=[G.team,1-G.team],caster=active?.();
@@ -986,7 +995,7 @@ function chooseMistCoilTarget(promptText,onPick){
  const realFilter=h=>!!h&&!h.dead&&!h.infested&&h!==caster&&teams.includes(h.team)&&!isForgeSpiritTarget(h)&&canTargetHero(h,'mist_coil')&&(h.team===G.team||h===enemyFront);
  const opts=[...living(G.team),enemyFront].filter(Boolean).filter((h,i,arr)=>arr.indexOf(h)===i&&realFilter(h));
  if(!opts.length){alert('Нет подходящих целей.');return null}
- targetMode={promptText,filter:realFilter,onPick,teams,team:null,frontOnly:false,icon:consumeTargetSkillHint()};render();return null
+ targetMode={promptText,filter:realFilter,onPick,teams,team:null,frontOnly:false,icon:targetPromptSkillIcon('mist_coil')};render();return null
 }
 function targetModeAcceptsTeam(team){if(!targetMode)return false;if(Array.isArray(targetMode.teams))return targetMode.teams.includes(team);if(targetMode.team===null||targetMode.team===undefined)return true;return targetMode.team===team}
 function cancelTarget(){targetMode=null;restoreShopAfterTargeting();render()}
