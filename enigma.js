@@ -198,7 +198,7 @@
     if(skillId&&G&&blackHoleActive(1-G.team)){
       const team=1-G.team,realFilter=h=>canTargetHero(h,spellId)&&filter(h),opts=blackHoleVictims(team).filter(realFilter);
       if(!opts.length){alert('Нет допустимой цели.');return null}
-      targetMode={promptText,filter:realFilter,onPick:wrapDirectedPick(onPick,skillId),team,frontOnly:false,enigmaBlackHole:true};render();return null;
+      targetMode={promptText,filter:realFilter,onPick:wrapDirectedPick(onPick,skillId),team,frontOnly:false,enigmaBlackHole:true,icon:targetPromptSkillIcon(skillId||spellId)};render();return null;
     }
     return baseChooseEnemy(promptText,filter,onPick,spellId);
   };
@@ -208,7 +208,7 @@
     if(skillId&&G&&blackHoleActive(1-G.team)){
       const team=1-G.team,realFilter=h=>canTargetHero(h,spellId)&&filter(h),opts=blackHoleVictims(team).filter(realFilter);
       if(!opts.length){alert('Нет подходящих целей.');return null}
-      targetMode={promptText,filter:realFilter,onPick:wrapDirectedPick(onPick,skillId),team,frontOnly:false,enigmaBlackHole:true};render();return null;
+      targetMode={promptText,filter:realFilter,onPick:wrapDirectedPick(onPick,skillId),team,frontOnly:false,enigmaBlackHole:true,icon:targetPromptSkillIcon(skillId||spellId)};render();return null;
     }
     return baseChooseEnemyAny(promptText,filter,onPick,spellId);
   };
