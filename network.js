@@ -1,7 +1,7 @@
 // Dota Cards v0.41 — built-in portable multiplayer host.
 // If opened through HOST_GAME.bat, the page connects to the local WebSocket server.
 (() => {
-  const GAME_VERSION='1.86.144';
+  const GAME_VERSION='1.86.145';
   const PROTOCOL_VERSION=14;
   const DOTA_SERVER_CONFIG = {
     primary: localStorage.getItem('dota_server_primary') || 'https://dota-3v3-lobby.onrender.com',
@@ -177,6 +177,7 @@
       if(ev.kind==='audio-skill'){if(Date.now()-(ev.at||0)<2500){const h=window.findHero?.(ev.team,ev.heroId);if(h&&ev.skillId)window.playSkillSound?.(h,ev.skillId,true)}continue}
       if(ev.kind==='audio-turn'){if(Date.now()-(ev.at||0)<3500){const h=window.findHero?.(ev.team,ev.heroId);if(h)window.playTurnVoice?.(h,true)}continue}
       if(ev.kind==='chen-seed-shot'){if(Date.now()-(ev.at||0)<3000)window.playChenSeedShotFx?.(ev);continue}
+      if(ev.kind==='chen-creep-skill'){if(Date.now()-(ev.at||0)<3000)window.playChenCreepSkillFx?.(ev);continue}
       if(ev.kind==='requiem'){if(Date.now()-(ev.at||0)<6000)window.playRequiemFx?.(ev);continue}
       if(ev.kind==='item-dagon'){if(Date.now()-(ev.at||0)<3000)window.playDagonFx?.(ev);continue}
       if(ev.kind?.startsWith('invoker-')){if(Date.now()-(ev.at||0)<4000)window.playInvokerFx?.(ev);continue}

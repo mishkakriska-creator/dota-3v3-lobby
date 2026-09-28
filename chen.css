@@ -35,3 +35,32 @@
 .chen-seed-shot-impact::before{transform:translate(-50%,-50%) rotate(58deg) translateY(-19px)}
 .chen-seed-shot-impact::after{transform:translate(-50%,-50%) rotate(-58deg) translateY(-19px)}
 @keyframes chen-seed-impact{0%{transform:scale(.28);opacity:1}70%{opacity:.9}100%{transform:scale(1.35);opacity:0}}
+
+/* Chen controlled-creep full skill animations */
+.chen-ogre-smash-fx,.chen-hurricane-fx,.chen-shockwave-fx,.chen-shockwave-impact{position:absolute;z-index:79;pointer-events:none}
+.chen-ogre-smash-fx{width:120px;height:120px;margin:-60px 0 0 -60px}
+.chen-ogre-club{position:absolute;left:49px;top:-26px;width:22px;height:92px;border-radius:11px 11px 6px 6px;background:linear-gradient(90deg,#59381f,#bd8250 45%,#6a4024);box-shadow:0 0 8px #ffcb7e88;transform-origin:50% 94%;animation:chen-ogre-club .46s cubic-bezier(.15,.78,.2,1) forwards}
+.chen-ogre-club::before{content:"";position:absolute;left:-14px;top:-7px;width:50px;height:30px;border-radius:45% 45% 38% 38%;background:radial-gradient(circle at 45% 40%,#c7b08d,#6d5a45 62%,#33291f);box-shadow:0 3px 5px #0008}
+.chen-ogre-ring{position:absolute;left:20px;top:54px;width:80px;height:28px;border:4px solid #d6bd8b;border-radius:50%;box-shadow:0 0 12px #e8c98caa;animation:chen-ogre-ring .62s .18s ease-out both}
+.chen-ogre-crack{position:absolute;left:58px;top:67px;width:5px;height:40px;background:linear-gradient(#e1ca9a,#6e5236,transparent);transform-origin:50% 0;opacity:0;animation:chen-ogre-crack .5s .2s ease-out forwards}
+.chen-ogre-crack.c1{transform:rotate(28deg)}.chen-ogre-crack.c2{transform:rotate(-33deg)}.chen-ogre-crack.c3{transform:rotate(78deg);height:28px}
+@keyframes chen-ogre-club{0%{transform:rotate(-72deg) translateY(-18px);opacity:.15}62%{transform:rotate(13deg) translateY(0);opacity:1}100%{transform:rotate(0);opacity:0}}
+@keyframes chen-ogre-ring{0%{transform:scale(.25);opacity:1}100%{transform:scale(1.65);opacity:0}}
+@keyframes chen-ogre-crack{0%{scale:.2 0;opacity:1}35%{scale:1 1;opacity:1}100%{scale:1 1.15;opacity:0}}
+
+.chen-hurricane-fx{width:110px;height:170px;margin:-115px 0 0 -55px}
+.chen-hurricane-column{position:absolute;left:30px;top:12px;width:50px;height:142px;border-radius:50%;background:linear-gradient(90deg,transparent,#d9f9eff0 45%,#a4e4d8aa 58%,transparent);filter:blur(1px);clip-path:polygon(42% 0,63% 0,76% 18%,62% 37%,84% 54%,62% 72%,76% 90%,57% 100%,34% 100%,45% 82%,25% 66%,44% 47%,27% 30%);animation:chen-hurricane-column .85s ease-in-out forwards}
+.chen-hurricane-ring{position:absolute;left:17px;width:76px;height:24px;border:3px solid #d9fff0;border-radius:50%;box-shadow:0 0 12px #8fe6d0;animation:chen-hurricane-ring .72s linear infinite}
+.chen-hurricane-ring.r1{top:34px}.chen-hurricane-ring.r2{top:75px;animation-delay:-.22s}.chen-hurricane-ring.r3{top:116px;animation-delay:-.44s}
+.chen-hurricane-leaf{position:absolute;width:9px;height:5px;border-radius:80% 0 80% 0;background:#9bcf6b;box-shadow:0 0 4px #e3ffad;animation:chen-hurricane-leaf .72s linear infinite}.chen-hurricane-leaf.l1{left:14px;top:50px}.chen-hurricane-leaf.l2{left:83px;top:84px;animation-delay:-.24s}.chen-hurricane-leaf.l3{left:25px;top:126px;animation-delay:-.47s}
+@keyframes chen-hurricane-column{0%{transform:scale(.45,.2);opacity:0}20%{transform:scale(.92,1);opacity:1}78%{opacity:1}100%{transform:scale(1.08,.92);opacity:0}}
+@keyframes chen-hurricane-ring{0%{transform:scale(.38) rotate(0);opacity:.15}45%{opacity:1}100%{transform:scale(1.22) rotate(180deg);opacity:0}}
+@keyframes chen-hurricane-leaf{0%{transform:translate(0,25px) rotate(0);opacity:0}20%{opacity:1}100%{transform:translate(54px,-60px) rotate(520deg);opacity:0}}
+
+.chen-shockwave-fx{width:46px;height:46px;margin:-23px 0 0 -23px;transform-origin:50% 50%}
+.chen-shockwave-core{position:absolute;inset:3px;border-radius:50%;background:radial-gradient(circle,#efffc6 0 16%,#b6e56a 24%,#669e38 48%,#4b286d 70%,transparent 73%);box-shadow:0 0 14px #a9df5ccc,0 0 22px #7d4aa8aa}
+.chen-shockwave-tail{position:absolute;right:28px;top:17px;width:74px;height:12px;border-radius:50%;background:linear-gradient(90deg,transparent,#6d3f99aa,#c4ef7ccc);filter:blur(2px);transform:rotate(var(--ang));transform-origin:100% 50%}
+.chen-shockwave-impact{width:76px;height:76px;margin:-38px 0 0 -38px;border-radius:50%;border:3px solid #afe36d;box-shadow:0 0 16px #9bcf5dcc,inset 0 0 18px #7b4b9ecc;animation:chen-shock-impact .4s ease-out forwards}
+.chen-shockwave-impact>i,.chen-shockwave-impact>b{position:absolute;inset:12px;border-radius:50%;border:2px solid #8f65b7;animation:chen-shock-spin .38s linear forwards}.chen-shockwave-impact>b{inset:24px;border-color:#d8ff9d;animation-direction:reverse}
+@keyframes chen-shock-impact{0%{transform:scale(.28);opacity:1}100%{transform:scale(1.32);opacity:0}}
+@keyframes chen-shock-spin{to{transform:rotate(210deg) scale(1.4)}}
