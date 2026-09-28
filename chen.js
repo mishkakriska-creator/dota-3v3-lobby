@@ -5,7 +5,7 @@
     {id:'favor',name:'Divine Favor',cd:0,passive:true,desc:'Пассивно: все союзники и подконтрольные крипы восстанавливают 0.25 HP каждый общий ход и получают +1 броню.'},
     {id:'hand',name:'Hand of God',cd:4,desc:'Лечит всех союзных героев и подконтрольных крипов на 3 HP, затем ещё 2 общих хода лечит их на 1 HP за общий ход. Перезарядка: 4 хода Chen.'}
   ];
-  DATA[CHEN_ID]={name:'CHEN',hp:8,atk:1,img:'assets/chen_art.webp',skills:CHEN_SKILLS};
+  DATA[CHEN_ID]={name:'CHEN',hp:8,atk:1,img:'assets/chen_icon.webp',skills:CHEN_SKILLS};
   DATA[SLOT_ID]={name:'ПОДКОНТРОЛЬНЫЙ КРИП',hp:5,atk:.5,img:'assets/skills/chen_holy_persuasion.webp',skills:[]};
   HERO_ICONS[CHEN_ID]='assets/chen_icon.webp';
   HERO_ICONS[SLOT_ID]='assets/skills/chen_holy_persuasion.webp';
