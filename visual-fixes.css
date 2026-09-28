@@ -5445,7 +5445,7 @@ html body #game .battlefield .hero.front::after{
   align-items:center!important;
   gap:8px!important;
   min-width:0!important;
-  color:#ffd166!important;
+  color:#fff!important;
   font-weight:800!important;
 }
 #game .target-hint-icon{
