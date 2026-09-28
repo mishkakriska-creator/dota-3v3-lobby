@@ -283,6 +283,7 @@
     if(id!=='rot'&&G.actions<1)return;
     if(isHeroSilenced(h)){alert('Герой обезмолвлен и не может использовать способности.');return}
     if((h.cd?.[id]||0)>1)return;
+    armTargetSkillHint(h,id);
 
     if(id==='rot'){
       playPudgeRotPressVoice();
