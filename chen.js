@@ -5,9 +5,9 @@
     {id:'favor',name:'Divine Favor',cd:0,passive:true,desc:'Пассивно: все союзники и подконтрольные крипы восстанавливают 0.25 HP каждый общий ход и получают +1 броню.'},
     {id:'hand',name:'Hand of God',cd:4,desc:'Лечит всех союзных героев и подконтрольных крипов на 3 HP, затем ещё 2 общих хода лечит их на 1 HP за общий ход. Перезарядка: 4 хода Chen.'}
   ];
-  DATA[CHEN_ID]={name:'CHEN',hp:8,atk:1,img:'assets/chen_art.webp',skills:CHEN_SKILLS};
+  DATA[CHEN_ID]={name:'CHEN',hp:8,atk:1,img:'assets/chen_draft_v2.webp',skills:CHEN_SKILLS};
   DATA[SLOT_ID]={name:'ПОДКОНТРОЛЬНЫЙ КРИП',hp:5,atk:.5,img:'assets/skills/chen_holy_persuasion.webp',skills:[]};
-  HERO_ICONS[CHEN_ID]='assets/chen_icon.webp';
+  HERO_ICONS[CHEN_ID]='assets/chen_icon_v2.webp';
   HERO_ICONS[SLOT_ID]='assets/skills/chen_holy_persuasion.webp';
   SKILL_ICONS[CHEN_ID]=['assets/skills/chen_holy_persuasion.webp','assets/skills/chen_divine_favor.webp','assets/skills/chen_hand_of_god.webp'];
   if(!DRAFT_ORDER.includes(CHEN_ID))DRAFT_ORDER.push(CHEN_ID);
@@ -20,7 +20,7 @@
     pinecone:{name:'СОСНОВЫЙ НАЛЁТЧИК',hp:4,atk:.5,portrait:'assets/portraits/chen_pinecone.webm',icon:'assets/skills/chen_seed_shot.webp',skill:'Seed Shot'}
   };
   const CREEP_ORDER=['ogre','wildwing','satyr','pinecone'];
-  const CHEN_AUDIO_PARTS=[0,1,2,3,4].map(i=>'assets/audio/chen_sprite_'+i+'.b64');
+  const CHEN_AUDIO_SRC='assets/audio/chen_audio_sprite.ogg?v=2';
   const CHEN_AUDIO_CLIPS={
     spawn1:[.200,.836],spawn2:[1.216,2.272],cast1:[3.668,1.646],item04:[5.494,2.090],
     test:[7.764,2.862],holyp1:[10.806,2.220],holyp3:[13.206,2.299],
@@ -29,26 +29,29 @@
     kill1:[34.984,2.639],kill4:[37.803,1.881],kill11:[39.863,2.195],
     attack:[42.238,1.658]
   };
-  let chenAudioUrlPromise=null;
-  function chenAudioUrl(){
-    if(chenAudioUrlPromise)return chenAudioUrlPromise;
-    chenAudioUrlPromise=Promise.all(CHEN_AUDIO_PARTS.map(p=>fetch(p,{cache:'force-cache'}).then(r=>{if(!r.ok)throw new Error('Chen audio '+p);return r.text()}))).then(parts=>{
-      const b64=parts.join('').replace(/\s+/g,''),raw=atob(b64),buf=new Uint8Array(raw.length);
-      for(let i=0;i<raw.length;i++)buf[i]=raw.charCodeAt(i);
-      return URL.createObjectURL(new Blob([buf],{type:'audio/ogg'}));
-    }).catch(e=>{console.warn('Chen audio sprite failed',e);chenAudioUrlPromise=null;return null});
-    return chenAudioUrlPromise;
-  }
   function playChenClip(key,volume=.72){
     const clip=CHEN_AUDIO_CLIPS[key];if(!clip)return;
-    chenAudioUrl().then(url=>{if(!url)return;const a=new Audio(url);a.preload='auto';a.volume=volume;
-      let started=false;const start=()=>{if(started)return;started=true;try{a.currentTime=clip[0]}catch(_){}
-        a.play().catch(()=>{});setTimeout(()=>{try{a.pause();a.removeAttribute('src');a.load()}catch(_){}},Math.ceil(clip[1]*1000)+90)};
-      if(a.readyState>=1)start();else a.addEventListener('loadedmetadata',start,{once:true});
-    });
+    const a=new Audio(CHEN_AUDIO_SRC);a.preload='auto';a.volume=volume;
+    let started=false;
+    const start=()=>{if(started)return;started=true;try{a.currentTime=clip[0]}catch(_){}
+      a.play().catch(()=>{});setTimeout(()=>{try{a.pause();a.removeAttribute('src');a.load()}catch(_){}},Math.ceil(clip[1]*1000)+100)};
+    if(a.readyState>=1)start();else a.addEventListener('loadedmetadata',start,{once:true});
   }
   function playChenRandom(keys,volume=.72){if(!keys?.length)return;playChenClip(keys[Math.floor(Math.random()*keys.length)],volume)}
-  chenAudioUrl();
+  try{ATTACK_IMPACT_MS[CHEN_ID]=1080}catch(_){}
+
+  const baseAbilitySheetHTML=abilitySheetHTML;
+  abilitySheetHTML=function(id,useSplash=false){
+    const html=baseAbilitySheetHTML(id,useSplash);if(id!==CHEN_ID)return html;
+    const roster='<div class="chen-persuasion-roster">'+
+      '<span><img src="assets/skills/chen_ogre_smash.webp" alt=""><b>Огр-громила</b></span>'+
+      '<span><img src="assets/skills/chen_hurricane.webp" alt=""><b>Дикокрыл-потрошитель</b></span>'+
+      '<span><img src="assets/skills/chen_shockwave.webp" alt=""><b>Сатир-мучитель</b></span>'+
+      '<span><img src="assets/skills/chen_seed_shot.webp" alt=""><b>Сосновый налётчик</b></span>'+
+      '</div>';
+    const needle='<div class="ability-desc">'+CHEN_SKILLS[0].desc+'</div>';
+    return html.replace(needle,needle+roster);
+  };
 
   const basePlayTurnVoice=playTurnVoice;
   playTurnVoice=function(h,noNet=false){
@@ -231,5 +234,5 @@
     const r=baseRender();if(G){for(const team of G.teams||[])for(const h of team||[])if(isChenSlot(h)&&!h.dead)patchCard(h);patchActions()}return r;
   };
 
-  try{if(Array.isArray(HERO_IDS)&&!HERO_IDS.includes(CHEN_ID))HERO_IDS.push(CHEN_ID);if(HERO_META&&!HERO_META[CHEN_ID])HERO_META[CHEN_ID]={name:'CHEN',icon:'assets/chen_icon.webp'}}catch(_){}
+  try{if(Array.isArray(HERO_IDS)&&!HERO_IDS.includes(CHEN_ID))HERO_IDS.push(CHEN_ID);if(HERO_META&&!HERO_META[CHEN_ID])HERO_META[CHEN_ID]={name:'CHEN',icon:'assets/chen_icon_v2.webp'}}catch(_){}
 })();
