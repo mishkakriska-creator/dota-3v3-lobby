@@ -14,10 +14,10 @@
   if(typeof draft==='function')draft();
 
   const CREEPS={
-    ogre:{name:'ОГР-ГРОМИЛА',hp:5,atk:.5,portrait:'assets/portraits/chen_ogre.webm?v=2',icon:'assets/skills/chen_ogre_smash.webp',skill:'Ogre Smash!'},
-    wildwing:{name:'ДИКОКРЫЛ-ПОТРОШИТЕЛЬ',hp:4,atk:.5,portrait:'assets/portraits/chen_wildwing.webm?v=2',icon:'assets/skills/chen_hurricane.webp',skill:'Hurricane'},
-    satyr:{name:'САТИР-МУЧИТЕЛЬ',hp:5,atk:.5,portrait:'assets/portraits/chen_satyr.webm?v=2',icon:'assets/skills/chen_shockwave.webp',skill:'Shockwave'},
-    pinecone:{name:'СОСНОВЫЙ НАЛЁТЧИК',hp:4,atk:.5,portrait:'assets/portraits/chen_pinecone.webm?v=2',icon:'assets/skills/chen_seed_shot.webp',skill:'Seed Shot'}
+    ogre:{name:'ОГР-ГРОМИЛА',hp:5,atk:.5,portrait:'assets/portraits/chen_ogre.webm?v=3',icon:'assets/skills/chen_ogre_smash.webp',rosterIcon:'assets/chen_creep_ogre.webp',skill:'Ogre Smash!',skillDesc:'Оглушает переднего врага на 1 активацию и наносит ему 0.5 урона.'},
+    wildwing:{name:'ДИКОКРЫЛ-ПОТРОШИТЕЛЬ',hp:4,atk:.5,portrait:'assets/portraits/chen_wildwing.webm?v=3',icon:'assets/skills/chen_hurricane.webp',rosterIcon:'assets/chen_creep_wildwing.webp',skill:'Hurricane',skillDesc:'Выбирает первого или второго врага и толкает его вперёд или назад на 1 позицию.'},
+    satyr:{name:'САТИР-МУЧИТЕЛЬ',hp:5,atk:.5,portrait:'assets/portraits/chen_satyr.webm?v=3',icon:'assets/skills/chen_shockwave.webp',rosterIcon:'assets/chen_creep_satyr.webp',skill:'Shockwave',skillDesc:'Шоковая волна проходит по вражеской линии и наносит всем задетым врагам 0.75 урона.'},
+    pinecone:{name:'СОСНОВЫЙ НАЛЁТЧИК',hp:4,atk:.5,portrait:'assets/portraits/chen_pinecone.webm?v=3',icon:'assets/skills/chen_seed_shot.webp',rosterIcon:'assets/chen_creep_pinecone.webp',skill:'Seed Shot',skillDesc:'Наносит выбранной цели 0.5 урона и может отскочить ещё в случайных врагов, нанося по 0.5.'}
   };
   const CREEP_ORDER=['ogre','wildwing','satyr','pinecone'];
   const CHEN_AUDIO_SRC='assets/audio/chen_audio_sprite.ogg?v=3';
@@ -44,10 +44,7 @@
   abilitySheetHTML=function(id,useSplash=false){
     const html=baseAbilitySheetHTML(id,useSplash);if(id!==CHEN_ID)return html;
     const roster='<div class="chen-persuasion-roster">'+
-      '<span><img src="assets/skills/chen_ogre_smash.webp" alt=""><b>Огр-громила</b></span>'+
-      '<span><img src="assets/skills/chen_hurricane.webp" alt=""><b>Дикокрыл-потрошитель</b></span>'+
-      '<span><img src="assets/skills/chen_shockwave.webp" alt=""><b>Сатир-мучитель</b></span>'+
-      '<span><img src="assets/skills/chen_seed_shot.webp" alt=""><b>Сосновый налётчик</b></span>'+
+      CREEP_ORDER.map(k=>{const c=CREEPS[k];return '<span class="chen-creep-roster-card"><img src="'+c.rosterIcon+'" alt=""><span class="chen-creep-roster-copy"><b>'+c.name.replace('ОГР-ГРОМИЛА','Огр-громила').replace('ДИКОКРЫЛ-ПОТРОШИТЕЛЬ','Дикокрыл-потрошитель').replace('САТИР-МУЧИТЕЛЬ','Сатир-мучитель').replace('СОСНОВЫЙ НАЛЁТЧИК','Сосновый налётчик')+'</b><small><strong>'+c.skill+':</strong> '+c.skillDesc+'</small></span></span>'}).join('')+
       '</div>';
     const needle='<div class="ability-desc">'+CHEN_SKILLS[0].desc+'</div>';
     return html.replace(needle,needle+roster);
@@ -55,6 +52,7 @@
 
   const basePlayTurnVoice=playTurnVoice;
   playTurnVoice=function(h,noNet=false){
+    if(h?.id===SLOT_ID)return;
     if(h?.id!==CHEN_ID)return basePlayTurnVoice(h,noNet);
     if(!noNet)window.emitNetVfx?.('audio-turn',h);
     playChenRandom(['spawn1','spawn2','cast1','item04'],.72);
@@ -89,7 +87,7 @@
     slot.dead=false;slot.name=d.name;slot.maxHp=c.maxHp;slot.hp=c.hp;slot.atk=d.atk;slot.baseAtk=d.atk;slot.armor=0;slot.portrait=d.portrait;slot.img='assets/skills/chen_holy_persuasion.webp';slot.staticPortrait=false;
   }
   function storeSlot(slot){const c=currentCreep(slot);if(!c)return;c.hp=Math.max(0,Number(slot.hp)||0);c.maxHp=Math.max(1,Number(slot.maxHp)||c.maxHp)}
-  function makeCreep(kind){const d=CREEPS[kind];return{uid:`chen_${kind}_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,kind,hp:d.hp,maxHp:d.hp,life:8,hotTurns:0}}
+  function makeCreep(kind){const d=CREEPS[kind];return{uid:`chen_${kind}_${Date.now()}_${Math.random().toString(36).slice(2,7)}`,kind,hp:d.hp,maxHp:d.hp,life:8,hotTurns:0,skillCd:0}}
   function makeSlot(team,kind){const slot=mkHero(SLOT_ID,team);slot.chenCreeps=[makeCreep(kind)];slot.chenCreepIndex=0;slot.ownerId=CHEN_ID;slot.items=[];slot.cd={};slot.itemCd={};syncSlot(slot);return slot}
   function removeSlotFromTeam(slot){
     if(!G||!slot)return;const arr=G.teams[slot.team],idx=arr.indexOf(slot);if(idx<0)return;
@@ -155,7 +153,7 @@
     }
   }
   const baseBeginActivation=beginActivation;
-  beginActivation=function(){const r=baseBeginActivation();if(G&&G.winner===null){tickChenGlobal();render()}return r};
+  beginActivation=function(){const r=baseBeginActivation();if(G&&G.winner===null){const h=active();if(isChenSlot(h)){const c=currentCreep(h);if(c&&c.skillCd>0)c.skillCd=Math.max(0,c.skillCd-1)}tickChenGlobal();render()}return r};
 
   function summonChoice(chen){
     if(slotForTeam(chen.team)?.chenCreeps?.length>=2){alert('У Chen уже максимум 2 подконтрольных крипа.');return}
@@ -168,7 +166,7 @@
   function summonCreep(chen,kind){
     let slot=slotForTeam(chen.team);
     if(slot){storeSlot(slot);if(slot.chenCreeps.length>=2)return;slot.chenCreeps.push(makeCreep(kind));syncSlot(slot)}
-    else{slot=makeSlot(chen.team,kind);G.teams[chen.team].push(slot)}
+    else{slot=makeSlot(chen.team,kind);const arr=G.teams[chen.team],front=G.front[chen.team]||0;arr.splice(front,0,slot);G.front[chen.team]=front+1}
     putOnCooldown(chen,'persuasion');addSkillLog(chen,'persuasion',`${chen.name} подчиняет ${CREEPS[kind].name} на 8 общих ходов.`);spend();render();
   }
   function switchCreep(slot,index){if(!slot||active()!==slot||targetMode||index===slot.chenCreepIndex||!slot.chenCreeps?.[index])return;storeSlot(slot);slot.chenCreepIndex=index;syncSlot(slot);render()}
@@ -178,26 +176,27 @@
     if(!target||target.dead||isForgeSpiritTarget(target))return false;const order=currentLineOrder(target.team),d=order.indexOf(target);if(d<=0)return false;
     const ahead=order[d-1],arr=G.teams[target.team],a=arr.indexOf(target),b=arr.indexOf(ahead);if(a<0||b<0)return false;[arr[a],arr[b]]=[arr[b],arr[a]];return true;
   }
+  function markCreepSkillUsed(slot){const c=currentCreep(slot);if(c)c.skillCd=2}
   function directionChoice(slot,target){
     const order=currentLineOrder(target.team),d=order.indexOf(target),canF=d>0,canB=d>=0&&d<order.length-1;
     const ov=document.createElement('div');ov.className='chen-direction-overlay';ov.innerHTML=`<div class="chen-direction-panel"><b>HURRICANE — направление</b><span>${target.name}</span><div><button data-dir="forward" ${canF?'':'disabled'}>ТОЛКНУТЬ ВПЕРЁД</button><button data-dir="back" ${canB?'':'disabled'}>ТОЛКНУТЬ НАЗАД</button></div><button class="chen-direction-cancel">Отмена</button></div>`;document.body.appendChild(ov);
     ov.querySelector('.chen-direction-cancel').onclick=()=>ov.remove();
-    ov.querySelectorAll('[data-dir]').forEach(b=>b.onclick=()=>{const dir=b.dataset.dir,moved=dir==='forward'?moveForwardOne(target):knockBackOne(target);ov.remove();addLog(`${creepLogIcon('wildwing')}<span>Hurricane: ${target.name} ${moved?(dir==='forward'?'сдвинут вперёд на 1 позицию':'отброшен назад на 1 позицию'):'остаётся на месте'}.</span>`);spend();render()});
+    ov.querySelectorAll('[data-dir]').forEach(b=>b.onclick=()=>{const dir=b.dataset.dir,moved=dir==='forward'?moveForwardOne(target):knockBackOne(target);ov.remove();markCreepSkillUsed(slot);addLog(`${creepLogIcon('wildwing')}<span>Hurricane: ${target.name} ${moved?(dir==='forward'?'сдвинут вперёд на 1 позицию':'отброшен назад на 1 позицию'):'остаётся на месте'}.</span>`);spend();render()});
   }
   function useCreepSkill(slot){
-    if(!G||active()!==slot||slot.dead||G.actions<1||targetMode)return;const c=currentCreep(slot);if(!c)return;const kind=c.kind;
+    if(!G||active()!==slot||slot.dead||G.actions<1||targetMode)return;const c=currentCreep(slot);if(!c||c.skillCd>0)return;const kind=c.kind;
     if(kind==='ogre'){
       const t=frontHero(1-slot.team);if(!t||t.dead){alert('Нет переднего врага для Ogre Smash!.');return}
-      damage(t,.5,`${creepLogIcon(kind)} Ogre Smash!: `,slot,{impactDelay:100});t.stun=Math.max(Number(t.stun)||0,1);addLog(`${creepLogIcon(kind)}<span>Ogre Smash! оглушает ${t.name} на 1 активацию.</span>`);spend();return;
+      damage(t,.5,`${creepLogIcon(kind)} Ogre Smash!: `,slot,{impactDelay:100});t.stun=Math.max(Number(t.stun)||0,1);addLog(`${creepLogIcon(kind)}<span>Ogre Smash! оглушает ${t.name} на 1 активацию.</span>`);markCreepSkillUsed(slot);spend();return;
     }
     if(kind==='satyr'){
-      const targets=currentLineOrder(1-slot.team).filter(x=>!x.dead);if(!targets.length)return;for(const t of targets)spellDamage(t,.75,`${creepLogIcon(kind)} Shockwave: `,slot,{impactDelay:120});addLog(`${creepLogIcon(kind)}<span>Shockwave проходит по вражеской линии и наносит каждому задетому врагу 0.75 урона.</span>`);spend();return;
+      const targets=currentLineOrder(1-slot.team).filter(x=>!x.dead);if(!targets.length)return;for(const t of targets)spellDamage(t,.75,`${creepLogIcon(kind)} Shockwave: `,slot,{impactDelay:120});addLog(`${creepLogIcon(kind)}<span>Shockwave проходит по вражеской линии и наносит каждому задетому врагу 0.75 урона.</span>`);markCreepSkillUsed(slot);spend();return;
     }
     if(kind==='wildwing'){
       const opts=currentLineOrder(1-slot.team).slice(0,2);if(!opts.length)return;targetMode={promptText:'Выберите первого или второго врага для Hurricane',filter:h=>opts.includes(h),onPick:t=>directionChoice(slot,t),team:1-slot.team,frontOnly:false,icon:creepIcon(kind)};render();return;
     }
     if(kind==='pinecone'){
-      chooseEnemyAny('Выберите врага для Seed Shot',()=>true,t=>{const hit=[t];damage(t,.5,`${creepLogIcon(kind)} Seed Shot: `,slot,{impactDelay:100});let pool=currentLineOrder(1-slot.team).filter(x=>!x.dead&&!hit.includes(x));for(let i=0;i<2&&pool.length;i++){const n=pool.splice(Math.floor(Math.random()*pool.length),1)[0];hit.push(n);setTimeout(()=>damage(n,.5,`${creepLogIcon(kind)} Seed Shot — отскок: `,slot,{impactDelay:80}),180*(i+1))}addLog(`${creepLogIcon(kind)}<span>Seed Shot поражает ${hit.map(x=>x.name).join(' → ')} по 0.5 урона.</span>`);spend()},'');if(targetMode){targetMode.icon=creepIcon(kind);render()}return;
+      chooseEnemyAny('Выберите врага для Seed Shot',()=>true,t=>{const hit=[t];damage(t,.5,`${creepLogIcon(kind)} Seed Shot: `,slot,{impactDelay:100});let pool=currentLineOrder(1-slot.team).filter(x=>!x.dead&&!hit.includes(x));for(let i=0;i<2&&pool.length;i++){const n=pool.splice(Math.floor(Math.random()*pool.length),1)[0];hit.push(n);setTimeout(()=>damage(n,.5,`${creepLogIcon(kind)} Seed Shot — отскок: `,slot,{impactDelay:80}),180*(i+1))}addLog(`${creepLogIcon(kind)}<span>Seed Shot поражает ${hit.map(x=>x.name).join(' → ')} по 0.5 урона.</span>`);markCreepSkillUsed(slot);spend()},'');if(targetMode){targetMode.icon=creepIcon(kind);render()}return;
     }
   }
 
@@ -225,7 +224,7 @@
   function patchActions(){
     const h=active();if(!isChenSlot(h)||h.dead||targetMode)return;const acts=document.getElementById('actions');if(!acts)return;
     acts.querySelectorAll('.skill').forEach(x=>x.remove());const c=currentCreep(h);if(!c)return;const d=CREEPS[c.kind];
-    const b=document.createElement('button');b.className='skill chen-creep-skill';b.innerHTML=`<img class="skill-icon" src="${d.icon}"><span>${d.skill}</span>`;b.disabled=G.actions<1;b.onclick=()=>useCreepSkill(h);acts.appendChild(b);
+    const b=document.createElement('button');b.className='skill chen-creep-skill';b.innerHTML=`<img class="skill-icon" src="${d.icon}"><span>${d.skill}${c.skillCd>0?` [КД ${c.skillCd}]`:''}</span>`;b.disabled=G.actions<1||c.skillCd>0;b.onclick=()=>useCreepSkill(h);acts.appendChild(b);
     if((h.chenCreeps||[]).length>1){const sw=document.createElement('button');sw.className='skill chen-switch-creep';sw.innerHTML='<span>↔ СМЕНИТЬ КРИПА</span>';sw.disabled=false;sw.onclick=()=>switchCreep(h,((h.chenCreepIndex||0)+1)%h.chenCreeps.length);acts.appendChild(sw)}
   }
   const baseRender=render;
