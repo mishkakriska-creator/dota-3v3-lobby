@@ -2,7 +2,7 @@
   const ID='necrophos';
   const CDN='https://cdn.cloudflare.steamstatic.com/apps/dota2';
   const DRAFT=CDN+'/images/dota_react/heroes/necrolyte.png';
-  const PORTRAIT='assets/portraits/necrolyte_user_latest.webp?v=2';
+  const PORTRAIT='https://img.dota2.com.cn/dota2static/herostatic/npc_dota_hero_necrolyte/npc_dota_hero_necrolyte.webm';
   const ICON='assets/turn_necrophos.png?v=1';
   const SKILLS={
     pulse:CDN+'/images/dota_react/abilities/necrolyte_death_pulse.png',
@@ -10,13 +10,13 @@
     scythe:CDN+'/images/dota_react/abilities/necrolyte_reapers_scythe.png'
   };
   const SFX={
-    pulse:'https://dota2.fandom.com/wiki/Special:Redirect/file/Necrophos_Death_Pulse.mp3',
-    scythe:'https://dota2.fandom.com/wiki/Special:Redirect/file/Reaper%27s_Scythe.mp3',
-    launch:'https://dota2.fandom.com/wiki/Special:Redirect/file/Necrophos_projectile_launch1.mp3',
-    impact:'https://dota2.fandom.com/wiki/Special:Redirect/file/Necrophos_projectile_impact1.mp3'
+    pulse:'https://static.wikia.nocookie.net/dota2_gamepedia/images/a/a7/Necrophos_Death_Pulse.mp3/revision/latest',
+    scythe:'https://static.wikia.nocookie.net/dota2_gamepedia/images/a/a9/Necrophos_Reaper%27s_Scythe.mp3/revision/latest',
+    launch:'https://static.wikia.nocookie.net/dota2_gamepedia/images/d/db/Necrophos_projectile_launch1.mp3/revision/latest',
+    impact:'https://static.wikia.nocookie.net/dota2_gamepedia/images/6/62/Necrophos_projectile_impact1.mp3/revision/latest'
   };
 
-  DATA[ID]={name:'NECROPHOS',hp:8,atk:1,img:DRAFT,staticPortrait:true,skills:[
+  DATA[ID]={name:'NECROPHOS',hp:8,atk:1,img:DRAFT,skills:[
     {id:'death_pulse',name:'Death Pulse',cd:1,desc:'Necrophos выпускает волну смерти: наносит 1 урон переднему врагу и врагу сразу за ним, восстанавливает 1 HP себе и союзнику сразу позади Necrophos. Перезарядка: 1 ход Necrophos.'},
     {id:'heartstopper',name:'Heartstopper Aura — ПАССИВНАЯ',cd:0,passive:true,desc:'ПАССИВНАЯ. Каждый общий ход: если Necrophos стоит первым в своей линии, передний и второй враг теряют по 20% своего максимального HP; если Necrophos стоит вторым — эффект получает только передний враг. За каждое убийство любым способом Necrophos получает +0.5 восстановления HP каждый общий ход на 3 общих хода.'},
     {id:'reapers_scythe',name:"Reaper's Scythe",cd:4,desc:"Выбранная цель получает 1 урон за каждое недостающее HP от её максимального здоровья. Если Reaper's Scythe убивает врага, Necrophos навсегда получает +0.5 восстановления HP каждый общий ход. Перезарядка: 4 хода Necrophos."}
@@ -34,9 +34,9 @@
 
   const style=document.createElement('style');
   style.textContent=`
-    .necro-heartstopper-badge{position:absolute!important;left:10px!important;right:auto!important;top:68px!important;z-index:35!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:0!important;width:32px!important;height:32px!important;min-width:32px!important;max-width:32px!important;min-height:32px!important;max-height:32px!important;padding:2px!important;border-radius:7px!important;background:rgba(15,28,18,.88)!important;border:1px solid rgba(117,255,92,.5)!important;color:#d8ffc9!important;font:900 7px/1 system-ui!important;box-shadow:0 0 10px rgba(77,255,75,.2)!important;overflow:hidden!important;pointer-events:none!important}
-    .necro-heartstopper-badge img{display:block!important;width:18px!important;height:18px!important;min-width:18px!important;min-height:18px!important;max-width:18px!important;max-height:18px!important;object-fit:cover!important;flex:0 0 18px!important;border-radius:4px!important}
-    .necro-heartstopper-badge span{display:block!important;width:28px!important;height:8px!important;min-width:0!important;max-width:28px!important;font-size:6.5px!important;line-height:8px!important;text-align:center!important;white-space:nowrap!important;overflow:hidden!important}
+    .necro-heartstopper-badge{position:absolute!important;left:9px!important;right:auto!important;top:38px!important;z-index:35!important;display:block!important;width:34px!important;height:34px!important;min-width:34px!important;max-width:34px!important;min-height:34px!important;max-height:34px!important;padding:0!important;border-radius:7px!important;background:rgba(10,22,13,.9)!important;border:1px solid rgba(117,255,92,.58)!important;color:#efffe9!important;box-shadow:0 0 10px rgba(77,255,75,.24)!important;overflow:hidden!important;pointer-events:none!important}
+    .necro-heartstopper-badge img{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;min-width:100%!important;min-height:100%!important;max-width:none!important;max-height:none!important;object-fit:cover!important;border-radius:6px!important}
+    .necro-heartstopper-badge span{position:absolute!important;left:0!important;right:0!important;bottom:0!important;display:block!important;width:100%!important;height:9px!important;min-width:0!important;max-width:none!important;background:rgba(4,12,6,.74)!important;color:#f3ffe9!important;font:900 6.5px/9px system-ui!important;text-align:center!important;white-space:nowrap!important;overflow:hidden!important}
     .necro-pulse-fx,.necro-scythe-fx,.necro-heartstopper-fx{position:fixed;pointer-events:none;z-index:2147483645}
     .necro-pulse-fx .ring{position:absolute;left:-42px;top:-42px;width:84px;height:84px;border-radius:50%;border:4px solid rgba(155,255,92,.92);box-shadow:0 0 22px rgba(104,255,86,.72),inset 0 0 20px rgba(112,255,91,.35);animation:necro-pulse-ring 2.28s ease-out forwards}
     .necro-pulse-fx .ring.r2{animation-delay:.18s;border-width:2px}
@@ -121,7 +121,7 @@
   mkHero=function(id,team){
     const h=oldMkHero(id,team);
     if(id===ID){
-      h.staticPortrait=true;
+      h.staticPortrait=false;
       h.portrait=PORTRAIT;
       h.img=DRAFT;
       h.necroKillRegenTimers=[];
@@ -219,11 +219,8 @@
     if(h?.id===ID){
       const p=d.querySelector('.hero-portrait');
       if(p){
-        p.style.backgroundImage=`url("${PORTRAIT}")`;
-        p.style.backgroundSize='cover';
-        p.style.backgroundPosition='center 28%';
-        const img=p.querySelector('.static-hero-portrait');
-        if(img&&img.getAttribute('src')!==PORTRAIT)img.src=PORTRAIT;
+        const v=p.querySelector('video');
+        if(v&&v.getAttribute('src')!==PORTRAIT){v.src=PORTRAIT;v.play().catch(()=>{})}
       }
       if(p&&!p.querySelector('.necro-heartstopper-badge')){
         const b=document.createElement('div');b.className='necro-heartstopper-badge';b.innerHTML=`<img src="${SKILLS.heart}" alt=""><span></span>`;p.appendChild(b);
