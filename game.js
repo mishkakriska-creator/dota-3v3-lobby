@@ -267,7 +267,8 @@ window.visualViewport?.addEventListener?.('resize',syncDotaViewport);
 window.addEventListener('pointerdown',requestDotaLandscape,{once:true,capture:true});
 window.addEventListener('touchstart',requestDotaLandscape,{once:true,capture:true,passive:true});
 function draftTeamForPick(i){return i%2}
-function localDraftPlayer(){return window.DOTA_OFFLINE_MODE?draftTeamForPick(chosen.length):(Number.isInteger(window.DOTA_NET_PLAYER)?window.DOTA_NET_PLAYER:0)}
+function isOfflineDraft(){return window.DOTA_OFFLINE_MODE===true||new URLSearchParams(location.search).has('offline')}
+function localDraftPlayer(){return isOfflineDraft()?draftTeamForPick(chosen.length):(Number.isInteger(window.DOTA_NET_PLAYER)?window.DOTA_NET_PLAYER:0)}
 function draftTurn(){return draftTeamForPick(chosen.length)}
 function canLocalDraftPick(){return chosen.length<6 && localDraftPlayer()===draftTurn()}
 function draftTeamHeroes(team){return chosen.filter((_,i)=>draftTeamForPick(i)===team)}
@@ -545,7 +546,7 @@ function updateDraft(){
   const mine=canLocalDraftPick();
   $('#draftStatus').innerHTML=`Игрок 1: <b>${p1.length}/3</b> • Игрок 2: <b>${p2.length}/3</b> • Сейчас выбирает <b>Игрок ${turn+1}</b>${mine?' — ваш пик':''}`;
  }else $('#draftStatus').innerHTML=`Игрок 1: <b>3/3</b> • Игрок 2: <b>3/3</b> • Драфт завершён`;
- $('#startBtn').disabled=chosen.length!==6 || (!window.DOTA_OFFLINE_MODE && Number.isInteger(window.DOTA_NET_PLAYER) && window.DOTA_NET_PLAYER!==0);
+ $('#startBtn').disabled=chosen.length!==6 || (!isOfflineDraft() && Number.isInteger(window.DOTA_NET_PLAYER) && window.DOTA_NET_PLAYER!==0);
  window.syncDraftState?.();
 }
 const HERO_ICONS={techies:'assets/hero_portraits_v166/techies.png',morphling:'assets/hero_portraits_v166/morphling.png',bane:'assets/hero_portraits_v166/bane.png',silencer:'assets/hero_portraits_v166/silencer.png',shadowfiend:'assets/hero_portraits_v166/shadowfiend.png',lifestealer:'assets/hero_portraits_v166/lifestealer.png',abaddon:'assets/abaddon_icon.png',io:'assets/io_icon.png',tinker:'assets/tinker_icon.png',invoker:'assets/invoker_icon.png',arcwarden:'assets/arcwarden_icon.png',axe:'assets/axe_icon.png',broodmother:'assets/broodmother_icon.png',mars:'assets/turn_mars.png'};
@@ -558,7 +559,7 @@ function abilitySheetHTML(id,useSplash=false){let h=DATA[id],heroArt=(h?.img||HE
 function openHeroPick(id){
  draftPreview=id;$('#heroPickSheet').innerHTML=abilitySheetHTML(id,true);
  let btn=$('#confirmHeroPick'),picked=chosen.includes(id);
- btn.textContent=picked?'ГЕРОЙ УЖЕ ВЫБРАН':(window.DOTA_OFFLINE_MODE?`ВЫБРАТЬ ЗА ИГРОКА ${draftTurn()+1}`:'ВЫБРАТЬ ГЕРОЯ');
+ btn.textContent=picked?'ГЕРОЙ УЖЕ ВЫБРАН':(isOfflineDraft()?`ВЫБРАТЬ ЗА ИГРОКА ${draftTurn()+1}`:'ВЫБРАТЬ ГЕРОЯ');
  btn.disabled=picked||chosen.length>=6||!canLocalDraftPick();
  $('#heroPickModal').classList.remove('hidden');
 }
@@ -727,7 +728,7 @@ function selectedMatchAudioUrls(ids){
 function unlockMatchAudio(){
   // Must run synchronously from the "Начать бой" tap on iOS.
   const probe=selectedMatchAudioUrls([...new Set(chosen)].filter(Boolean))[0]||'assets/audio/background_music.mp3';
-  const channels=[sfxAudio,voiceAudio,abilityVoiceAudio,mineAudio,attackAudio,itemAudio,miscAudio,matrixAudio,bgmAudio];
+  const channels=[sfxAudio,voiceAudio,abilityVoiceAudio,mineAudio,attackAudio,itemAudio,miscAudio,matrixAudio];
   for(const a of channels){
     try{
       const oldVol=a.volume,oldMuted=a.muted;

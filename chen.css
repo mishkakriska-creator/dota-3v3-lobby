@@ -64,3 +64,20 @@
 .chen-shockwave-impact>i,.chen-shockwave-impact>b{position:absolute;inset:12px;border-radius:50%;border:2px solid #8f65b7;animation:chen-shock-spin .38s linear forwards}.chen-shockwave-impact>b{inset:24px;border-color:#d8ff9d;animation-direction:reverse}
 @keyframes chen-shock-impact{0%{transform:scale(.28);opacity:1}100%{transform:scale(1.32);opacity:0}}
 @keyframes chen-shock-spin{to{transform:rotate(210deg) scale(1.4)}}
+
+/* v1.86.155 — Chen creep roster art keeps original proportions on touch/mobile. */
+@media (pointer:coarse), (max-width:980px){
+  .chen-persuasion-roster .chen-creep-roster-head{
+    grid-template-rows:auto auto!important;
+  }
+  .chen-persuasion-roster .chen-creep-roster-head>img{
+    width:100%!important;
+    height:auto!important;
+    max-height:110px!important;
+    aspect-ratio:auto!important;
+    object-fit:contain!important;
+    object-position:center!important;
+    background:#0b1018!important;
+  }
+}
+
