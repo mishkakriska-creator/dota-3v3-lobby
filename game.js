@@ -309,14 +309,36 @@ const AUDIO={
  mars:{turn:['assets/audio/mars_turn_01.mp3','assets/audio/mars_turn_02.mp3','assets/audio/mars_turn_03.mp3'],skills:{spear:'assets/audio/mars_spear_cast.mp3',rebuke:'assets/audio/mars_rebuke.mp3',arena:'assets/audio/mars_arena_combo.mp3'},voices:{spear:['assets/audio/mars_voice_spear_01.mp3','assets/audio/mars_voice_spear_02.mp3'],rebuke:['assets/audio/mars_voice_rebuke_01.mp3','assets/audio/mars_voice_rebuke_02.mp3'],arena:['assets/audio/mars_voice_arena_06.mp3','assets/audio/mars_voice_arena_09.mp3']},killVoices:['assets/audio/mars_kill_01.mp3','assets/audio/mars_kill_12.mp3'],rivalVoices:{abaddon:'assets/audio/mars_rival_abaddon.mp3',arcwarden:'assets/audio/mars_rival_arcwarden.mp3',axe:'assets/audio/mars_rival_axe.mp3',bane:'assets/audio/mars_rival_bane.mp3',lifestealer:'assets/audio/mars_rival_lifestealer.mp3'},spearImpact:'assets/audio/mars_spear_target.mp3',wall:'assets/audio/mars_wall_hit.mp3'},
  axe:{turn:['assets/audio/axe_turn1.mp3','assets/audio/axe_turn2.mp3'],skills:{call:'assets/audio/axe_berserkers_call.mp3',helix:'assets/audio/axe_counter_helix.mp3',culling:'assets/audio/axe_culling_blade.mp3'}}
 };
-let sfxAudio=new Audio(), voiceAudio=new Audio(), abilityVoiceAudio=new Audio(), mineAudio=new Audio(), attackAudio=new Audio(), itemAudio=new Audio(), miscAudio=new Audio(), matrixAudio=new Audio(), bgmAudio=new Audio('assets/audio/background_music.mp3');
-sfxAudio.volume=.72;voiceAudio.volume=.72;abilityVoiceAudio.volume=.72;mineAudio.volume=.72;attackAudio.volume=.68;itemAudio.volume=.22;miscAudio.volume=.48;matrixAudio.volume=.72;bgmAudio.volume=.10;bgmAudio.loop=true;bgmAudio.preload='auto';
+let sfxAudio=new Audio(), voiceAudio=new Audio(), abilityVoiceAudio=new Audio(), mineAudio=new Audio(), attackAudio=new Audio(), itemAudio=new Audio(), miscAudio=new Audio(), matrixAudio=new Audio();
+const BGM_SRC='assets/audio/background_music.mp3';
+let bgmWebSource=null,bgmWebGain=null,bgmStartPromise=null;
+sfxAudio.volume=.72;voiceAudio.volume=.72;abilityVoiceAudio.volume=.72;mineAudio.volume=.72;attackAudio.volume=.68;itemAudio.volume=.22;miscAudio.volume=.48;matrixAudio.volume=.72;
 const ATTACK_AUDIO={bane:'assets/audio/bane_attack.mp3',silencer:'assets/audio/silencer_attack.mp3',morphling:'assets/audio/morphling_attack.mp3',techies:'assets/audio/techies_attack.mp3',lifestealer:'assets/audio/lifestealer_attack.mp3',shadowfiend:'assets/audio/shadowfiend_attack.mp3',invoker:'assets/audio/invoker_attack.mp3',tinker:'assets/audio/tinker_projectile_launch.mp3',axe:'assets/audio/axe_attack1.mp3',broodmother:'assets/audio/broodmother_attack_combo.mp3',abaddon:'assets/audio/abaddon_attack_combo.mp3',mars:'assets/audio/mars_attack_combo.mp3'};
 const ATTACK_IMPACT_MS={bane:300,silencer:500,morphling:70,techies:550,lifestealer:90,shadowfiend:250,io:280,phantomlancer:575,invoker:240,tinker:280,forge_spirit:280,axe:230,broodmother:550,abaddon:220};
 const SKILL_IMPACT_MS={shadowfiend:{raze:180}};
 function attackImpactMs(h){return ATTACK_IMPACT_MS[h?.id]??120}
 const IO_ATTACK_AUDIO={pre:'assets/audio/io_attack_pre.mp3',launch:'assets/audio/io_attack_launch.mp3',impact:'assets/audio/io_attack_impact.mp3'};
-function ensureMusic(){if(!bgmAudio.paused)return;bgmAudio.play().catch(()=>{})}
+function ensureMusic(){
+  if(bgmWebSource)return Promise.resolve(true);
+  if(bgmStartPromise)return bgmStartPromise;
+  bgmStartPromise=(async()=>{
+    const ctx=ensureDotaAudioContext();
+    if(!ctx)return false;
+    try{if(ctx.state!=='running')await ctx.resume()}catch(_){}
+    let buf=decodedMatchAudio.get(audioCacheKey(BGM_SRC))||null;
+    if(!buf)buf=await warmDecodedMatchAudio(BGM_SRC);
+    if(!buf||bgmWebSource)return !!bgmWebSource;
+    try{
+      const source=ctx.createBufferSource(),gain=ctx.createGain();
+      source.buffer=buf;source.loop=true;gain.gain.value=.10;
+      source.connect(gain);gain.connect(ctx.destination);source.start(0);
+      bgmWebSource=source;bgmWebGain=gain;
+      source.onended=()=>{if(bgmWebSource===source){bgmWebSource=null;bgmWebGain=null}};
+      return true;
+    }catch(_){return false}
+  })().finally(()=>{bgmStartPromise=null});
+  return bgmStartPromise;
+}
 function playAttackSound(h,noNet=false){if(!h)return;if(!noNet)window.emitNetVfx?.('audio-attack',h);if(h?.id==='io'){playFile(attackAudio,IO_ATTACK_AUDIO.pre);setTimeout(()=>playFile(sfxAudio,IO_ATTACK_AUDIO.launch),120);setTimeout(()=>playFile(miscAudio,IO_ATTACK_AUDIO.impact),280);return}playFile(attackAudio,ATTACK_AUDIO[h.id])}
 document.addEventListener('pointerdown',ensureMusic,{once:true});
 const MINE_AUDIO={place:'assets/audio/techies_mine_place.mp3',approach:'assets/audio/techies_mine_approach.mp3',explode:'assets/audio/techies_mine_explode.mp3'};
@@ -753,7 +775,7 @@ function warmChosenBattleAssets(showOverlay=false){
   });
 }
 function gameplayAudioUrls(){
-  const urls=new Set(['assets/audio/background_music.mp3']);
+  const urls=new Set([BGM_SRC]);
   const collect=v=>{if(!v)return;if(typeof v==='string'&&v.startsWith('assets/audio/'))urls.add(audioCacheKey(v));else if(Array.isArray(v))v.forEach(collect);else if(typeof v==='object')Object.values(v).forEach(collect)};
   Object.values(MATCH_AUDIO_INDEX).forEach(collect);collect(AUDIO);collect(ATTACK_AUDIO);collect(IO_ATTACK_AUDIO);
   return [...urls];

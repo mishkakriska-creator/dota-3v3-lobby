@@ -5741,3 +5741,18 @@ html.dota-landscape-mobile body.game-running #game .battlefield .team.has-four .
   align-self:flex-end!important;
 }
 
+/* v1.86.153 — guaranteed phone nickname clearance.
+   Cards stay anchored to the bottom; only their top edge moves down. */
+html.dota-landscape-mobile body.game-running #game .battlefield{
+  --battle-nick-clearance:clamp(18px,calc(var(--dota-vh,390px)*.055),24px)!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero,
+html.dota-landscape-mobile body.game-running #game .battlefield .team.has-extra .hero,
+html.dota-landscape-mobile body.game-running #game .battlefield .team.has-four .hero{
+  height:calc(var(--battle-card-h,228px) - var(--battle-nick-clearance,21px))!important;
+  max-height:calc(var(--battle-card-h,228px) - var(--battle-nick-clearance,21px))!important;
+  min-height:0!important;
+  align-self:flex-end!important;
+  margin-bottom:2px!important;
+}
+
