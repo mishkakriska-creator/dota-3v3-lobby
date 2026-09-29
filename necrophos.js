@@ -10,10 +10,35 @@
     scythe:CDN+'/images/dota_react/abilities/necrolyte_reapers_scythe.png'
   };
   const SFX={
-    pulse:'https://static.wikia.nocookie.net/dota2_gamepedia/images/a/a7/Necrophos_Death_Pulse.mp3/revision/latest',
-    scythe:'https://static.wikia.nocookie.net/dota2_gamepedia/images/a/a9/Necrophos_Reaper%27s_Scythe.mp3/revision/latest',
+    pulse:'https://static.wikia.nocookie.net/dota2_gamepedia/images/a/a7/Necrophos_Death_Pulse.mp3/revision/latest?cb=20191216020945',
+    scythe:'https://static.wikia.nocookie.net/dota2_gamepedia/images/a/a9/Necrophos_Reaper%27s_Scythe.mp3/revision/latest?cb=20191216020948',
     launch:'https://static.wikia.nocookie.net/dota2_gamepedia/images/d/db/Necrophos_projectile_launch1.mp3/revision/latest',
     impact:'https://static.wikia.nocookie.net/dota2_gamepedia/images/6/62/Necrophos_projectile_impact1.mp3/revision/latest'
+  };
+  const VOICES={
+    turn:[
+      'https://static.wikia.nocookie.net/dota2_ru_gamepedia/images/2/2a/Necr_attack_09_ru.mp3/revision/latest?cb=20170413075038',
+      'https://static.wikia.nocookie.net/dota2_ru_gamepedia/images/e/ef/Necr_move_14_ru.mp3/revision/latest?cb=20170413075954',
+      'https://static.wikia.nocookie.net/dota2_ru_gamepedia/images/2/21/Necr_ability_reap_01_ru.mp3/revision/latest?cb=20170413074909',
+      'https://static.wikia.nocookie.net/dota2_ru_gamepedia/images/f/f1/Necr_ability_tox_02_ru.mp3/revision/latest?cb=20170413074936',
+      'https://static.wikia.nocookie.net/dota2_ru_gamepedia/images/f/f3/Necr_spawn_02_ru.mp3/revision/latest?cb=20170413080651'
+    ],
+    scythe:[
+      'https://static.wikia.nocookie.net/dota2_ru_gamepedia/images/d/d4/Necr_ability_reap_03_ru.mp3/revision/latest?cb=20170413074918',
+      'https://static.wikia.nocookie.net/dota2_ru_gamepedia/images/7/76/Necr_ability_reap_02_ru.mp3/revision/latest?cb=20170413074913',
+      'https://static.wikia.nocookie.net/dota2_ru_gamepedia/images/2/21/Necr_ability_reap_01_ru.mp3/revision/latest?cb=20170413074909'
+    ],
+    kill:[
+      'https://static.wikia.nocookie.net/dota2_ru_gamepedia/images/2/2d/Necr_kill_11_ru.mp3/revision/latest?cb=20170413075608',
+      'https://static.wikia.nocookie.net/dota2_ru_gamepedia/images/8/85/Necr_kill_07_ru.mp3/revision/latest?cb=20170413075548',
+      'https://static.wikia.nocookie.net/dota2_ru_gamepedia/images/2/25/Necr_kill_02_ru.mp3/revision/latest?cb=20170413075523'
+    ],
+    pudge:[
+      'https://static.wikia.nocookie.net/dota2_ru_gamepedia/images/2/2e/Necr_pudge_04_ru.mp3/revision/latest?cb=20170413080340',
+      'https://static.wikia.nocookie.net/dota2_ru_gamepedia/images/9/99/Necr_pudge_03_ru.mp3/revision/latest?cb=20170413080335',
+      'https://static.wikia.nocookie.net/dota2_ru_gamepedia/images/d/db/Necr_pudge_02_ru.mp3/revision/latest?cb=20170413080330',
+      'https://static.wikia.nocookie.net/dota2_ru_gamepedia/images/f/fc/Necr_pudge_01_ru.mp3/revision/latest?cb=20170413080325'
+    ]
   };
 
   DATA[ID]={name:'NECROPHOS',hp:8,atk:1,img:DRAFT,skills:[
@@ -23,6 +48,8 @@
   ]};
   HERO_ICONS[ID]=ICON;
   SKILL_ICONS[ID]=[SKILLS.pulse,SKILLS.heart,SKILLS.scythe];
+  AUDIO[ID]=AUDIO[ID]||{};
+  AUDIO[ID].turn=VOICES.turn;
   if(!DRAFT_ORDER.includes(ID)){
     const at=Math.max(0,DRAFT_ORDER.indexOf('chen')+1);
     if(at>0)DRAFT_ORDER.splice(at,0,ID); else DRAFT_ORDER.push(ID);
@@ -50,18 +77,19 @@
     @keyframes necro-pulse-ring{0%{opacity:0;transform:scale(.35)}15%{opacity:1}100%{opacity:0;transform:scale(2.2)}}
     @keyframes necro-pulse-core{0%{opacity:.2;transform:scale(.4)}20%{opacity:1}100%{opacity:0;transform:scale(1.5)}}
     @keyframes necro-impact{0%{opacity:1;transform:scale(.25)}100%{opacity:0;transform:scale(1.45)}}
-    .necro-scythe-fx{width:290px;height:155px;margin:-78px 0 0 -145px;transform-origin:50% 55%;filter:drop-shadow(0 0 14px rgba(91,255,81,.6));animation:necro-scythe-wrap 3.05s ease-out forwards}
+    .necro-scythe-fx{width:290px;height:155px;margin:-78px 0 0 -145px;transform-origin:50% 55%;filter:drop-shadow(0 0 14px rgba(91,255,81,.6));animation:necro-scythe-wrap 4.02s ease-out forwards}
     .necro-scythe-fx .trail{position:absolute;left:5px;top:24px;width:278px;height:104px;border-radius:50%;border-top:14px solid rgba(102,255,83,.96);border-left:4px solid rgba(62,211,67,.42);transform:rotate(7deg);box-shadow:0 -5px 22px rgba(78,255,72,.48)}
     .necro-scythe-fx .trail::before{content:'';position:absolute;left:18px;top:-19px;width:238px;height:80px;border-radius:50%;border-top:6px solid rgba(228,255,211,.88);transform:rotate(-3deg)}
     .necro-scythe-fx .trail::after{content:'';position:absolute;left:28px;top:-4px;width:205px;height:66px;border-radius:50%;border-top:22px solid rgba(37,210,70,.2);filter:blur(7px)}
-    .necro-scythe-fx .scythe-svg{position:absolute;left:39px;top:-9px;width:205px;height:180px;overflow:visible;filter:drop-shadow(0 0 8px rgba(138,255,100,.92)) drop-shadow(0 0 18px rgba(67,217,65,.52));transform:rotate(-13deg);transform-origin:52% 76%}
+    .necro-scythe-fx .scythe-svg{position:absolute;left:39px;top:-9px;width:205px;height:180px;overflow:visible;filter:drop-shadow(0 0 8px rgba(138,255,100,.92)) drop-shadow(0 0 18px rgba(67,217,65,.52));transform-origin:52% 76%;animation:necro-scythe-blade 4.02s ease-out forwards}
     .necro-scythe-fx .scythe-handle{stroke:#6ea34d;stroke-width:11;stroke-linecap:round}
     .necro-scythe-fx .scythe-handle-hi{stroke:#d7ffad;stroke-width:3.5;stroke-linecap:round;opacity:.72}
     .necro-scythe-fx .scythe-blade{fill:#dfffd2;stroke:#7fe45e;stroke-width:3}
     .necro-scythe-fx .scythe-blade-hi{fill:none;stroke:#ffffff;stroke-width:2.4;opacity:.78}
-    .necro-scythe-fx .impact{position:absolute;left:50%;top:58%;width:96px;height:96px;margin:-48px 0 0 -48px;border-radius:50%;background:radial-gradient(circle,rgba(235,255,216,.66) 0 8%,rgba(116,255,94,.34) 23%,rgba(64,202,69,.13) 52%,transparent 72%);animation:necro-scythe-impact 3.05s ease-out forwards}
-    @keyframes necro-scythe-wrap{0%{opacity:0;transform:translateX(-95px) scale(.72) rotate(-18deg)}12%{opacity:1;transform:translateX(-58px) scale(.9) rotate(-10deg)}57%{opacity:1;transform:translateX(-18px) scale(1) rotate(-2deg)}78%{opacity:1;transform:translateX(18px) scale(1.04) rotate(7deg)}100%{opacity:0;transform:translateX(70px) scale(1.08) rotate(13deg)}}
-    @keyframes necro-scythe-impact{0%,52%{opacity:0;transform:scale(.35)}69%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.65)}}
+    .necro-scythe-fx .impact{position:absolute;left:50%;top:58%;width:96px;height:96px;margin:-48px 0 0 -48px;border-radius:50%;background:radial-gradient(circle,rgba(235,255,216,.66) 0 8%,rgba(116,255,94,.34) 23%,rgba(64,202,69,.13) 52%,transparent 72%);animation:necro-scythe-impact 4.02s ease-out forwards}
+    @keyframes necro-scythe-wrap{0%{opacity:0;transform:translateX(-95px) scale(.72) rotate(-18deg)}12%{opacity:1;transform:translateX(-58px) scale(.9) rotate(-10deg)}54%{opacity:1;transform:translateX(-20px) scale(1) rotate(-4deg)}63%{opacity:1;transform:translateX(8px) scale(1.04) rotate(8deg)}78%{opacity:.9;transform:translateX(28px) scale(1.03) rotate(12deg)}100%{opacity:0;transform:translateX(70px) scale(1.06) rotate(14deg)}}
+    @keyframes necro-scythe-blade{0%{transform:rotate(-42deg) scale(.88);opacity:0}12%{transform:rotate(-31deg) scale(.96);opacity:1}54%{transform:rotate(-22deg) scale(1);opacity:1}63%{transform:rotate(42deg) scale(1.05);opacity:1}78%{transform:rotate(53deg) scale(1.02);opacity:.82}100%{transform:rotate(58deg) scale(.98);opacity:0}}
+    @keyframes necro-scythe-impact{0%,57%{opacity:0;transform:scale(.35)}63%{opacity:1;transform:scale(1)}76%{opacity:.72;transform:scale(1.25)}100%{opacity:0;transform:scale(1.65)}}
     .necro-heartstopper-fx{width:74px;height:74px;margin:-37px 0 0 -37px;border-radius:50%;background:radial-gradient(circle,rgba(198,255,155,.5),rgba(73,181,62,.18) 52%,transparent 72%);border:2px solid rgba(124,255,92,.58);animation:necro-heartstop .75s ease-out forwards}
     @keyframes necro-heartstop{0%{opacity:0;transform:scale(.45)}28%{opacity:1}100%{opacity:0;transform:scale(1.5)}}
   `;
@@ -70,6 +98,19 @@
   function playRemote(src,vol=.72){
     if(!src)return;
     try{const a=new Audio(src);a.preload='auto';a.volume=vol;a.play().catch(()=>{});return a}catch(_){}
+  }
+  function playNecroVoice(list,index=null,vol=.78){
+    if(!Array.isArray(list)||!list.length)return -1;
+    const i=Number.isInteger(index)?Math.max(0,Math.min(list.length-1,index)):Math.floor(Math.random()*list.length);
+    try{playFile(abilityVoiceAudio,list[i])}catch(_){playRemote(list[i],vol)}
+    return i;
+  }
+  function playNecroKillVoice(victim,killer,noNet=false,setName=null,index=null){
+    let set=setName;
+    if(!set)set=(victim?.id==='pudge'&&Math.random()<.5)?'pudge':'kill';
+    const list=VOICES[set]||VOICES.kill;
+    const i=playNecroVoice(list,index,.8);
+    if(!noNet&&killer&&i>=0)window.emitNetVfx?.('necro-kill-voice',killer,{voiceSet:set,voiceIndex:i});
   }
   function center(h){
     if(!h)return null;
@@ -104,7 +145,7 @@
   function scytheFx(target){
     const p=center(target);if(!p)return;
     const el=addFx('necro-scythe-fx',p.x,p.y,`<i class="trail"></i><svg class="scythe-svg" viewBox="0 0 220 190" aria-hidden="true"><path class="scythe-handle" d="M139 171L89 60"/><path class="scythe-handle-hi" d="M136 169L88 63"/><path class="scythe-blade" d="M87 63C70 36 43 20 14 18c21-9 55-8 83 7 18 10 31 24 39 39-18-8-34-9-49-1Z"/><path class="scythe-blade-hi" d="M24 20c31 1 60 13 85 34"/></svg><i class="impact"></i>`);
-    setTimeout(()=>el.remove(),4100);
+    setTimeout(()=>el.remove(),4200);
   }
   function heartFx(target){
     const p=center(target);if(!p)return;const el=addFx('necro-heartstopper-fx',p.x,p.y,'');setTimeout(()=>el.remove(),800);
@@ -115,6 +156,7 @@
     if(ev.kind==='necro-pulse'){pulseFx(caster,(ev.targets||[]).map(fromRef).filter(Boolean));return}
     if(ev.kind==='necro-scythe'){const t=fromRef({team:ev.targetTeam,id:ev.targetId});if(t)scytheFx(t);return}
     if(ev.kind==='necro-heartstop'){const t=fromRef({team:ev.targetTeam,id:ev.targetId});if(t)heartFx(t);return}
+    if(ev.kind==='necro-kill-voice'){playNecroVoice(VOICES[ev.voiceSet]||VOICES.kill,Number(ev.voiceIndex),.8);return}
   };
 
   const oldMkHero=mkHero;
@@ -155,7 +197,7 @@
     if(h?.id!==ID)return oldPlaySkillSound(h,id,noNet);
     if(!noNet)window.emitNetVfx?.('audio-skill',h,{skillId:id});
     if(id==='death_pulse')playRemote(SFX.pulse,.78);
-    else if(id==='reapers_scythe')playRemote(SFX.scythe,.74);
+    else if(id==='reapers_scythe'){playRemote(SFX.scythe,.78);playNecroVoice(VOICES.scythe,null,.82)}
   };
 
   function necro(team){
@@ -196,6 +238,7 @@
     const valid=!!(G&&victim&&killer&&killer.team!==victim.team);
     oldAwardHeroKill(victim,killer);
     if(!valid||killer?.id!==ID)return;
+    playNecroKillVoice(victim,killer);
     killer.necroKillRegenTimers=Array.isArray(killer.necroKillRegenTimers)?killer.necroKillRegenTimers:[];
     killer.necroKillRegenTimers.push(3);
     addLog(`${logIcon(ID,'heartstopper')} ${killer.name}: убийство даёт +0.5 HP за общий ход на 3 общих хода.`);
@@ -236,7 +279,7 @@
       const h=necro(t),node=h?document.getElementById(`hero-${t}-${ID}`):null,b=node?.querySelector('.necro-heartstopper-badge span');
       if(b){
         const temp=(h.necroKillRegenTimers||[]).length*.5,perm=Number(h.necroPermanentRegen)||0,total=temp+perm;
-        b.textContent=total>0?`+${total}/ход`:'20%';
+        b.textContent=total>0?`+${fmtNecro(total)}`:'20%';
       }
     }
   };
