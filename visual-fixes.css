@@ -5704,3 +5704,40 @@ html.dota-landscape-mobile body.game-running #game .battlefield .hero.enigma-bla
   overflow:visible!important;
 }
 
+/* v1.86.152 — phone battle cards always begin below player nickname. */
+html.dota-landscape-mobile body.game-running #game .battlefield .side{
+  display:grid!important;
+  grid-template-rows:clamp(30px,calc(var(--dota-vh,390px)*.082),34px) minmax(0,1fr)!important;
+  row-gap:4px!important;
+  height:100%!important;
+  min-height:0!important;
+  padding-top:2px!important;
+  box-sizing:border-box!important;
+  overflow:visible!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .side-title{
+  grid-row:1!important;
+  position:relative!important;
+  z-index:40!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0!important;
+  align-self:stretch!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team{
+  grid-row:2!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:100%!important;
+  padding-top:2px!important;
+  align-items:flex-end!important;
+  align-content:flex-end!important;
+  overflow:visible!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero,
+html.dota-landscape-mobile body.game-running #game .battlefield .team.has-extra .hero,
+html.dota-landscape-mobile body.game-running #game .battlefield .team.has-four .hero{
+  align-self:flex-end!important;
+}
+
