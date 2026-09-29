@@ -13,10 +13,10 @@ ITEMS.skadi.cost=12;ITEMS.skadi.desc='Даёт +2 HP, +1 брони и +1 уро
 ITEM_RECIPES.desolator=['blight_stone'];ITEM_RECIPES.moon_shard=['hyperstone','hyperstone'];ITEM_RECIPES.skadi=['ultimate_orb','ultimate_orb'];
 ITEM_UPGRADES.desolator='blight_stone';ITEM_UPGRADES.moon_shard='hyperstone';ITEM_UPGRADES.skadi='ultimate_orb';
 
-let f=effectiveAtk;effectiveAtk=h=>Math.max(0,f(h)+c(h,'ultimate_orb')*.5+(h?.items?.includes('skadi')?1:0)+((h?.items?.includes('armlet')&&h.armletActive)?1:0));
-f=displayArmorValue;displayArmorValue=h=>f(h)+c(h,'ultimate_orb')*.5+(h?.items?.includes('skadi')?1:0)+(h?.items?.includes('butterfly')?1.5:0);
-f=itemHpBonus;itemHpBonus=h=>f(h)+c(h,'ultimate_orb')+(h?.items?.includes('skadi')?2:0)+((h?.items?.includes('armlet')&&h.armletActive)?2:0);
-f=itemRepeatPercent;itemRepeatPercent=h=>f(h)+c(h,'hyperstone')*35+(h?.items?.includes('moon_shard')?70:0)+(h?.moonShardConsumed?40:0);
+const baseEffectiveAtk=effectiveAtk;effectiveAtk=h=>Math.max(0,baseEffectiveAtk(h)+c(h,'ultimate_orb')*.5+(h?.items?.includes('skadi')?1:0)+((h?.items?.includes('armlet')&&h.armletActive)?1:0));
+const baseDisplayArmorValue=displayArmorValue;displayArmorValue=h=>baseDisplayArmorValue(h)+c(h,'ultimate_orb')*.5+(h?.items?.includes('skadi')?1:0)+(h?.items?.includes('butterfly')?1.5:0);
+const baseItemHpBonus=itemHpBonus;itemHpBonus=h=>baseItemHpBonus(h)+c(h,'ultimate_orb')+(h?.items?.includes('skadi')?2:0)+((h?.items?.includes('armlet')&&h.armletActive)?2:0);
+const baseItemRepeatPercent=itemRepeatPercent;itemRepeatPercent=h=>baseItemRepeatPercent(h)+c(h,'hyperstone')*35+(h?.items?.includes('moon_shard')?70:0)+(h?.moonShardConsumed?40:0);
 
 const oldEnsure=ensureItemState;ensureItemState=function(){oldEnsure();if(!G)return;for(const row of G.teams||[])for(const h of row){if(h.armletActive===undefined)h.armletActive=false;if(h.moonShardConsumed===undefined)h.moonShardConsumed=false;if(h.spiritVesselTurns===undefined)h.spiritVesselTurns=0;if(h.spiritVesselAppliedTurn===undefined)h.spiritVesselAppliedTurn=0;if(h.spiritVesselSourceTeam===undefined)h.spiritVesselSourceTeam=null;if(h.spiritVesselSourceId===undefined)h.spiritVesselSourceId=null;if(h.blightStoneTurns===undefined)h.blightStoneTurns=0;syncItemHpBonus(h)}};
 
