@@ -1,7 +1,7 @@
 // Dota Cards v0.41 — built-in portable multiplayer host.
 // If opened through HOST_GAME.bat, the page connects to the local WebSocket server.
 (() => {
-  const GAME_VERSION='1.86.156';
+  const GAME_VERSION='1.86.157';
   const PROTOCOL_VERSION=14;
   const DOTA_SERVER_CONFIG = {
     primary: localStorage.getItem('dota_server_primary') || 'https://dota-3v3-lobby.onrender.com',
@@ -188,6 +188,7 @@
       if(ev.kind?.startsWith('pl-')){if(Date.now()-(ev.at||0)<6000)window.playPhantomVfx?.(ev);continue}
       if(ev.kind?.startsWith('arc-')){if(Date.now()-(ev.at||0)<6000)window.playArcFx?.(ev);continue}
       if(ev.kind?.startsWith('axe-')){if(Date.now()-(ev.at||0)<4000)window.playAxeFx?.(ev);continue}
+      if(ev.kind?.startsWith('necro-')){if(Date.now()-(ev.at||0)<6000)window.playNecrophosFx?.(ev);continue}
       if(ev.kind?.startsWith('abaddon-')){if(Date.now()-(ev.at||0)<4000)window.playAbaddonFx?.({kind:ev.kind.replace('abaddon-',''),...ev});continue}
       if(ev.kind?.startsWith('mars-')){if(Date.now()-(ev.at||0)<5000)window.playMarsFx?.({kind:ev.kind.replace('mars-',''),...ev});continue}
       if(ev.kind?.startsWith('enigma-')){if(Date.now()-(ev.at||0)<5000)window.playEnigmaFx?.(ev);continue}
