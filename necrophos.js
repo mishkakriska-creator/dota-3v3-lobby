@@ -20,8 +20,10 @@
       'https://static.wikia.nocookie.net/dota2_ru_gamepedia/images/2/2a/Necr_attack_09_ru.mp3/revision/latest?cb=20170413075038',
       'https://static.wikia.nocookie.net/dota2_ru_gamepedia/images/e/ef/Necr_move_14_ru.mp3/revision/latest?cb=20170413075954',
       'https://static.wikia.nocookie.net/dota2_ru_gamepedia/images/2/21/Necr_ability_reap_01_ru.mp3/revision/latest?cb=20170413074909',
-      'https://static.wikia.nocookie.net/dota2_ru_gamepedia/images/f/f1/Necr_ability_tox_02_ru.mp3/revision/latest?cb=20170413074936',
       'https://static.wikia.nocookie.net/dota2_ru_gamepedia/images/f/f3/Necr_spawn_02_ru.mp3/revision/latest?cb=20170413080651'
+    ],
+    pulse:[
+      'https://static.wikia.nocookie.net/dota2_ru_gamepedia/images/f/f1/Necr_ability_tox_02_ru.mp3/revision/latest?cb=20170413074936'
     ],
     scythe:[
       'https://static.wikia.nocookie.net/dota2_ru_gamepedia/images/d/d4/Necr_ability_reap_03_ru.mp3/revision/latest?cb=20170413074918',
@@ -196,7 +198,7 @@
   playSkillSound=function(h,id,noNet=false){
     if(h?.id!==ID)return oldPlaySkillSound(h,id,noNet);
     if(!noNet)window.emitNetVfx?.('audio-skill',h,{skillId:id});
-    if(id==='death_pulse')playRemote(SFX.pulse,.78);
+    if(id==='death_pulse'){playRemote(SFX.pulse,.78);playNecroVoice(VOICES.pulse,null,.82)}
     else if(id==='reapers_scythe'){playRemote(SFX.scythe,.78);playNecroVoice(VOICES.scythe,null,.82)}
   };
 
