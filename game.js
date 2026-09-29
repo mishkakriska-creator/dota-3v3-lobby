@@ -319,6 +319,7 @@ const SKILL_IMPACT_MS={shadowfiend:{raze:180}};
 function attackImpactMs(h){return ATTACK_IMPACT_MS[h?.id]??120}
 const IO_ATTACK_AUDIO={pre:'assets/audio/io_attack_pre.mp3',launch:'assets/audio/io_attack_launch.mp3',impact:'assets/audio/io_attack_impact.mp3'};
 function ensureMusic(){
+  window.DotaUseAmbientAudioSession?.();
   if(bgmWebSource)return Promise.resolve(true);
   if(bgmStartPromise)return bgmStartPromise;
   bgmStartPromise=(async()=>{
@@ -343,7 +344,7 @@ function playAttackSound(h,noNet=false){if(!h)return;if(!noNet)window.emitNetVfx
 document.addEventListener('pointerdown',ensureMusic,{once:true});
 const MINE_AUDIO={place:'assets/audio/techies_mine_place.mp3',approach:'assets/audio/techies_mine_approach.mp3',explode:'assets/audio/techies_mine_explode.mp3'};
 function playMineSound(kind){playFile(mineAudio,MINE_AUDIO[kind])}
-function playFile(a,src){if(!src)return;if(typeof playDecodedMatchAudio==='function'&&playDecodedMatchAudio(a,src))return;try{a.pause();a.currentTime=0;const key=audioCacheKey(src);if(audioCacheKey(a.dataset?.dotaSrc||'')!==key){a.src=src;a.dataset.dotaSrc=src;a.preload='auto';a.load()}a.play().catch(()=>{})}catch(e){}}
+function playFile(a,src){if(!src)return;window.DotaUseAmbientAudioSession?.();if(typeof playDecodedMatchAudio==='function'&&playDecodedMatchAudio(a,src))return;try{a.pause();a.currentTime=0;const key=audioCacheKey(src);if(audioCacheKey(a.dataset?.dotaSrc||'')!==key){a.src=src;a.dataset.dotaSrc=src;a.preload='auto';a.load()}a.play().catch(()=>{})}catch(e){}}
 let matrixFadeToken=0;
 function playMatrixSound(){let src=AUDIO.tinker?.skills?.matrix;if(!src)return;let token=++matrixFadeToken;try{matrixAudio.pause();matrixAudio.currentTime=0;matrixAudio.volume=.72;matrixAudio.src=src;matrixAudio.load();matrixAudio.play().catch(()=>{});let fadeStart=4200,fadeDuration=6200;setTimeout(()=>{let started=performance.now();let step=now=>{if(token!==matrixFadeToken||matrixAudio.paused)return;let t=Math.max(0,Math.min(1,(now-started)/fadeDuration));matrixAudio.volume=.72*(1-t);if(t<1)requestAnimationFrame(step);else{matrixAudio.volume=0;try{matrixAudio.pause()}catch(_){}}};requestAnimationFrame(step)},fadeStart)}catch(e){}}
 function playSkillSound(h,id,noNet=false){if(!h)return;let audioId=id;if(h.id==='shadowfiend'&&['raze_near','raze_mid','raze_far'].includes(id))audioId='raze';if(!noNet)window.emitNetVfx?.('audio-skill',h,{skillId:audioId});if(h.id==='mars'){let mars=AUDIO.mars||{},voices=mars.voices?.[audioId]||[];if(audioId==='spear'){playFile(sfxAudio,mars.skills?.spear);if(mars.spearImpact)setTimeout(()=>playFile(miscAudio,mars.spearImpact),330)}else if(audioId==='rebuke')playFile(sfxAudio,mars.skills?.rebuke);else if(audioId==='arena')playFile(sfxAudio,mars.skills?.arena);else playFile(sfxAudio,mars.skills?.[audioId]||mars.skills?.[id]);if(voices.length){let idx=Math.floor(Math.random()*voices.length);playFile(abilityVoiceAudio,voices[idx])}return}if(h.id==='tinker'&&audioId==='matrix')playMatrixSound();else playFile(sfxAudio,AUDIO[h.id]?.skills?.[audioId]||AUDIO[h.id]?.skills?.[id]);if(h.id==='shadowfiend'&&audioId==='raze'){let a=AUDIO.shadowfiend?.razeVoice||[];if(a.length){let idx=Math.floor(Math.random()*a.length);playFile(abilityVoiceAudio,a[idx])}}if(h.id==='broodmother'&&['hunger','spiderlings'].includes(audioId)){let a=AUDIO.broodmother?.voices?.[audioId]||[];if(a.length){let idx=Math.floor(Math.random()*a.length);playFile(abilityVoiceAudio,a[idx])}}if(h.id==='tinker'&&['laser','missile','rearm'].includes(audioId)){let a=AUDIO.tinker?.voices?.[audioId]||[];if(a.length){let idx=Math.floor(Math.random()*a.length);playFile(abilityVoiceAudio,a[idx])}}if(h.id==='abaddon'&&['mist_coil','aphotic_shield','borrowed'].includes(audioId)){let a=AUDIO.abaddon?.voices?.[audioId]||[];if(a.length){let idx=Math.floor(Math.random()*a.length);playFile(abilityVoiceAudio,a[idx])}}}
@@ -585,6 +586,7 @@ let allGameAssetWarmPromise=null;
 function audioCacheKey(src){return String(src||'').split('?')[0]}
 function ensureDotaAudioContext(){
   try{
+    window.DotaUseAmbientAudioSession?.();
     const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;
     window.__dotaAudioCtx=window.__dotaAudioCtx||new AC();
     return window.__dotaAudioCtx;
@@ -807,7 +809,7 @@ function warmAllGameAssets(onProgress){
   report();allGameAssetWarmPromise=Promise.all(Array.from({length:(window.innerHeight<=700?4:8)},worker)).then(()=>{report();return true});return allGameAssetWarmPromise;
 }
 window.DotaWarmAllGameAssets=warmAllGameAssets;
-function resumeGameAudioFromGesture(){try{ensureDotaAudioContext()?.resume?.()}catch(_){}}
+function resumeGameAudioFromGesture(){try{window.DotaUseAmbientAudioSession?.();ensureDotaAudioContext()?.resume?.()}catch(_){}}
 window.addEventListener('pointerdown',resumeGameAudioFromGesture,{once:true,capture:true});
 window.addEventListener('touchstart',resumeGameAudioFromGesture,{once:true,capture:true,passive:true});
 window.addEventListener('keydown',resumeGameAudioFromGesture,{once:true,capture:true});
