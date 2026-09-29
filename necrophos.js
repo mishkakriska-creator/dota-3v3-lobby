@@ -2,8 +2,8 @@
   const ID='necrophos';
   const CDN='https://cdn.cloudflare.steamstatic.com/apps/dota2';
   const DRAFT=CDN+'/images/dota_react/heroes/necrolyte.png';
-  const PORTRAIT='assets/portraits/necrolyte_user.webm?v=1';
-  const ICON=DRAFT;
+  const PORTRAIT='assets/portraits/necrolyte_user_hq.png?v=1';
+  const ICON='assets/turn_necrophos.png?v=1';
   const SKILLS={
     pulse:CDN+'/images/dota_react/abilities/necrolyte_death_pulse.png',
     heart:CDN+'/images/dota_react/abilities/necrolyte_heartstopper_aura.png',
@@ -16,7 +16,7 @@
     impact:'assets/audio/necrophos_attack_impact.mp3'
   };
 
-  DATA[ID]={name:'NECROPHOS',hp:8,atk:1,img:DRAFT,skills:[
+  DATA[ID]={name:'NECROPHOS',hp:8,atk:1,img:DRAFT,staticPortrait:true,skills:[
     {id:'death_pulse',name:'Death Pulse',cd:1,desc:'Necrophos выпускает волну смерти: наносит 1 урон переднему врагу и врагу сразу за ним, восстанавливает 1 HP себе и союзнику сразу позади Necrophos. Перезарядка: 1 ход Necrophos.'},
     {id:'heartstopper',name:'Heartstopper Aura — ПАССИВНАЯ',cd:0,passive:true,desc:'ПАССИВНАЯ. Каждый общий ход: если Necrophos стоит первым в своей линии, передний и второй враг теряют по 20% своего максимального HP; если Necrophos стоит вторым — эффект получает только передний враг. За каждое убийство любым способом Necrophos получает +0.5 восстановления HP каждый общий ход на 3 общих хода.'},
     {id:'reapers_scythe',name:"Reaper's Scythe",cd:4,desc:"Выбранная цель получает 1 урон за каждое недостающее HP от её максимального здоровья. Если Reaper's Scythe убивает врага, Necrophos навсегда получает +0.5 восстановления HP каждый общий ход. Перезарядка: 4 хода Necrophos."}
@@ -34,8 +34,9 @@
 
   const style=document.createElement('style');
   style.textContent=`
-    .necro-heartstopper-badge{position:absolute;right:7px;top:7px;z-index:35;display:flex;align-items:center;gap:4px;padding:3px 6px;border-radius:999px;background:rgba(15,28,18,.82);border:1px solid rgba(117,255,92,.48);color:#caffb9;font:800 9px/1 system-ui;box-shadow:0 0 12px rgba(77,255,75,.18);pointer-events:none}
-    .necro-heartstopper-badge img{width:16px;height:16px;border-radius:4px}
+    .necro-heartstopper-badge{position:absolute!important;right:6px!important;top:6px!important;z-index:35!important;display:inline-flex!important;align-items:center!important;gap:4px!important;width:auto!important;height:24px!important;min-width:0!important;max-width:74px!important;min-height:24px!important;max-height:24px!important;padding:3px 6px!important;border-radius:8px!important;background:rgba(15,28,18,.9)!important;border:1px solid rgba(117,255,92,.48)!important;color:#caffb9!important;font:800 9px/1 system-ui!important;box-shadow:0 0 12px rgba(77,255,75,.18)!important;overflow:hidden!important;pointer-events:none!important}
+    .necro-heartstopper-badge img{display:block!important;width:16px!important;height:16px!important;min-width:16px!important;min-height:16px!important;max-width:16px!important;max-height:16px!important;object-fit:cover!important;flex:0 0 16px!important;border-radius:4px!important}
+    .necro-heartstopper-badge span{display:block!important;width:auto!important;height:auto!important;min-width:0!important;max-width:48px!important;line-height:1!important;white-space:nowrap!important;overflow:hidden!important}
     .necro-pulse-fx,.necro-scythe-fx,.necro-heartstopper-fx{position:fixed;pointer-events:none;z-index:2147483645}
     .necro-pulse-fx .ring{position:absolute;left:-42px;top:-42px;width:84px;height:84px;border-radius:50%;border:4px solid rgba(155,255,92,.92);box-shadow:0 0 22px rgba(104,255,86,.72),inset 0 0 20px rgba(112,255,91,.35);animation:necro-pulse-ring 2.28s ease-out forwards}
     .necro-pulse-fx .ring.r2{animation-delay:.18s;border-width:2px}
@@ -49,7 +50,10 @@
     .necro-scythe-fx .trail{position:absolute;left:5px;top:24px;width:278px;height:104px;border-radius:50%;border-top:14px solid rgba(102,255,83,.96);border-left:4px solid rgba(62,211,67,.42);transform:rotate(7deg);box-shadow:0 -5px 22px rgba(78,255,72,.48)}
     .necro-scythe-fx .trail::before{content:'';position:absolute;left:18px;top:-19px;width:238px;height:80px;border-radius:50%;border-top:6px solid rgba(228,255,211,.88);transform:rotate(-3deg)}
     .necro-scythe-fx .trail::after{content:'';position:absolute;left:28px;top:-4px;width:205px;height:66px;border-radius:50%;border-top:22px solid rgba(37,210,70,.2);filter:blur(7px)}
-    .necro-scythe-fx .blade{position:absolute;right:13px;top:17px;width:102px;height:40px;background:linear-gradient(165deg,#f2ffe9 0 14%,#baff91 29%,#58cf57 57%,rgba(34,121,44,.08) 82%);clip-path:polygon(0 53%,72% 0,100% 6%,78% 48%,100% 90%,69% 73%);transform:rotate(15deg);filter:drop-shadow(0 0 8px rgba(154,255,112,.85))}
+    .necro-scythe-fx .shaft{position:absolute;left:133px;top:25px;width:9px;height:118px;border-radius:6px;background:linear-gradient(90deg,#142015 0,#568d42 31%,#b4ee87 49%,#355c2d 72%,#111a12 100%);box-shadow:0 0 10px rgba(109,255,81,.45);transform:rotate(61deg);transform-origin:50% 88%}
+    .necro-scythe-fx .shaft::after{content:'';position:absolute;left:-3px;bottom:-7px;width:15px;height:20px;border-radius:7px;background:#26351f;box-shadow:inset 0 0 0 2px rgba(139,209,96,.35)}
+    .necro-scythe-fx .blade{position:absolute;left:50px;top:18px;width:154px;height:72px;border-radius:92% 12% 72% 14%;border-top:12px solid #eaffdd;border-left:4px solid rgba(129,232,91,.85);transform:rotate(-13deg);filter:drop-shadow(0 0 9px rgba(154,255,112,.9));box-shadow:inset 0 10px 0 -6px rgba(76,203,73,.35)}
+    .necro-scythe-fx .blade::after{content:'';position:absolute;left:18px;top:-12px;width:118px;height:18px;border-radius:90% 15% 80% 10%;background:linear-gradient(90deg,#f4ffe9,#baff8d 48%,#55c954 76%,transparent);transform:rotate(3deg)}
     .necro-scythe-fx .impact{position:absolute;left:50%;top:58%;width:96px;height:96px;margin:-48px 0 0 -48px;border-radius:50%;background:radial-gradient(circle,rgba(235,255,216,.66) 0 8%,rgba(116,255,94,.34) 23%,rgba(64,202,69,.13) 52%,transparent 72%);animation:necro-scythe-impact 3.05s ease-out forwards}
     @keyframes necro-scythe-wrap{0%{opacity:0;transform:translateX(-95px) scale(.72) rotate(-18deg)}12%{opacity:1;transform:translateX(-58px) scale(.9) rotate(-10deg)}57%{opacity:1;transform:translateX(-18px) scale(1) rotate(-2deg)}78%{opacity:1;transform:translateX(18px) scale(1.04) rotate(7deg)}100%{opacity:0;transform:translateX(70px) scale(1.08) rotate(13deg)}}
     @keyframes necro-scythe-impact{0%,52%{opacity:0;transform:scale(.35)}69%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.65)}}
@@ -94,7 +98,7 @@
   }
   function scytheFx(target){
     const p=center(target);if(!p)return;
-    const el=addFx('necro-scythe-fx',p.x,p.y,'<i class="trail"></i><i class="blade"></i><i class="impact"></i>');
+    const el=addFx('necro-scythe-fx',p.x,p.y,'<i class="trail"></i><i class="shaft"></i><i class="blade"></i><i class="impact"></i>');
     setTimeout(()=>el.remove(),4100);
   }
   function heartFx(target){
@@ -112,6 +116,7 @@
   mkHero=function(id,team){
     const h=oldMkHero(id,team);
     if(id===ID){
+      h.staticPortrait=true;
       h.portrait=PORTRAIT;
       h.img=DRAFT;
       h.necroKillRegenTimers=[];
