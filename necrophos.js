@@ -2,7 +2,7 @@
   const ID='necrophos';
   const CDN='https://cdn.cloudflare.steamstatic.com/apps/dota2';
   const DRAFT=CDN+'/images/dota_react/heroes/necrolyte.png';
-  const PORTRAIT='https://img.dota2.com.cn/dota2static/herostatic/npc_dota_hero_necrolyte/npc_dota_hero_necrolyte.webm';
+  const PORTRAIT='assets/portraits/necrolyte_animated_hq.webm?v=1';
   const ICON='assets/turn_necrophos.png?v=1';
   const SKILLS={
     pulse:CDN+'/images/dota_react/abilities/necrolyte_death_pulse.png',
