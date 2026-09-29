@@ -81,3 +81,119 @@
   }
 }
 
+/* v1.86.156 — compact Chen creep previews on phones, no letterbox bars. */
+@media (pointer:coarse), (max-width:980px){
+  .chen-persuasion-roster{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:6px!important;
+    margin-top:7px!important;
+  }
+  .chen-persuasion-roster .chen-creep-roster-card{
+    gap:4px!important;
+    padding:5px!important;
+    border-radius:8px!important;
+  }
+  .chen-persuasion-roster .chen-creep-roster-head{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    grid-template-rows:64px auto!important;
+    gap:4px!important;
+    width:100%!important;
+  }
+  .chen-persuasion-roster .chen-creep-roster-head>img{
+    width:100%!important;
+    height:64px!important;
+    max-height:64px!important;
+    aspect-ratio:auto!important;
+    object-fit:cover!important;
+    object-position:center 38%!important;
+    border-radius:6px!important;
+    background:transparent!important;
+  }
+  .chen-persuasion-roster b{
+    font-size:9px!important;
+    line-height:1!important;
+    text-align:center!important;
+    white-space:nowrap!important;
+  }
+  .chen-persuasion-roster small{
+    font-size:8.5px!important;
+    line-height:1.18!important;
+  }
+
+  .chen-choice-overlay{padding:8px!important}
+  .chen-choice-panel{
+    width:min(620px,96vw)!important;
+    max-height:88vh!important;
+    padding:10px!important;
+    border-radius:13px!important;
+    overflow:auto!important;
+  }
+  .chen-choice-title{
+    margin-bottom:8px!important;
+    gap:7px!important;
+    font-size:14px!important;
+  }
+  .chen-choice-title img{width:27px!important;height:27px!important}
+  .chen-choice-close{width:30px!important;height:30px!important;font-size:19px!important}
+  .chen-choice-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:7px!important;
+  }
+  .chen-choice-grid>button{
+    padding:5px!important;
+    border-radius:9px!important;
+  }
+  .chen-choice-grid video{
+    width:100%!important;
+    height:72px!important;
+    aspect-ratio:auto!important;
+    object-fit:cover!important;
+    object-position:center 38%!important;
+    border-radius:6px!important;
+    background:transparent!important;
+  }
+  .chen-choice-grid b{
+    font-size:10px!important;
+    line-height:1!important;
+    margin-top:5px!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  .chen-choice-grid span,.chen-choice-grid small{
+    font-size:8.5px!important;
+    line-height:1.05!important;
+    margin-top:3px!important;
+  }
+}
+
+/* Clean creep card: lifetime lives on the portrait, not in the compressed status row. */
+#game .hero.chen-creep-slot .status{display:none!important}
+#game .hero.chen-creep-slot .item-inventory:empty{display:none!important}
+#game .hero.chen-creep-slot .chen-creep-life-badge{
+  position:absolute;
+  right:5px;
+  bottom:5px;
+  z-index:48;
+  display:flex;
+  align-items:center;
+  gap:3px;
+  padding:2px 5px 2px 3px;
+  border-radius:999px;
+  background:rgba(7,11,18,.88);
+  border:1px solid rgba(255,255,255,.2);
+  color:#fff;
+  font-size:9px;
+  line-height:1;
+  font-weight:900;
+  box-shadow:0 2px 7px rgba(0,0,0,.45);
+  pointer-events:none;
+}
+#game .hero.chen-creep-slot .chen-creep-life-badge img{
+  width:14px;
+  height:14px;
+  object-fit:cover;
+  border-radius:3px;
+}
+

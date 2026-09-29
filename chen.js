@@ -345,7 +345,11 @@
     tabs.classList.toggle('solo',(slot.chenCreeps||[]).length<2);
     tabs.querySelectorAll('button').forEach(b=>{b.disabled=active()!==slot||!!targetMode;b.onclick=e=>{e.preventDefault();e.stopPropagation();switchCreep(slot,Number(b.dataset.creepIndex))}});
     const inspect=node.querySelector('.inspect-hero');if(inspect){inspect.textContent=(slot.chenCreeps||[]).length>1?'ПЕРЕКЛЮЧИТЬ КРИПА':'КРИП';inspect.disabled=true}
-    const status=node.querySelector('.status');if(status){const c=currentCreep(slot);status.innerHTML=`<span class="status-badge good"><img src="${creepIcon(c.kind)}" alt=""><span>${c.life} общ. ход.</span></span>`}
+    const c=currentCreep(slot),portrait=node.querySelector('.hero-portrait');
+    let life=portrait?.querySelector('.chen-creep-life-badge');
+    if(portrait&&!life){life=document.createElement('div');life.className='chen-creep-life-badge';portrait.appendChild(life)}
+    if(life)life.innerHTML=`<img src="${creepIcon(c.kind)}" alt=""><span>${c.life}</span>`;
+    const status=node.querySelector('.status');if(status)status.innerHTML='';
   }
   function patchActions(){
     const h=active();if(!isChenSlot(h)||h.dead||targetMode)return;const acts=document.getElementById('actions');if(!acts)return;

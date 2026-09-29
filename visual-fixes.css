@@ -5756,3 +5756,40 @@ html.dota-landscape-mobile body.game-running #game .battlefield .team.has-four .
   margin-bottom:2px!important;
 }
 
+/* v1.86.156 — final phone hero-name safeguard. */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .hero-name-row{
+  grid-column:1/-1!important;
+  grid-row:1!important;
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  min-height:14px!important;
+  height:14px!important;
+  max-height:14px!important;
+  margin:0!important;
+  padding:0!important;
+  align-items:center!important;
+  overflow:hidden!important;
+  position:relative!important;
+  z-index:20!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .hero-name{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:100%!important;
+  min-width:0!important;
+  height:14px!important;
+  min-height:14px!important;
+  max-height:14px!important;
+  margin:0!important;
+  padding:0!important;
+  color:#f4f6f9!important;
+  font-size:9px!important;
+  font-weight:900!important;
+  line-height:14px!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
