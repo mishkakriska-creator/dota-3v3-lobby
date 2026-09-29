@@ -2,7 +2,7 @@
   const ID='necrophos';
   const CDN='https://cdn.cloudflare.steamstatic.com/apps/dota2';
   const DRAFT=CDN+'/images/dota_react/heroes/necrolyte.png';
-  const PORTRAIT=CDN+'/videos/dota_react/heroes/renders/necrolyte.webm';
+  const PORTRAIT='assets/portraits/necrolyte_user.webm?v=1';
   const ICON=DRAFT;
   const SKILLS={
     pulse:CDN+'/images/dota_react/abilities/necrolyte_death_pulse.png',
@@ -45,13 +45,14 @@
     @keyframes necro-pulse-ring{0%{opacity:0;transform:scale(.35)}15%{opacity:1}100%{opacity:0;transform:scale(2.2)}}
     @keyframes necro-pulse-core{0%{opacity:.2;transform:scale(.4)}20%{opacity:1}100%{opacity:0;transform:scale(1.5)}}
     @keyframes necro-impact{0%{opacity:1;transform:scale(.25)}100%{opacity:0;transform:scale(1.45)}}
-    .necro-scythe-fx{width:170px;height:190px;margin:-120px 0 0 -85px;transform-origin:50% 82%;animation:necro-scythe-swing 4.02s cubic-bezier(.18,.76,.18,1) forwards}
-    .necro-scythe-fx .shaft{position:absolute;left:80px;top:36px;width:11px;height:148px;border-radius:7px;background:linear-gradient(90deg,#182313,#91d84d 43%,#253a18 78%);box-shadow:0 0 12px rgba(124,255,71,.42);transform:rotate(23deg)}
-    .necro-scythe-fx .blade{position:absolute;left:29px;top:17px;width:119px;height:72px;border-radius:85% 8% 70% 12%;border-top:12px solid #d9f3cf;border-right:7px solid #87c971;transform:rotate(-19deg);filter:drop-shadow(0 0 9px rgba(142,255,91,.7))}
-    .necro-scythe-fx .blade::after{content:'';position:absolute;right:-6px;top:-11px;width:88px;height:15px;border-radius:90% 5% 80% 10%;background:linear-gradient(90deg,#f4fff0,#9bd178 58%,transparent);transform:rotate(7deg)}
-    .necro-scythe-fx .glow{position:absolute;left:45px;top:42px;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,rgba(215,255,181,.5),rgba(85,215,67,.22) 45%,transparent 72%);filter:blur(4px);animation:necro-scythe-glow 3.95s ease-in-out forwards}
-    @keyframes necro-scythe-swing{0%{opacity:0;transform:rotate(-65deg) scale(.72)}12%{opacity:1;transform:rotate(-38deg) scale(.94)}63%{opacity:1;transform:rotate(-32deg) scale(1)}78%{opacity:1;transform:rotate(42deg) scale(1.06)}100%{opacity:0;transform:rotate(58deg) scale(1.06)}}
-    @keyframes necro-scythe-glow{0%,100%{opacity:.15;transform:scale(.7)}55%{opacity:1;transform:scale(1.18)}}
+    .necro-scythe-fx{width:290px;height:155px;margin:-78px 0 0 -145px;transform-origin:50% 55%;filter:drop-shadow(0 0 14px rgba(91,255,81,.6));animation:necro-scythe-wrap 3.05s ease-out forwards}
+    .necro-scythe-fx .trail{position:absolute;left:5px;top:24px;width:278px;height:104px;border-radius:50%;border-top:14px solid rgba(102,255,83,.96);border-left:4px solid rgba(62,211,67,.42);transform:rotate(7deg);box-shadow:0 -5px 22px rgba(78,255,72,.48)}
+    .necro-scythe-fx .trail::before{content:'';position:absolute;left:18px;top:-19px;width:238px;height:80px;border-radius:50%;border-top:6px solid rgba(228,255,211,.88);transform:rotate(-3deg)}
+    .necro-scythe-fx .trail::after{content:'';position:absolute;left:28px;top:-4px;width:205px;height:66px;border-radius:50%;border-top:22px solid rgba(37,210,70,.2);filter:blur(7px)}
+    .necro-scythe-fx .blade{position:absolute;right:13px;top:17px;width:102px;height:40px;background:linear-gradient(165deg,#f2ffe9 0 14%,#baff91 29%,#58cf57 57%,rgba(34,121,44,.08) 82%);clip-path:polygon(0 53%,72% 0,100% 6%,78% 48%,100% 90%,69% 73%);transform:rotate(15deg);filter:drop-shadow(0 0 8px rgba(154,255,112,.85))}
+    .necro-scythe-fx .impact{position:absolute;left:50%;top:58%;width:96px;height:96px;margin:-48px 0 0 -48px;border-radius:50%;background:radial-gradient(circle,rgba(235,255,216,.66) 0 8%,rgba(116,255,94,.34) 23%,rgba(64,202,69,.13) 52%,transparent 72%);animation:necro-scythe-impact 3.05s ease-out forwards}
+    @keyframes necro-scythe-wrap{0%{opacity:0;transform:translateX(-95px) scale(.72) rotate(-18deg)}12%{opacity:1;transform:translateX(-58px) scale(.9) rotate(-10deg)}57%{opacity:1;transform:translateX(-18px) scale(1) rotate(-2deg)}78%{opacity:1;transform:translateX(18px) scale(1.04) rotate(7deg)}100%{opacity:0;transform:translateX(70px) scale(1.08) rotate(13deg)}}
+    @keyframes necro-scythe-impact{0%,52%{opacity:0;transform:scale(.35)}69%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.65)}}
     .necro-heartstopper-fx{width:74px;height:74px;margin:-37px 0 0 -37px;border-radius:50%;background:radial-gradient(circle,rgba(198,255,155,.5),rgba(73,181,62,.18) 52%,transparent 72%);border:2px solid rgba(124,255,92,.58);animation:necro-heartstop .75s ease-out forwards}
     @keyframes necro-heartstop{0%{opacity:0;transform:scale(.45)}28%{opacity:1}100%{opacity:0;transform:scale(1.5)}}
   `;
@@ -74,6 +75,7 @@
   function addFx(cls,x,y,html=''){
     const el=document.createElement('div');el.className=cls;el.style.left=x+'px';el.style.top=y+'px';el.innerHTML=html;fxRoot().appendChild(el);return el;
   }
+  function fmtNecro(n){const v=Math.round((Number(n)||0)*100)/100;return Number.isInteger(v)?String(v):String(v).replace(/0+$/,'').replace(/\.$/,'')}
   function targetRef(h){return h?{team:h.team,id:h.id}:null}
   function fromRef(r){return r&&Number.isInteger(r.team)?(G?.teams?.[r.team]||[]).find(h=>h.id===r.id&&!h.dead)||null:null}
   function pulseFx(caster,targets=[]){
@@ -92,7 +94,7 @@
   }
   function scytheFx(target){
     const p=center(target);if(!p)return;
-    const el=addFx('necro-scythe-fx',p.x,p.y,'<i class="glow"></i><i class="shaft"></i><i class="blade"></i>');
+    const el=addFx('necro-scythe-fx',p.x,p.y,'<i class="trail"></i><i class="blade"></i><i class="impact"></i>');
     setTimeout(()=>el.remove(),4100);
   }
   function heartFx(target){
@@ -256,7 +258,7 @@
 
     if(id==='reapers_scythe'){
       chooseEnemy("Выберите врага для Reaper's Scythe",()=>true,t=>{
-        const missing=Math.max(0,(Number(t.maxHp)||0)-(Number(t.hp)||0));
+        const missing=Math.round(Math.max(0,(Number(t.maxHp)||0)-(Number(t.hp)||0))*100)/100;
         playSkillSound(h,id);
         scytheFx(t);
         window.emitNetVfx?.('necro-scythe',h,{targetTeam:t.team,targetId:t.id});
@@ -270,7 +272,7 @@
             try{pureDamage(t,missing,`${logIcon(ID,'reapers_scythe')} Reaper's Scythe: `,h,{impactDelay:40})}
             finally{h._necroScytheVictim=null}
           }
-          addSkillLog(h,id,`${h.name} поражает ${t.name} Reaper's Scythe: ${missing} урона за ${missing} недостающего HP.`);
+          addSkillLog(h,id,`${h.name} поражает ${t.name} Reaper's Scythe: ${fmtNecro(missing)} урона за ${fmtNecro(missing)} недостающего HP.`);
           G.resolving=false;spend();render();
         },2520);
       },id);return;

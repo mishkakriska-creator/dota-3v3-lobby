@@ -1,6 +1,6 @@
-const CACHE='dota-cards-shell-v104';
+const CACHE='dota-cards-shell-v105';
 const ASSET_CACHE='dota-cards-assets-v1';
-const CORE=['./','./index.html','./style.css?v=18790','./chen.css?v=19429','./visual-fixes.css?v=19461','./enigma.css?v=19000','./arc-warden.css?v=19350','./game.js?v=19473','./combat-fx.js?v=18890','./necrophos.js?v=19435','./arc-warden.js?v=19422','./profile.js?v=19421','./enigma.js?v=19421','./chen.js?v=19433','./network.js?v=19466','./preload.js?v=19023','./lifecycle.js?v=19451','./assets/audio/chen_audio_sprite.ogg?v=2','./assets/audio/necrophos_attack_launch.mp3','./assets/audio/necrophos_attack_impact.mp3','./assets/audio/necrophos_death_pulse.mp3','./assets/dota_app_icon.png','./assets/dota_app_icon_192.png'];
+const CORE=['./','./index.html','./style.css?v=18790','./chen.css?v=19429','./visual-fixes.css?v=19461','./enigma.css?v=19000','./arc-warden.css?v=19350','./game.js?v=19473','./combat-fx.js?v=18890','./necrophos.js?v=19436','./assets/portraits/necrolyte_user.webm?v=1','./arc-warden.js?v=19422','./profile.js?v=19421','./enigma.js?v=19421','./chen.js?v=19433','./network.js?v=19467','./preload.js?v=19023','./lifecycle.js?v=19451','./assets/audio/chen_audio_sprite.ogg?v=2','./assets/audio/necrophos_attack_launch.mp3','./assets/audio/necrophos_attack_impact.mp3','./assets/audio/necrophos_death_pulse.mp3','./assets/dota_app_icon.png','./assets/dota_app_icon_192.png'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE).catch(()=>{})))});
 self.addEventListener('activate',e=>{e.waitUntil((async()=>{for(const k of await caches.keys())if(k!==CACHE&&k!==ASSET_CACHE)await caches.delete(k);await self.clients.claim()})())});
 self.addEventListener('fetch',e=>{
