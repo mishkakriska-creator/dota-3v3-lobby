@@ -2,7 +2,7 @@
   const ID='necrophos';
   const CDN='https://cdn.cloudflare.steamstatic.com/apps/dota2';
   const DRAFT=CDN+'/images/dota_react/heroes/necrolyte.png';
-  const PORTRAIT='assets/portraits/necrolyte_user_latest.webp?v=1';
+  const PORTRAIT='assets/portraits/necrolyte_user_latest.webp?v=2';
   const ICON='assets/turn_necrophos.png?v=1';
   const SKILLS={
     pulse:CDN+'/images/dota_react/abilities/necrolyte_death_pulse.png',
@@ -10,10 +10,10 @@
     scythe:CDN+'/images/dota_react/abilities/necrolyte_reapers_scythe.png'
   };
   const SFX={
-    pulse:'assets/audio/necrophos_death_pulse.mp3',
-    scythe:'assets/audio/necrophos_reapers_scythe.mp3',
-    launch:'assets/audio/necrophos_attack_launch.mp3',
-    impact:'assets/audio/necrophos_attack_impact.mp3'
+    pulse:'https://dota2.fandom.com/wiki/Special:Redirect/file/Necrophos_Death_Pulse.mp3',
+    scythe:'https://dota2.fandom.com/wiki/Special:Redirect/file/Reaper%27s_Scythe.mp3',
+    launch:'https://dota2.fandom.com/wiki/Special:Redirect/file/Necrophos_projectile_launch1.mp3',
+    impact:'https://dota2.fandom.com/wiki/Special:Redirect/file/Necrophos_projectile_impact1.mp3'
   };
 
   DATA[ID]={name:'NECROPHOS',hp:8,atk:1,img:DRAFT,staticPortrait:true,skills:[
@@ -34,15 +34,18 @@
 
   const style=document.createElement('style');
   style.textContent=`
-    .necro-heartstopper-badge{position:absolute!important;left:8px!important;right:auto!important;top:58px!important;z-index:35!important;display:inline-flex!important;align-items:center!important;gap:4px!important;width:auto!important;height:24px!important;min-width:0!important;max-width:74px!important;min-height:24px!important;max-height:24px!important;padding:3px 6px!important;border-radius:8px!important;background:rgba(15,28,18,.9)!important;border:1px solid rgba(117,255,92,.48)!important;color:#caffb9!important;font:800 9px/1 system-ui!important;box-shadow:0 0 12px rgba(77,255,75,.18)!important;overflow:hidden!important;pointer-events:none!important}
-    .necro-heartstopper-badge img{display:block!important;width:16px!important;height:16px!important;min-width:16px!important;min-height:16px!important;max-width:16px!important;max-height:16px!important;object-fit:cover!important;flex:0 0 16px!important;border-radius:4px!important}
-    .necro-heartstopper-badge span{display:block!important;width:auto!important;height:auto!important;min-width:0!important;max-width:48px!important;line-height:1!important;white-space:nowrap!important;overflow:hidden!important}
+    .necro-heartstopper-badge{position:absolute!important;left:10px!important;right:auto!important;top:68px!important;z-index:35!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:0!important;width:32px!important;height:32px!important;min-width:32px!important;max-width:32px!important;min-height:32px!important;max-height:32px!important;padding:2px!important;border-radius:7px!important;background:rgba(15,28,18,.88)!important;border:1px solid rgba(117,255,92,.5)!important;color:#d8ffc9!important;font:900 7px/1 system-ui!important;box-shadow:0 0 10px rgba(77,255,75,.2)!important;overflow:hidden!important;pointer-events:none!important}
+    .necro-heartstopper-badge img{display:block!important;width:18px!important;height:18px!important;min-width:18px!important;min-height:18px!important;max-width:18px!important;max-height:18px!important;object-fit:cover!important;flex:0 0 18px!important;border-radius:4px!important}
+    .necro-heartstopper-badge span{display:block!important;width:28px!important;height:8px!important;min-width:0!important;max-width:28px!important;font-size:6.5px!important;line-height:8px!important;text-align:center!important;white-space:nowrap!important;overflow:hidden!important}
     .necro-pulse-fx,.necro-scythe-fx,.necro-heartstopper-fx{position:fixed;pointer-events:none;z-index:2147483645}
     .necro-pulse-fx .ring{position:absolute;left:-42px;top:-42px;width:84px;height:84px;border-radius:50%;border:4px solid rgba(155,255,92,.92);box-shadow:0 0 22px rgba(104,255,86,.72),inset 0 0 20px rgba(112,255,91,.35);animation:necro-pulse-ring 2.28s ease-out forwards}
     .necro-pulse-fx .ring.r2{animation-delay:.18s;border-width:2px}
     .necro-pulse-fx .core{position:absolute;left:-24px;top:-24px;width:48px;height:48px;border-radius:50%;background:radial-gradient(circle,#efffcf 0,#adff73 28%,rgba(79,214,70,.62) 55%,transparent 74%);filter:blur(.5px);animation:necro-pulse-core 2.15s ease-out forwards}
-    .necro-pulse-orb{position:fixed;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:transparent;box-shadow:none;pointer-events:none;z-index:2147483646;overflow:visible}
-    .necro-pulse-orb img{display:block;width:30px;height:30px;object-fit:cover;border-radius:50%;filter:drop-shadow(0 0 7px #70ff6c) drop-shadow(0 0 12px rgba(77,255,71,.55));mix-blend-mode:screen}
+    .necro-pulse-orb{position:fixed;width:38px;height:38px;margin:-19px 0 0 -19px;background:transparent;box-shadow:none;pointer-events:none;z-index:2147483646;overflow:visible}
+    .necro-pulse-orb svg{display:block;width:38px;height:38px;overflow:visible;filter:drop-shadow(0 0 6px #75ff75) drop-shadow(0 0 13px rgba(70,255,70,.62))}
+    .necro-pulse-orb .skull-shell{fill:#8dff6a;stroke:#dfffd2;stroke-width:2}
+    .necro-pulse-orb .skull-eye{fill:#16361b}
+    .necro-pulse-orb .skull-jaw{fill:#6ce95d;stroke:#d5ffcb;stroke-width:1.4}
     .necro-pulse-impact{position:fixed;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;border:3px solid rgba(133,255,101,.86);box-shadow:0 0 22px rgba(92,255,88,.62),inset 0 0 20px rgba(77,255,91,.3);pointer-events:none;z-index:2147483646;animation:necro-impact .72s ease-out forwards}
     @keyframes necro-pulse-ring{0%{opacity:0;transform:scale(.35)}15%{opacity:1}100%{opacity:0;transform:scale(2.2)}}
     @keyframes necro-pulse-core{0%{opacity:.2;transform:scale(.4)}20%{opacity:1}100%{opacity:0;transform:scale(1.5)}}
@@ -51,7 +54,11 @@
     .necro-scythe-fx .trail{position:absolute;left:5px;top:24px;width:278px;height:104px;border-radius:50%;border-top:14px solid rgba(102,255,83,.96);border-left:4px solid rgba(62,211,67,.42);transform:rotate(7deg);box-shadow:0 -5px 22px rgba(78,255,72,.48)}
     .necro-scythe-fx .trail::before{content:'';position:absolute;left:18px;top:-19px;width:238px;height:80px;border-radius:50%;border-top:6px solid rgba(228,255,211,.88);transform:rotate(-3deg)}
     .necro-scythe-fx .trail::after{content:'';position:absolute;left:28px;top:-4px;width:205px;height:66px;border-radius:50%;border-top:22px solid rgba(37,210,70,.2);filter:blur(7px)}
-    .necro-scythe-fx .scythe-img{position:absolute;left:64px;top:-4px;width:166px;height:166px;object-fit:contain;mix-blend-mode:screen;filter:drop-shadow(0 0 10px rgba(119,255,87,.9)) drop-shadow(0 0 18px rgba(74,221,70,.58));transform:rotate(-18deg);transform-origin:52% 73%}
+    .necro-scythe-fx .scythe-svg{position:absolute;left:39px;top:-9px;width:205px;height:180px;overflow:visible;filter:drop-shadow(0 0 8px rgba(138,255,100,.92)) drop-shadow(0 0 18px rgba(67,217,65,.52));transform:rotate(-13deg);transform-origin:52% 76%}
+    .necro-scythe-fx .scythe-handle{stroke:#6ea34d;stroke-width:11;stroke-linecap:round}
+    .necro-scythe-fx .scythe-handle-hi{stroke:#d7ffad;stroke-width:3.5;stroke-linecap:round;opacity:.72}
+    .necro-scythe-fx .scythe-blade{fill:#dfffd2;stroke:#7fe45e;stroke-width:3}
+    .necro-scythe-fx .scythe-blade-hi{fill:none;stroke:#ffffff;stroke-width:2.4;opacity:.78}
     .necro-scythe-fx .impact{position:absolute;left:50%;top:58%;width:96px;height:96px;margin:-48px 0 0 -48px;border-radius:50%;background:radial-gradient(circle,rgba(235,255,216,.66) 0 8%,rgba(116,255,94,.34) 23%,rgba(64,202,69,.13) 52%,transparent 72%);animation:necro-scythe-impact 3.05s ease-out forwards}
     @keyframes necro-scythe-wrap{0%{opacity:0;transform:translateX(-95px) scale(.72) rotate(-18deg)}12%{opacity:1;transform:translateX(-58px) scale(.9) rotate(-10deg)}57%{opacity:1;transform:translateX(-18px) scale(1) rotate(-2deg)}78%{opacity:1;transform:translateX(18px) scale(1.04) rotate(7deg)}100%{opacity:0;transform:translateX(70px) scale(1.08) rotate(13deg)}}
     @keyframes necro-scythe-impact{0%,52%{opacity:0;transform:scale(.35)}69%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.65)}}
@@ -87,7 +94,7 @@
     targets.forEach((t,idx)=>{
       const p=center(t);if(!p)return;
       setTimeout(()=>{
-        const orb=addFx('necro-pulse-orb',c.x,c.y,`<img src="${SKILLS.pulse}" alt="">`);
+        const orb=addFx('necro-pulse-orb',c.x,c.y,`<svg viewBox="0 0 64 64" aria-hidden="true"><path class="skull-shell" d="M32 5C18 5 9 15 9 28c0 10 5 17 13 20v8h6v-7h8v7h6v-8c8-3 13-10 13-20C55 15 46 5 32 5Z"/><ellipse class="skull-eye" cx="23" cy="29" rx="6" ry="7"/><ellipse class="skull-eye" cx="41" cy="29" rx="6" ry="7"/><path class="skull-jaw" d="M22 43h20v10c-3 4-17 4-20 0Z"/><path d="M32 35l-4 6h8Z" fill="#1b3b20"/><path d="M27 46v7M32 46v8M37 46v7" stroke="#214525" stroke-width="2"/></svg>`);
         const dx=p.x-c.x,dy=p.y-c.y;
         orb.animate([{transform:'translate(-50%,-50%) scale(.6)',opacity:.25},{transform:`translate(calc(-50% + ${dx*.48}px),calc(-50% + ${dy*.48}px)) scale(1.15)`,opacity:1,offset:.55},{transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(.9)`,opacity:1}],{duration:900,easing:'cubic-bezier(.2,.72,.2,1)',fill:'forwards'});
         setTimeout(()=>{orb.remove();const hit=addFx('necro-pulse-impact',p.x,p.y,'');setTimeout(()=>hit.remove(),760)},860);
@@ -96,7 +103,7 @@
   }
   function scytheFx(target){
     const p=center(target);if(!p)return;
-    const el=addFx('necro-scythe-fx',p.x,p.y,'<i class="trail"></i><img class="scythe-img" src="${SKILLS.scythe}" alt=""><i class="impact"></i>');
+    const el=addFx('necro-scythe-fx',p.x,p.y,`<i class="trail"></i><svg class="scythe-svg" viewBox="0 0 220 190" aria-hidden="true"><path class="scythe-handle" d="M139 171L89 60"/><path class="scythe-handle-hi" d="M136 169L88 63"/><path class="scythe-blade" d="M87 63C70 36 43 20 14 18c21-9 55-8 83 7 18 10 31 24 39 39-18-8-34-9-49-1Z"/><path class="scythe-blade-hi" d="M24 20c31 1 60 13 85 34"/></svg><i class="impact"></i>`);
     setTimeout(()=>el.remove(),4100);
   }
   function heartFx(target){
@@ -175,7 +182,7 @@
 
       for(const target of heartTargets(h)){
         if(!target||target.dead)continue;
-        const raw=Math.max(0,(Number(target.maxHp)||0)*.2),amount=Math.max(.25,Math.floor((raw+1e-9)*4)/4);
+        const raw=Math.max(0,(Number(target.maxHp)||0)*.2),amount=Math.max(.25,Math.floor((raw+1e-9)*4)/4); // floor to 0.25: 1.6 -> 1.5
         heartFx(target);
         window.emitNetVfx?.('necro-heartstop',h,{targetTeam:target.team,targetId:target.id});
         pureDamage(target,amount,`${logIcon(ID,'heartstopper')} Heartstopper Aura: `,h,{impactDelay:110});
@@ -211,6 +218,13 @@
     const d=oldEnsureHeroNode(h);
     if(h?.id===ID){
       const p=d.querySelector('.hero-portrait');
+      if(p){
+        p.style.backgroundImage=`url("${PORTRAIT}")`;
+        p.style.backgroundSize='cover';
+        p.style.backgroundPosition='center 28%';
+        const img=p.querySelector('.static-hero-portrait');
+        if(img&&img.getAttribute('src')!==PORTRAIT)img.src=PORTRAIT;
+      }
       if(p&&!p.querySelector('.necro-heartstopper-badge')){
         const b=document.createElement('div');b.className='necro-heartstopper-badge';b.innerHTML=`<img src="${SKILLS.heart}" alt=""><span></span>`;p.appendChild(b);
       }
