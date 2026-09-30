@@ -2,7 +2,7 @@
   const CHEN_ID='chen', SLOT_ID='chen_creeps';
   const CHEN_SKILLS=[
     {id:'persuasion',name:'Holy Persuasion',cd:1,desc:'Призывает одного крипа на выбор: Огр-громила, Дикокрыл-потрошитель, Сатир-мучитель или Сосновый налётчик. Одновременно можно контролировать максимум 2 крипов. Каждый живёт 14 общих ходов. За убийство крипа противник получает 1 золото. Перезарядка: 1 ход Chen.'},
-    {id:'favor',name:'Divine Favor',cd:0,passive:true,desc:'Пассивно: все союзники и подконтрольные крипы восстанавливают 0.25 HP каждый общий ход и получают +0.5 брони.'},
+    {id:'favor',name:'Divine Favor',cd:0,passive:true,desc:'Пассивно: все союзники и подконтрольные крипы восстанавливают 0.5 HP каждый общий ход и получают +0.5 брони.'},
     {id:'hand',name:'Hand of God',cd:4,desc:'Лечит всех союзных героев и подконтрольных крипов на 3 HP, затем ещё 2 общих хода лечит их на 1 HP за общий ход. Перезарядка: 4 хода Chen.'}
   ];
   DATA[CHEN_ID]={name:'CHEN',hp:8,atk:1,img:'assets/chen_draft_v2.webp',skills:CHEN_SKILLS};
@@ -249,7 +249,7 @@
     for(let team=0;team<2;team++){
       const chen=chenForTeam(team);
       if(chen){
-        for(const h of G.teams[team]||[]){if(h.dead)continue;if(isChenSlot(h)){storeSlot(h);for(const c of h.chenCreeps||[])healCreepState(c,.25);syncSlot(h)}else healHero(h,.25,'Divine Favor')}
+        for(const h of G.teams[team]||[]){if(h.dead)continue;if(isChenSlot(h)){storeSlot(h);for(const c of h.chenCreeps||[])healCreepState(c,.5);syncSlot(h)}else healHero(h,.5,'Divine Favor')}
       }
       for(const h of [...(G.teams[team]||[])]){
         if(isChenSlot(h)&&!h.dead){
