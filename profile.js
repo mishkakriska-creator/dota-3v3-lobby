@@ -3,6 +3,7 @@
  const RESULT='/result';
  const WEB_STATIC=/\.github\.io$/i.test(location.hostname);
  const WEB_PROFILE_KEY='dota_cards_web_profile_v1';
+ const CLOUD_PROFILE_BASE='https://dota-3v3-lobby.onrender.com';
  let localPlayer=0, remotes={}, local={nick:'',avatar:'',rating:0,wins:0,losses:0}, ready=false, loading=null, localSig='';
  const recordedMatches=new Set();
  const GLOBAL_ID_KEY='dota_cards_global_player_id_v1';
@@ -67,8 +68,34 @@
    if(!WEB_STATIC)return;
    try{localStorage.setItem(WEB_PROFILE_KEY,JSON.stringify(getPublic()))}catch{}
  }
+ async function fetchCloudProfile(nick){
+   nick=String(nick||'').trim();if(!WEB_STATIC||!nick)return null;
+   try{
+     const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),7000);
+     const r=await fetch(CLOUD_PROFILE_BASE+'/api/profile?nick='+encodeURIComponent(nick),{cache:'no-store',signal:ctrl.signal});
+     clearTimeout(timer);if(!r.ok)return null;
+     const data=await r.json();return data?.profile||null;
+   }catch{return null}
+ }
+ async function pushCloudProfile(profile=getPublic()){
+   if(!WEB_STATIC||!profile?.nick)return null;
+   try{
+     const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),7000);
+     const r=await fetch(CLOUD_PROFILE_BASE+'/api/profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nick:profile.nick,rating:profile.rating,wins:profile.wins,losses:profile.losses,heroMastery:localMastery}),signal:ctrl.signal});
+     clearTimeout(timer);if(!r.ok)return null;
+     const data=await r.json();return data?.profile||null;
+   }catch{return null}
+ }
  function updateLocalProfile(next={}){
    local=clean({...local,...next,heroMastery:localMastery},localPlayer);ready=true;saveWebProfile();render();
+   if(WEB_STATIC)pushCloudProfile(getPublic()).then(server=>{
+     if(!server)return;
+     const sm=cleanMastery(server.heroMastery||{}),merged={...localMastery};
+     for(const id of HERO_IDS)merged[id]=Math.max(Number(merged[id])||0,Number(sm[id])||0);
+     localMastery=cleanMastery(merged);saveMastery();
+     local=clean({...local,rating:server.rating??local.rating,wins:server.wins??local.wins,losses:server.losses??local.losses,heroMastery:localMastery},localPlayer);
+     saveWebProfile();render();
+   }).catch(()=>{});
    window.dispatchEvent(new CustomEvent('dota-profile-ready',{detail:{profile:getPublic(),ready:true}}));
    return getPublic();
  }
@@ -106,10 +133,26 @@
        const stored=readWebProfile()||{};
        let nick=String(stored.nick||'').trim();
        if(!nick){const id=globalId().replace(/[^a-zA-Z0-9]/g,'');nick='Игрок'+(id.slice(-4)||Math.floor(1000+Math.random()*9000))}
-       local=clean({...stored,nick,heroMastery:localMastery},localPlayer);ready=true;saveWebProfile();
+       local=clean({...stored,nick,heroMastery:localMastery},localPlayer);ready=true;
+       const cloud=await fetchCloudProfile(nick);
+       if(cloud){
+         const cloudMastery=cleanMastery(cloud.heroMastery||{}),merged={...localMastery};
+         for(const id of HERO_IDS)merged[id]=Math.max(Number(localMastery[id])||0,Number(cloudMastery[id])||0);
+         localMastery=cleanMastery(merged);saveMastery();
+         local=clean({...local,rating:cloud.rating??local.rating,wins:cloud.wins??local.wins,losses:cloud.losses??local.losses,heroMastery:localMastery},localPlayer);
+       }
+       saveWebProfile();
+       const pushed=await pushCloudProfile(getPublic());
+       if(pushed){
+         const pm=cleanMastery(pushed.heroMastery||{}),merged={...localMastery};
+         for(const id of HERO_IDS)merged[id]=Math.max(Number(localMastery[id])||0,Number(pm[id])||0);
+         localMastery=cleanMastery(merged);saveMastery();
+         local=clean({...local,rating:pushed.rating??local.rating,wins:pushed.wins??local.wins,losses:pushed.losses??local.losses,heroMastery:localMastery},localPlayer);
+         saveWebProfile();
+       }
        localSig=JSON.stringify({nick:local.nick,avatar:local.avatar,rating:local.rating,wins:local.wins,losses:local.losses,heroMastery:localMastery});
        render();
-       if(!wasReady||localSig!==before)window.dispatchEvent(new CustomEvent('dota-profile-ready',{detail:{profile:getPublic(),ready:true}}));
+       if(!wasReady||localSig!==before)window.dispatchEvent(new CustomEvent('dota-profile-ready',{detail:{profile:getPublic(),ready:true,cloudSync:!!cloud}}));
        return getPublic();
      }
      try{
@@ -147,6 +190,14 @@
        saveMastery();
        local=clean({...local,wins:(Number(local.wins)||0)+(won?1:0),losses:(Number(local.losses)||0)+(won?0:1),rating:Math.max(0,(Number(local.rating)||0)+(won?45:-20)),heroMastery:localMastery},localPlayer);
        ready=true;saveWebProfile();render();
+       const synced=await pushCloudProfile(getPublic());
+       if(synced){
+         const sm=cleanMastery(synced.heroMastery||{}),merged={...localMastery};
+         for(const id of HERO_IDS)merged[id]=Math.max(Number(localMastery[id])||0,Number(sm[id])||0);
+         localMastery=cleanMastery(merged);saveMastery();
+         local=clean({...local,rating:synced.rating??local.rating,wins:synced.wins??local.wins,losses:synced.losses??local.losses,heroMastery:localMastery},localPlayer);
+         saveWebProfile();render();
+       }
        if(heroes.length)window.dispatchEvent(new CustomEvent('dota-mastery-gain',{detail:{heroes,gain,won}}));
        window.dispatchEvent(new CustomEvent('dota-profile-ready',{detail:{profile:getPublic(),ready:true}}));
        return true;
