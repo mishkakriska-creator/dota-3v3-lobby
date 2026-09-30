@@ -6,14 +6,17 @@ Object.assign(ITEMS,{
  hyperstone:{name:'Hyperstone',cost:6,img:'assets/items/hyperstone.png',category:'misc',desc:'Даёт +35% шанса дополнительной тычки. Два Hyperstone автоматически улучшаются в Moon Shard.'},
  moon_shard:{name:'Moon Shard',cost:12,img:'assets/items/moon_shard.png',category:'weapon',active:true,free:true,desc:'Даёт +70% шанса дополнительной тычки. Можно поглотить без траты действия: слот освобождается, а герой навсегда получает +40%.'},
  ultimate_orb:{name:'Ultimate Orb',cost:6,img:'assets/items/ultimate_orb.png',category:'misc',desc:'Даёт +1 HP, +0.5 брони и +0.5 урона. Два Ultimate Orb автоматически улучшаются в Eye of Skadi.'},
- armlet:{name:'Armlet of Mordiggian',cost:10,img:'assets/items/armlet.png',activeImg:'assets/items/armlet_active.png',category:'weapon',active:true,desc:'Переключаемый, тратит 1 действие. Пока включён: +1 урон и +2 HP. Бонусы сохраняются до ручного выключения.'}
+ ring_tarrasque:{name:'Ring of Tarrasque',cost:6,img:'assets/items/ring_of_tarrasque.png',category:'misc',desc:'Восстанавливает 0.5 HP за каждый общий ход. Улучшается в Heart of Tarrasque.'},
+ claymore:{name:'Claymore',cost:4,img:'assets/items/claymore.png',category:'misc',desc:'Даёт +0.5 к урону. Улучшается в Armlet of Mordiggian.'},
+ demon_edge:{name:'Demon Edge',cost:8,img:'assets/items/demon_edge.png',category:'weapon',desc:'Даёт +1 к урону. Улучшается в Daedalus.'},
+ armlet:{name:'Armlet of Mordiggian',cost:10,img:'assets/items/armlet.png',activeImg:'assets/items/armlet_active.png',category:'weapon',active:true,desc:'Пассивно даёт +0.5 к урону. Переключаемый эффект тратит 1 действие: пока включён, даёт +2 HP. Бонус здоровья сохраняется до ручного выключения. Собирается из Claymore.'}
 });
 ITEMS.butterfly.desc='Даёт +60% шанса дополнительной тычки, +40% уклонения и +1.5 брони. Собирается из Talisman of Evasion и Eaglesong.';
 ITEMS.skadi.cost=12;ITEMS.skadi.desc='Даёт +2 HP, +1 брони и +1 урон. После обычной атаки накладывает на цель на 5 общих ходов эффект: любое лечение по цели уменьшается на 2. Два Ultimate Orb автоматически улучшаются в Eye of Skadi.';
-ITEM_RECIPES.desolator=['blight_stone'];ITEM_RECIPES.moon_shard=['hyperstone','hyperstone'];ITEM_RECIPES.skadi=['ultimate_orb','ultimate_orb'];
-ITEM_UPGRADES.desolator='blight_stone';ITEM_UPGRADES.moon_shard='hyperstone';ITEM_UPGRADES.skadi='ultimate_orb';
+ITEM_RECIPES.desolator=['blight_stone'];ITEM_RECIPES.moon_shard=['hyperstone','hyperstone'];ITEM_RECIPES.skadi=['ultimate_orb','ultimate_orb'];ITEM_RECIPES.heart=['ring_tarrasque'];ITEM_RECIPES.armlet=['claymore'];ITEM_RECIPES.daedalus=['crystalys','demon_edge'];
+ITEM_UPGRADES.desolator='blight_stone';ITEM_UPGRADES.moon_shard='hyperstone';ITEM_UPGRADES.skadi='ultimate_orb';ITEM_UPGRADES.heart='ring_tarrasque';ITEM_UPGRADES.armlet='claymore';ITEM_UPGRADES.daedalus='crystalys';
 
-const baseEffectiveAtk=effectiveAtk;effectiveAtk=h=>Math.max(0,baseEffectiveAtk(h)+c(h,'ultimate_orb')*.5+(h?.items?.includes('skadi')?1:0)+((h?.items?.includes('armlet')&&h.armletActive)?1:0));
+const baseEffectiveAtk=effectiveAtk;effectiveAtk=h=>Math.max(0,baseEffectiveAtk(h)+c(h,'ultimate_orb')*.5+(h?.items?.includes('skadi')?1:0)+c(h,'claymore')*.5+c(h,'demon_edge')+(h?.items?.includes('armlet')?.5:0));
 const baseDisplayArmorValue=displayArmorValue;displayArmorValue=h=>baseDisplayArmorValue(h)+c(h,'ultimate_orb')*.5+(h?.items?.includes('skadi')?1:0)+(h?.items?.includes('butterfly')?1.5:0);
 const baseItemHpBonus=itemHpBonus;itemHpBonus=h=>baseItemHpBonus(h)+c(h,'ultimate_orb')+(h?.items?.includes('skadi')?2:0)+((h?.items?.includes('armlet')&&h.armletActive)?2:0);
 const baseItemRepeatPercent=itemRepeatPercent;itemRepeatPercent=h=>baseItemRepeatPercent(h)+c(h,'hyperstone')*35+(h?.items?.includes('moon_shard')?70:0)+(h?.moonShardConsumed?40:0);
@@ -43,7 +46,7 @@ function sfx(k){let src=SOUND[k];if(src)playFile(itemAudio,src)}
 window.playItemExpansionFx=ev=>{if(ev?.itemAction)sfx(ev.itemAction)};
 const oldUse=useItem;useItem=function(h,id){
  if(id==='moon_shard'){if(!h?.items?.includes(id))return;if(h.moonShardConsumed){alert('Moon Shard уже поглощён.');return}h.items.splice(h.items.indexOf(id),1);h.moonShardConsumed=true;addLog('🌙 '+h.name+' поглощает Moon Shard: +40% шанса дополнительной тычки навсегда.');render();return}
- if(id==='armlet'){if(!G||!h||active()!==h||G.actions<1||!h.items?.includes(id))return;h.armletActive=!h.armletActive;syncItemHpBonus(h);let k=h.armletActive?'on':'off';sfx(k);window.emitNetVfx?.('item-expansion',h,{itemAction:k});addLog('🩸 '+h.name+' '+(h.armletActive?'включает':'выключает')+' Armlet: '+(h.armletActive?'+1 урон, +2 HP.':'бонусы сняты.'));render();spend();return}
+ if(id==='armlet'){if(!G||!h||active()!==h||G.actions<1||!h.items?.includes(id))return;h.armletActive=!h.armletActive;syncItemHpBonus(h);let k=h.armletActive?'on':'off';sfx(k);window.emitNetVfx?.('item-expansion',h,{itemAction:k});addLog('🩸 '+h.name+' '+(h.armletActive?'включает':'выключает')+' Armlet: '+(h.armletActive?'+2 HP.':'бонус +2 HP снят.'));render();spend();return}
  if(id==='spirit_vessel'){if(!G||!h||active()!==h||G.actions<1||(h.itemCd?.[id]||0)>1)return;chooseEnemyAny('Выберите врага для Spirit Vessel',t=>!isForgeSpiritTarget(t),t=>{t.spiritVesselTurns=6;t.spiritVesselAppliedTurn=G.turnSerial||0;t.spiritVesselSourceTeam=h.team;t.spiritVesselSourceId=h.id;putItemCooldown(h,id);sfx('vessel');window.emitNetVfx?.('item-expansion',h,{itemAction:'vessel'});spend()});return}
  return oldUse(h,id)
 };
