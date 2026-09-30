@@ -44,9 +44,9 @@
   };
 
   DATA[ID]={name:'NECROPHOS',hp:8,atk:1,img:DRAFT,skills:[
-    {id:'death_pulse',name:'Death Pulse',cd:1,desc:'Necrophos выпускает волну смерти: наносит 1 урон переднему врагу и врагу сразу за ним, восстанавливает 1 HP себе и союзнику сразу позади Necrophos. Перезарядка: 1 ход Necrophos.'},
-    {id:'heartstopper',name:'Heartstopper Aura — ПАССИВНАЯ',cd:0,passive:true,desc:'ПАССИВНАЯ. Каждый общий ход: если Necrophos стоит первым в своей линии, передний и второй враг теряют по 10% своего максимального HP; если Necrophos стоит вторым — эффект получает только передний враг. За каждое убийство любым способом Necrophos получает +0.5 восстановления HP каждый общий ход на 3 общих хода.'},
-    {id:'reapers_scythe',name:"Reaper's Scythe",cd:4,desc:"Выбранная цель получает 1 урон за каждое недостающее HP от её максимального здоровья. Если Reaper's Scythe убивает врага, Necrophos навсегда получает +0.5 восстановления HP каждый общий ход. Перезарядка: 4 хода Necrophos."}
+    {id:'death_pulse',name:'Death Pulse',cd:1,desc:'Necrophos выпускает волну смерти: наносит 1 магического урона переднему врагу и врагу сразу за ним, восстанавливает 1 HP себе и союзнику сразу позади Necrophos. Перезарядка: 1 ход Necrophos.'},
+    {id:'heartstopper',name:'Heartstopper Aura — ПАССИВНАЯ',cd:0,passive:true,desc:'ПАССИВНАЯ. Каждый общий ход: если Necrophos стоит первым в своей линии, передний и второй враг получают магический урон в размере 10% своего максимального HP; если Necrophos стоит вторым — эффект получает только передний враг. За каждое убийство любым способом Necrophos получает +0.5 восстановления HP каждый общий ход на 3 общих хода.'},
+    {id:'reapers_scythe',name:"Reaper's Scythe",cd:4,desc:"Выбранная цель получает 1 магического урона за каждое недостающее HP от её максимального здоровья. Если Reaper's Scythe убивает врага, Necrophos навсегда получает +0.5 восстановления HP каждый общий ход. Перезарядка: 4 хода Necrophos."}
   ]};
   HERO_ICONS[ID]=ICON;
   SKILL_ICONS[ID]=[SKILLS.pulse,SKILLS.heart,SKILLS.scythe];
@@ -229,7 +229,7 @@
         const raw=Math.max(0,(Number(target.maxHp)||0)*.1),amount=Math.max(.25,Math.floor((raw+1e-9)*4)/4); // 10% max HP, floor to 0.25
         heartFx(target);
         window.emitNetVfx?.('necro-heartstop',h,{targetTeam:target.team,targetId:target.id});
-        pureDamage(target,amount,`${logIcon(ID,'heartstopper')} Heartstopper Aura: `,h,{impactDelay:110});
+        spellDamage(target,amount,`${logIcon(ID,'heartstopper')} Heartstopper Aura: `,h,{impactDelay:110});
         if(G.winner!==null)break;
       }
     }
@@ -329,7 +329,7 @@
           if(G!==match)return;
           if(!t.dead){
             h._necroScytheVictim=t;
-            try{pureDamage(t,missing,`${logIcon(ID,'reapers_scythe')} Reaper's Scythe: `,h,{impactDelay:40})}
+            try{spellDamage(t,missing,`${logIcon(ID,'reapers_scythe')} Reaper's Scythe: `,h,{impactDelay:40})}
             finally{h._necroScytheVictim=null}
           }
           addSkillLog(h,id,`${h.name} поражает ${t.name} Reaper's Scythe: ${fmtNecro(missing)} урона за ${fmtNecro(missing)} недостающего HP.`);
