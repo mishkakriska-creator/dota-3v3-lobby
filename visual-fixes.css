@@ -5854,3 +5854,112 @@ html.dota-landscape-mobile.dota-android body.game-running #game .battlefield .te
   padding:2px 4px!important;
   font-size:6.5px!important;
 }
+
+
+/* v1.86.173 — phone shop stays at a stable readable size.
+   Repeated taps/focus/selection must never stretch or collapse item cells. */
+html.dota-landscape-mobile body.game-running #game .shop-panel.open .shop-items{
+  align-content:start!important;
+  align-items:start!important;
+}
+html.dota-landscape-mobile body.game-running #game .shop-panel.open .shop-category{
+  align-self:start!important;
+}
+html.dota-landscape-mobile body.game-running #game .shop-panel.open .shop-category-grid{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  grid-auto-rows:78px!important;
+  align-content:start!important;
+  align-items:stretch!important;
+  gap:4px!important;
+}
+html.dota-landscape-mobile body.game-running #game .shop-panel.open .shop-category-grid .shop-item{
+  box-sizing:border-box!important;
+  width:100%!important;
+  height:78px!important;
+  min-height:78px!important;
+  max-height:78px!important;
+  padding:5px 3px!important;
+  gap:3px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  transform:none!important;
+  scale:1!important;
+  flex:0 0 78px!important;
+}
+html.dota-landscape-mobile body.game-running #game .shop-panel.open .shop-category-grid .shop-item:active,
+html.dota-landscape-mobile body.game-running #game .shop-panel.open .shop-category-grid .shop-item:focus,
+html.dota-landscape-mobile body.game-running #game .shop-panel.open .shop-category-grid .shop-item:focus-visible,
+html.dota-landscape-mobile body.game-running #game .shop-panel.open .shop-category-grid .shop-item.shop-item-selected{
+  transform:none!important;
+  scale:1!important;
+  height:78px!important;
+  min-height:78px!important;
+  max-height:78px!important;
+}
+html.dota-landscape-mobile body.game-running #game .shop-panel.open .shop-category-grid .shop-item img{
+  width:38px!important;
+  height:32px!important;
+  min-width:38px!important;
+  min-height:32px!important;
+  max-width:38px!important;
+  max-height:32px!important;
+  flex:0 0 32px!important;
+  object-fit:contain!important;
+}
+html.dota-landscape-mobile body.game-running #game .shop-panel.open .shop-category-grid .shop-item span{
+  width:100%!important;
+  min-height:27px!important;
+  font-size:8px!important;
+  line-height:1.05!important;
+  text-align:center!important;
+  overflow-wrap:anywhere!important;
+}
+
+/* v1.86.173 — CARD button is guaranteed visible and tappable on every landscape phone,
+   including iPhone 12/13 Pro Safari. */
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero>.hero-body{
+  grid-template-rows:
+    13px
+    24px
+    4px
+    minmax(12px,1fr)
+    18px
+    20px!important;
+  overflow:visible!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .inspect-hero{
+  grid-column:1/-1!important;
+  grid-row:6!important;
+  position:relative!important;
+  z-index:80!important;
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  width:100%!important;
+  height:20px!important;
+  min-height:20px!important;
+  max-height:20px!important;
+  margin:0!important;
+  padding:2px 4px!important;
+  box-sizing:border-box!important;
+  overflow:visible!important;
+}
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .status,
+html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .item-inventory{
+  min-height:0!important;
+  overflow:hidden!important;
+}
+/* Android keeps its smaller card body but gets the same guaranteed tappable button. */
+html.dota-landscape-mobile.dota-android body.game-running #game .battlefield .team .hero>.hero-body{
+  grid-template-rows:12px 22px 4px minmax(10px,1fr) 16px 19px!important;
+}
+html.dota-landscape-mobile.dota-android body.game-running #game .battlefield .team .hero .inspect-hero{
+  height:19px!important;
+  min-height:19px!important;
+  max-height:19px!important;
+}
