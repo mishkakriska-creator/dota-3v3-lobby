@@ -24,6 +24,21 @@ function safeNick(v){return String(v||'Игрок').trim().slice(0,24)||'Игр�
 function normalizedNick(v){return String(v||'').trim().replace(/\s+/g,' ').toLowerCase().slice(0,48)}
 function playerKey(p){const n=normalizedNick(p?.nick);return n?('nick:'+n):String(p?.id||p?.profileId||'').trim().toLowerCase().slice(0,80)}
 function cleanHeroes(arr){return [...new Set((Array.isArray(arr)?arr:[]).map(x=>String(x||'').trim()).filter(Boolean))].slice(0,3)}
+function cleanHeroMastery(raw){
+  const out={};
+  if(!raw||typeof raw!=='object')return out;
+  for(const [id,v] of Object.entries(raw).slice(0,40)){
+    const key=String(id||'').trim().toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,40);
+    const xp=Math.max(0,Math.min(1000000,Math.floor(Number(typeof v==='object'?v?.xp:v)||0)));
+    if(key&&xp)out[key]=xp;
+  }
+  return out;
+}
+function mergeHeroMastery(a,b){
+  const aa=cleanHeroMastery(a),bb=cleanHeroMastery(b),out={...aa};
+  for(const [id,xp] of Object.entries(bb))out[id]=Math.max(Number(out[id])||0,Number(xp)||0);
+  return out;
+}
 
 let stats={players:{},heroes:{},matches:{},updatedAt:0};
 try{
@@ -109,12 +124,16 @@ function consolidatePlayers(source=stats){
   const next={};let changed=false;
   for(const [key,items] of groups){
     const best=[...items].sort((a,b)=>
-      (Math.max(0,Math.floor(Number(b.p.rating)||0))-Math.max(0,Math.floor(Number(a.p.rating)||0))) ||
-      ((Number(b.p.updatedAt)||0)-(Number(a.p.updatedAt)||0))
+      ((Number(b.p.updatedAt)||0)-(Number(a.p.updatedAt)||0)) ||
+      (Math.max(0,Math.floor(Number(b.p.rating)||0))-Math.max(0,Math.floor(Number(a.p.rating)||0)))
     )[0]?.p||{};
     const rating=Math.max(0,Math.floor(Number(best.rating)||0));
-    next[key]={nick:safeNick(best.nick),rating,updatedAt:Math.max(...items.map(x=>Number(x.p.updatedAt)||0),0)};
-    if(items.length!==1||items[0].oldKey!==key||Number(items[0].p.rating)!==rating)changed=true;
+    const wins=Math.max(...items.map(x=>Math.max(0,Math.floor(Number(x.p.wins)||0))),0);
+    const losses=Math.max(...items.map(x=>Math.max(0,Math.floor(Number(x.p.losses)||0))),0);
+    let heroMastery={};
+    for(const x of items)heroMastery=mergeHeroMastery(heroMastery,x.p.heroMastery);
+    next[key]={nick:safeNick(best.nick),rating,wins,losses,heroMastery,updatedAt:Math.max(...items.map(x=>Number(x.p.updatedAt)||0),0)};
+    if(items.length!==1||items[0].oldKey!==key||JSON.stringify(items[0].p)!==JSON.stringify(next[key]))changed=true;
   }
   if(changed)source.players=next;
   return changed;
@@ -124,7 +143,20 @@ function playerByNick(nick,source=stats){
   const p=source.players?.['nick:'+nk]||Object.values(source.players||{}).find(x=>normalizedNick(x?.nick)===nk);
   if(!p)return null;
   const rating=Math.max(0,Math.floor(Number(p.rating)||0));
-  return {nick:safeNick(p.nick),rating,...rankFor(rating)};
+  return {nick:safeNick(p.nick),rating,wins:Math.max(0,Math.floor(Number(p.wins)||0)),losses:Math.max(0,Math.floor(Number(p.losses)||0)),heroMastery:cleanHeroMastery(p.heroMastery),...rankFor(rating)};
+}
+function mergeProfileProgress(body,source=stats){
+  const nick=safeNick(body?.nick);
+  const nk=normalizedNick(nick);if(!nk)return null;
+  const key='nick:'+nk,existing=source.players[key]||{};
+  const exists=!!source.players[key];
+  const rating=exists?Math.max(0,Math.floor(Number(existing.rating)||0)):Math.max(0,Math.floor(Number(body?.rating)||0));
+  const wins=Math.max(Math.max(0,Math.floor(Number(existing.wins)||0)),Math.max(0,Math.floor(Number(body?.wins)||0)));
+  const losses=Math.max(Math.max(0,Math.floor(Number(existing.losses)||0)),Math.max(0,Math.floor(Number(body?.losses)||0)));
+  const heroMastery=mergeHeroMastery(existing.heroMastery,body?.heroMastery);
+  source.players[key]={...existing,nick,rating,wins,losses,heroMastery,updatedAt:Date.now()};
+  saveStats();
+  return playerByNick(nick,source);
 }
 function leaderboard(source=stats){
   return Object.values(source.players)
@@ -162,10 +194,12 @@ function applyMatch(body){
     const p=players[t]||{};
     const key=playerKey(p);
     if(!key)return {ok:false,error:'invalid_player'};
-    const existing=target.players[key];
-    const base=Math.max(0,Math.floor(Number(existing?.rating ?? p.rating)||0));
+    const existing=target.players[key]||{};
+    const base=Math.max(0,Math.floor(Number(existing.rating ?? p.rating)||0));
     const rating=Math.max(0,base+(t===winner?45:-20));
-    target.players[key]={nick:safeNick(p.nick),rating,updatedAt:Date.now()};
+    const wins=Math.max(0,Math.floor(Number(existing.wins)||0))+(t===winner?1:0);
+    const losses=Math.max(0,Math.floor(Number(existing.losses)||0))+(t===winner?0:1);
+    target.players[key]={...existing,nick:safeNick(p.nick),rating,wins,losses,heroMastery:cleanHeroMastery(existing.heroMastery),updatedAt:Date.now()};
     changedPlayers.push({key,nick:target.players[key].nick,rating,team:t});
     for(const heroId of cleanHeroes(teams[t])){
       const h=target.heroes[heroId]||{games:0,wins:0};
@@ -197,6 +231,12 @@ const server=http.createServer(async(req,res)=>{
   }
   if(u.pathname==='/api/leaderboard'&&req.method==='GET')return send(res,200,{players:leaderboard(),updatedAt:stats.updatedAt||0,matches:Object.keys(stats.matches).length});
   if(u.pathname==='/api/player'&&req.method==='GET')return send(res,200,{player:playerByNick(u.searchParams.get('nick')||'')});
+  if(u.pathname==='/api/profile'&&req.method==='GET')return send(res,200,{profile:playerByNick(u.searchParams.get('nick')||'')});
+  if(u.pathname==='/api/profile'&&req.method==='POST'){
+    let body={};try{let raw='';for await(const c of req)raw+=c;body=JSON.parse(raw||'{}')}catch{}
+    const profile=mergeProfileProgress(body);
+    return send(res,profile?200:400,{profile,error:profile?'':'invalid_profile'});
+  }
   if(u.pathname==='/api/heroes'&&req.method==='GET')return send(res,200,{heroes:heroStats(),updatedAt:stats.updatedAt||0,matches:Object.keys(stats.matches).length});
   if(u.pathname==='/api/stats-export'&&req.method==='GET')return send(res,200,stats);
   if(u.pathname==='/api/match'&&req.method==='POST'){
