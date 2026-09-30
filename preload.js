@@ -140,6 +140,9 @@
       bar.style.width='100%';
       text.textContent='Ассеты уже загружены';
       await finishLoader('Ассеты уже загружены');
+      // A new game version may add assets. Warm them silently: persistent cache hits
+      // return immediately, so only genuinely missing files are downloaded.
+      setTimeout(()=>{try{window.DotaWarmAllGameAssets?.(()=>{})?.catch?.(()=>{})}catch(_){}},0);
       return;
     }
 
