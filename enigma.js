@@ -1,7 +1,7 @@
 (() => {
   const ENIGMA_ID='enigma';
   const ENIGMA_SKILLS=[
-    {id:'midnight_pulse',name:'Midnight Pulse',cd:3,desc:'Enigma создаёт Midnight Pulse на передней позиции врага на 3 общих хода. В начале каждого общего хода зона наносит стоящим в ней врагам 10% от их текущего здоровья. Урон округляется вниз до четверти HP: .75 / .50 / .25 / целого значения. Если Black Hole собрал на передней позиции нескольких врагов, Midnight Pulse поражает каждого из них. Перезарядка: 3 хода Enigma.'},
+    {id:'midnight_pulse',name:'Midnight Pulse',cd:3,desc:'Enigma создаёт Midnight Pulse на передней позиции врага на 3 общих хода. В начале каждого общего хода зона наносит стоящим в ней врагам магический урон в размере 10% от их текущего здоровья. Урон округляется вниз до четверти HP: .75 / .50 / .25 / целого значения. Если Black Hole собрал на передней позиции нескольких врагов, Midnight Pulse поражает каждого из них. Перезарядка: 3 хода Enigma.'},
     {id:'black_hole',name:'Black Hole',cd:7,desc:'Enigma засасывает всех живых врагов к центру Black Hole на 3 общих хода и заставляет вражескую команду пропустить 1 следующий общий ход. Пока Black Hole активен, любой направленный в одного из засосанных врагов скилл действует на всю группу с полным уроном и эффектами. В начале каждого общего хода каждый враг получает 0.50 чистого урона. Перезарядка: 7 ходов Enigma.'}
   ];
   DATA[ENIGMA_ID]={name:'ENIGMA',hp:7,atk:1,img:'assets/enigma_portrait.png',skills:ENIGMA_SKILLS};
@@ -388,7 +388,7 @@
       const targets=midnightPulseTargets(team);
       if(targets.length){
         playMidnightPulseFx(team);
-        for(const t of [...targets]){if(t&& !t.dead){const amount=pulseAmount(t);if(amount>0)baseDamageWithEnigmaKill(t,amount,`${logIcon(ENIGMA_ID,'midnight_pulse')} Midnight Pulse: `,pulseCaster,{impactDelay:120});}}
+        for(const t of [...targets]){if(t&& !t.dead){const amount=pulseAmount(t);if(amount>0)baseAbilityDamage(t,amount,`${logIcon(ENIGMA_ID,'midnight_pulse')} Midnight Pulse: `,pulseCaster,{impactDelay:120},'magic');}}
       }
       G.enigmaMidnightPulseTurns=Math.max(0,(Number(G.enigmaMidnightPulseTurns)||0)-1);
       if(G.enigmaMidnightPulseTurns<=0){
