@@ -5793,3 +5793,64 @@ html.dota-landscape-mobile body.game-running #game .battlefield .team .hero .her
   text-overflow:ellipsis!important;
 }
 
+
+
+/* v1.86.171 — Android Chrome landscape: respect the smaller visual viewport.
+   iPhone sizing remains unchanged. */
+html.dota-landscape-mobile.dota-android body.game-running #game .battlefield .side{
+  grid-template-rows:24px minmax(0,1fr)!important;
+}
+html.dota-landscape-mobile.dota-android body.game-running #game .battlefield .side-title{
+  height:24px!important;
+  min-height:24px!important;
+  max-height:24px!important;
+  padding:1px 3px!important;
+}
+html.dota-landscape-mobile.dota-android body.game-running #game .battlefield .team{
+  min-height:0!important;
+  max-height:100%!important;
+  overflow:visible!important;
+}
+html.dota-landscape-mobile.dota-android body.game-running #game .battlefield .team .hero,
+html.dota-landscape-mobile.dota-android body.game-running #game .battlefield .team.has-extra .hero,
+html.dota-landscape-mobile.dota-android body.game-running #game .battlefield .team.has-four .hero{
+  height:min(calc(var(--battle-card-h,200px) - var(--battle-nick-clearance,18px)),calc(100% - 2px))!important;
+  max-height:min(calc(var(--battle-card-h,200px) - var(--battle-nick-clearance,18px)),calc(100% - 2px))!important;
+  min-height:0!important;
+  align-self:flex-end!important;
+  margin-bottom:1px!important;
+}
+html.dota-landscape-mobile.dota-android body.game-running #game .battlefield .team .hero>.hero-body{
+  padding:3px 4px!important;
+  grid-template-rows:
+    12px
+    22px
+    4px
+    minmax(14px,1fr)
+    17px
+    19px!important;
+}
+html.dota-landscape-mobile.dota-android body.game-running #game .battlefield .team .hero .hero-name-row{
+  height:12px!important;
+  min-height:12px!important;
+  max-height:12px!important;
+}
+html.dota-landscape-mobile.dota-android body.game-running #game .battlefield .team .hero .hero-name{
+  height:12px!important;
+  min-height:12px!important;
+  max-height:12px!important;
+  line-height:12px!important;
+  font-size:8px!important;
+}
+html.dota-landscape-mobile.dota-android body.game-running #game .battlefield .team .hero .stats>.hpstat,
+html.dota-landscape-mobile.dota-android body.game-running #game .battlefield .team .hero .stats>.atkstat{
+  padding:2px 3px!important;
+  font-size:7.5px!important;
+}
+html.dota-landscape-mobile.dota-android body.game-running #game .battlefield .team .hero .inspect-hero{
+  height:19px!important;
+  min-height:19px!important;
+  max-height:19px!important;
+  padding:2px 4px!important;
+  font-size:6.5px!important;
+}
