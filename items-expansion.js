@@ -6,7 +6,7 @@ Object.assign(ITEMS,{
  hyperstone:{name:'Hyperstone',cost:6,img:'assets/items/hyperstone.png',category:'misc',desc:'Даёт +35% шанса дополнительной тычки. Два Hyperstone автоматически улучшаются в Moon Shard.'},
  moon_shard:{name:'Moon Shard',cost:12,img:'assets/items/moon_shard.png',category:'weapon',active:true,free:true,desc:'Даёт +70% шанса дополнительной тычки. Можно поглотить без траты действия: слот освобождается, а герой навсегда получает +40%.'},
  ultimate_orb:{name:'Ultimate Orb',cost:6,img:'assets/items/ultimate_orb.png',category:'misc',desc:'Даёт +1 HP, +0.5 брони и +0.5 урона. Два Ultimate Orb автоматически улучшаются в Eye of Skadi.'},
- armlet:{name:'Armlet of Mordiggian',cost:10,img:'assets/items/armlet.png',category:'weapon',active:true,desc:'Переключаемый, тратит 1 действие. Включённый: +1 урон и +2 HP. Каждый общий ход забирает 0.5 HP.'}
+ armlet:{name:'Armlet of Mordiggian',cost:10,img:'assets/items/armlet.png',activeImg:'assets/items/armlet_active.png',category:'weapon',active:true,desc:'Переключаемый, тратит 1 действие. Пока включён: +1 урон и +2 HP. Бонусы сохраняются до ручного выключения.'}
 });
 ITEMS.butterfly.desc='Даёт +60% шанса дополнительной тычки, +40% уклонения и +1.5 брони. Собирается из Talisman of Evasion и Eaglesong.';
 ITEMS.skadi.cost=12;ITEMS.skadi.desc='Даёт +2 HP, +1 брони и +1 урон. После обычной атаки накладывает на цель на 5 общих ходов эффект: любое лечение по цели уменьшается на 2. Два Ultimate Orb автоматически улучшаются в Eye of Skadi.';
@@ -29,7 +29,7 @@ const oldTick=tickDesolatorForTeam;tickDesolatorForTeam=function(team){oldTick(t
 const oldDispel=dispelNegativeEffects;dispelNegativeEffects=function(h,s='normal'){if(h&&(h.blightStoneTurns||0)>0){h.armor=(Number(h.armor)||0)+.5;h.blightStoneTurns=0}if(h)h.spiritVesselTurns=0;return oldDispel(h,s)};
 
 const q=n=>Math.floor((Math.max(0,Number(n)||0)+1e-9)*4)/4;
-function tickEffects(){if(!G)return;for(const row of G.teams||[])for(const h of row){if(!h||h.dead)continue;if((h.spiritVesselTurns||0)>0&&h.spiritVesselAppliedTurn!==(G.turnSerial||0)){let raw=h.hp*.05,amt=raw>0?Math.max(.25,q(raw)):0,src=Number.isInteger(h.spiritVesselSourceTeam)?G.teams?.[h.spiritVesselSourceTeam]?.find(x=>x.id===h.spiritVesselSourceId&&!x.dead)||null:null;if(amt>0)damage(h,Math.min(amt,h.hp),'🧪 Spirit Vessel: ',src,{impactDelay:50});h.spiritVesselTurns=Math.max(0,h.spiritVesselTurns-1)}if(h.armletActive&&h.items?.includes('armlet')){let before=h.hp;h.hp=Math.max(.5,h.hp-.5);if(h.hp<before)addLog('🩸 Armlet забирает 0.5 HP у '+h.name+'.')}}}
+function tickEffects(){if(!G)return;for(const row of G.teams||[])for(const h of row){if(!h||h.dead)continue;if((h.spiritVesselTurns||0)>0&&h.spiritVesselAppliedTurn!==(G.turnSerial||0)){let raw=h.hp*.05,amt=raw>0?Math.max(.25,q(raw)):0,src=Number.isInteger(h.spiritVesselSourceTeam)?G.teams?.[h.spiritVesselSourceTeam]?.find(x=>x.id===h.spiritVesselSourceId&&!x.dead)||null:null;if(amt>0)damage(h,Math.min(amt,h.hp),'🧪 Spirit Vessel: ',src,{impactDelay:50});h.spiritVesselTurns=Math.max(0,h.spiritVesselTurns-1)}}}
 const oldRad=triggerRadianceAura;triggerRadianceAura=function(team){tickEffects();return oldRad(team)};
 
 const oldPrice=itemPriceForHero;itemPriceForHero=function(id,h){let comps=recipeComponents(id);if(!comps.length)return oldPrice(id,h);let pool=[...(h?.items||[])],d=0;for(const x of comps){let i=pool.indexOf(x);if(i>=0){pool.splice(i,1);d+=ITEMS[x]?.cost||0}}return Math.max(0,(ITEMS[id]?.cost||0)-d)};
@@ -43,7 +43,7 @@ function sfx(k){let src=SOUND[k];if(src)playFile(itemAudio,src)}
 window.playItemExpansionFx=ev=>{if(ev?.itemAction)sfx(ev.itemAction)};
 const oldUse=useItem;useItem=function(h,id){
  if(id==='moon_shard'){if(!h?.items?.includes(id))return;if(h.moonShardConsumed){alert('Moon Shard уже поглощён.');return}h.items.splice(h.items.indexOf(id),1);h.moonShardConsumed=true;addLog('🌙 '+h.name+' поглощает Moon Shard: +40% шанса дополнительной тычки навсегда.');render();return}
- if(id==='armlet'){if(!G||!h||active()!==h||G.actions<1||!h.items?.includes(id))return;h.armletActive=!h.armletActive;syncItemHpBonus(h);let k=h.armletActive?'on':'off';sfx(k);window.emitNetVfx?.('item-expansion',h,{itemAction:k});spend();return}
+ if(id==='armlet'){if(!G||!h||active()!==h||G.actions<1||!h.items?.includes(id))return;h.armletActive=!h.armletActive;syncItemHpBonus(h);let k=h.armletActive?'on':'off';sfx(k);window.emitNetVfx?.('item-expansion',h,{itemAction:k});addLog('🩸 '+h.name+' '+(h.armletActive?'включает':'выключает')+' Armlet: '+(h.armletActive?'+1 урон, +2 HP.':'бонусы сняты.'));render();spend();return}
  if(id==='spirit_vessel'){if(!G||!h||active()!==h||G.actions<1||(h.itemCd?.[id]||0)>1)return;chooseEnemyAny('Выберите врага для Spirit Vessel',t=>!isForgeSpiritTarget(t),t=>{t.spiritVesselTurns=6;t.spiritVesselAppliedTurn=G.turnSerial||0;t.spiritVesselSourceTeam=h.team;t.spiritVesselSourceId=h.id;putItemCooldown(h,id);sfx('vessel');window.emitNetVfx?.('item-expansion',h,{itemAction:'vessel'});spend()});return}
  return oldUse(h,id)
 };

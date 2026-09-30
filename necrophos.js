@@ -63,9 +63,9 @@
 
   const style=document.createElement('style');
   style.textContent=`
-    .necro-heartstopper-badge{position:absolute!important;left:9px!important;right:auto!important;top:38px!important;z-index:35!important;display:block!important;width:34px!important;height:34px!important;min-width:34px!important;max-width:34px!important;min-height:34px!important;max-height:34px!important;padding:0!important;border-radius:7px!important;background:rgba(10,22,13,.9)!important;border:1px solid rgba(117,255,92,.58)!important;color:#efffe9!important;box-shadow:0 0 10px rgba(77,255,75,.24)!important;overflow:hidden!important;pointer-events:none!important}
-    .necro-heartstopper-badge img{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;min-width:100%!important;min-height:100%!important;max-width:none!important;max-height:none!important;object-fit:cover!important;border-radius:6px!important}
-    .necro-heartstopper-badge span{position:absolute!important;left:0!important;right:0!important;bottom:0!important;display:block!important;width:100%!important;height:9px!important;min-width:0!important;max-width:none!important;background:rgba(4,12,6,.74)!important;color:#f3ffe9!important;font:900 6.5px/9px system-ui!important;text-align:center!important;white-space:nowrap!important;overflow:hidden!important}
+    .portrait-statuses .necro-heartstopper-badge{position:relative!important;inset:auto!important;transform:none!important;display:block!important;flex:0 0 24px!important;width:24px!important;height:24px!important;min-width:24px!important;max-width:24px!important;min-height:24px!important;max-height:24px!important;margin:0!important;padding:0!important;border-radius:5px!important;background:#080c13!important;border:1px solid rgba(117,255,92,.72)!important;color:#efffe9!important;box-shadow:0 2px 7px rgba(0,0,0,.62),0 0 7px rgba(77,255,75,.2)!important;overflow:visible!important;pointer-events:none!important}
+    .portrait-statuses .necro-heartstopper-badge img{position:static!important;inset:auto!important;display:block!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:100%!important;max-height:100%!important;object-fit:cover!important;border-radius:4px!important}
+    .portrait-statuses .necro-heartstopper-badge span{position:absolute!important;right:-5px!important;bottom:-5px!important;left:auto!important;top:auto!important;display:grid!important;place-items:center!important;min-width:14px!important;width:auto!important;height:14px!important;padding:0 3px!important;border-radius:999px!important;background:#111827!important;border:1px solid #d6deec!important;color:#f3ffe9!important;font:900 8px/1 system-ui!important;white-space:nowrap!important;box-shadow:0 1px 4px #000b!important}
     .necro-pulse-fx,.necro-scythe-fx,.necro-heartstopper-fx{position:fixed;pointer-events:none;z-index:2147483645}
     .necro-pulse-fx .ring{position:absolute;left:-42px;top:-42px;width:84px;height:84px;border-radius:50%;border:4px solid rgba(155,255,92,.92);box-shadow:0 0 22px rgba(104,255,86,.72),inset 0 0 20px rgba(112,255,91,.35);animation:necro-pulse-ring 2.28s ease-out forwards}
     .necro-pulse-fx .ring.r2{animation-delay:.18s;border-width:2px}
@@ -267,8 +267,9 @@
         const v=p.querySelector('video');
         if(v&&v.getAttribute('src')!==PORTRAIT){v.src=PORTRAIT;v.play().catch(()=>{})}
       }
-      if(p&&!p.querySelector('.necro-heartstopper-badge')){
-        const b=document.createElement('div');b.className='necro-heartstopper-badge';b.innerHTML=`<img src="${SKILLS.heart}" alt=""><span></span>`;p.appendChild(b);
+      const statusWrap=d.querySelector('.portrait-statuses');
+      if(statusWrap&&!statusWrap.querySelector('.necro-heartstopper-badge')){
+        const b=document.createElement('div');b.className='necro-heartstopper-badge';b.innerHTML=`<img src="${SKILLS.heart}" alt=""><span></span>`;statusWrap.appendChild(b);
       }
     }
     return d;
