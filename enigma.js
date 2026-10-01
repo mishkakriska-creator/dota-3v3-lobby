@@ -2,7 +2,7 @@
   const ENIGMA_ID='enigma';
   const ENIGMA_SKILLS=[
     {id:'midnight_pulse',name:'Midnight Pulse',cd:3,desc:'Enigma создаёт Midnight Pulse на передней позиции врага на 3 общих хода. В начале каждого общего хода зона наносит стоящим в ней врагам магический урон в размере 10% от их текущего здоровья. Урон округляется вниз до четверти HP: .75 / .50 / .25 / целого значения. Если Black Hole собрал на передней позиции нескольких врагов, Midnight Pulse поражает каждого из них. Перезарядка: 3 хода Enigma.'},
-    {id:'black_hole',name:'Black Hole',cd:7,desc:'Enigma засасывает всех живых врагов к центру Black Hole на 3 общих хода и заставляет вражескую команду пропустить 1 следующий общий ход. Пока Black Hole активен, любой направленный в одного из засосанных врагов скилл действует на всю группу с полным уроном и эффектами. В начале каждого общего хода каждый враг получает 0.50 чистого урона. Перезарядка: 7 ходов Enigma.'}
+    {id:'black_hole',name:'Black Hole',cd:7,desc:'Enigma засасывает всех живых врагов к центру Black Hole на 3 общих хода и заставляет вражескую команду пропустить 1 следующий общий ход. Пока Black Hole активен, любой направленный в одного из засосанных врагов скилл действует на всю группу: выбранная цель получает полный урон, остальные засосанные враги получают 70% урона и те же эффекты. В начале каждого общего хода каждый враг получает 0.50 чистого урона. Перезарядка: 7 ходов Enigma.'}
   ];
   DATA[ENIGMA_ID]={name:'ENIGMA',hp:7,atk:1,img:'assets/enigma_portrait.png',skills:ENIGMA_SKILLS};
   HERO_ICONS[ENIGMA_ID]='assets/enigma_icon.png';
@@ -154,7 +154,7 @@
     };
   }
 
-  function blackHoleSecondaryDamage(n){return Math.max(0,Math.round((Math.max(0,Number(n)||0)*.8)*4)/4)}
+  function blackHoleSecondaryDamage(n){return Math.max(0,Math.round((Math.max(0,Number(n)||0)*.7)*4)/4)}
   const baseAbilityDamage=abilityDamage;
   abilityDamage=function(target,n,src='',attacker=null,fx={},damageType='magic'){
     const ctx=directedCtx;
