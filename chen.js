@@ -15,8 +15,8 @@
 
   const CREEPS={
     ogre:{name:'ОГР-ГРОМИЛА',hp:5,atk:.5,portrait:'assets/portraits/chen_ogre.webm?v=4',icon:'assets/skills/chen_ogre_smash.webp',rosterIcon:'assets/chen_creep_ogre.webp',skill:'Ogre Smash!',skillDesc:'Оглушает переднего врага на 1 активацию и наносит ему 0.5 урона.'},
-    wildwing:{name:'ДИКОКРЫЛ-ПОТРОШИТЕЛЬ',hp:4,atk:.5,portrait:'assets/portraits/chen_wildwing.webm?v=4',icon:'assets/skills/chen_hurricane.webp',rosterIcon:'assets/chen_creep_wildwing.webp',skill:'Hurricane',skillDesc:'Выбирает первого или второго врага и толкает его вперёд или назад на 1 позицию.'},
-    satyr:{name:'САТИР-МУЧИТЕЛЬ',hp:5,atk:.5,portrait:'assets/portraits/chen_satyr.webm?v=4',icon:'assets/skills/chen_shockwave.webp',rosterIcon:'assets/chen_creep_satyr.webp',skill:'Shockwave',skillDesc:'Шоковая волна проходит по вражеской линии и наносит всем задетым врагам 0.75 урона.'},
+    wildwing:{name:'ДИКОКРЫЛ-ПОТРОШИТЕЛЬ',hp:4,atk:.5,portrait:'assets/portraits/chen_wildwing.webm?v=4',icon:'assets/skills/chen_hurricane.webp',rosterIcon:'assets/chen_creep_wildwing.webp',skill:'Hurricane',skillDesc:'Выбирает первого или второго врага. После выбора рядом с его карточкой появляются стрелки вперёд/назад для сдвига на 1 позицию.'},
+    satyr:{name:'САТИР-МУЧИТЕЛЬ',hp:5,atk:.5,portrait:'assets/portraits/chen_satyr.webm?v=4',icon:'assets/skills/chen_shockwave.webp',rosterIcon:'assets/chen_creep_satyr.webp',skill:'Shockwave',skillDesc:'Шоковая волна проходит по вражеской линии, наносит всем противникам 1 магического урона и снижает их броню на 0.5 на 4 общих хода.'},
     pinecone:{name:'СОСНОВЫЙ НАЛЁТЧИК',hp:4,atk:.5,portrait:'assets/portraits/chen_pinecone.webm?v=4',icon:'assets/skills/chen_seed_shot.webp',rosterIcon:'assets/chen_creep_pinecone.webp',skill:'Seed Shot',skillDesc:'Наносит выбранной цели 0.5 урона и может отскочить ещё в случайных врагов, нанося по 0.5.'}
   };
   const CREEP_ORDER=['ogre','wildwing','satyr','pinecone'];
@@ -260,8 +260,24 @@
       }
     }
   }
+  function applySatyrArmorBreak(target){
+    if(!target||target.dead||!canReceiveNegativeEffect(target))return false;
+    if((target.chenSatyrArmorTurns||0)<=0)target.armor=(Number(target.armor)||0)-.5;
+    target.chenSatyrArmorTurns=Math.max(Number(target.chenSatyrArmorTurns)||0,4);
+    target.chenSatyrArmorAppliedTurn=G?.turnSerial||0;
+    return true;
+  }
+  function tickSatyrArmorBreak(){
+    if(!G)return;const serial=G.turnSerial||0;
+    for(const team of G.teams||[])for(const h of team||[]){
+      if((h.chenSatyrArmorTurns||0)>0&&h.chenSatyrArmorAppliedTurn!==serial){
+        h.chenSatyrArmorTurns=Math.max(0,h.chenSatyrArmorTurns-1);
+        if(h.chenSatyrArmorTurns<=0){h.armor=(Number(h.armor)||0)+.5;h.chenSatyrArmorAppliedTurn=0;addLog(`🛡 Ослабление брони Shockwave на ${h.name} заканчивается.`)}
+      }
+    }
+  }
   const baseBeginActivation=beginActivation;
-  beginActivation=function(){const r=baseBeginActivation();if(G&&G.winner===null){const h=active();if(isChenSlot(h)){for(const c of h.chenCreeps||[])if(c.skillCd>0)c.skillCd=Math.max(0,c.skillCd-1)}tickChenGlobal();render()}return r};
+  beginActivation=function(){const r=baseBeginActivation();if(G&&G.winner===null){tickSatyrArmorBreak();const h=active();if(isChenSlot(h)){for(const c of h.chenCreeps||[])if(c.skillCd>0)c.skillCd=Math.max(0,c.skillCd-1)}tickChenGlobal();render()}return r};
 
   function summonChoice(chen){
     if(slotForTeam(chen.team)?.chenCreeps?.length>=2){alert('У Chen уже максимум 2 подконтрольных крипа.');return}
@@ -294,10 +310,28 @@
   }
   function markCreepSkillUsed(slot){const c=currentCreep(slot);if(c)c.skillCd=2}
   function directionChoice(slot,target){
+    document.querySelector('.chen-direction-arrows')?.remove();
     const order=currentLineOrder(target.team),d=order.indexOf(target),canF=d>0,canB=d>=0&&d<order.length-1;
-    const ov=document.createElement('div');ov.className='chen-direction-overlay';ov.innerHTML=`<div class="chen-direction-panel"><b>HURRICANE — направление</b><span>${target.name}</span><div><button data-dir="forward" ${canF?'':'disabled'}>ТОЛКНУТЬ ВПЕРЁД</button><button data-dir="back" ${canB?'':'disabled'}>ТОЛКНУТЬ НАЗАД</button></div><button class="chen-direction-cancel">Отмена</button></div>`;document.body.appendChild(ov);
-    ov.querySelector('.chen-direction-cancel').onclick=()=>ov.remove();
-    ov.querySelectorAll('[data-dir]').forEach(b=>b.onclick=()=>{playCreepSkillSound('wildwing');const dir=b.dataset.dir;playChenCreepSkillFx('wildwing',slot,[target],{dir});window.emitNetVfx?.('chen-creep-skill',slot,{skillKind:'wildwing',targets:[creepTargetRef(target)].filter(Boolean),dir});const moved=dir==='forward'?moveForwardOne(target):knockBackOne(target);ov.remove();markCreepSkillUsed(slot);addLog(`${creepLogIcon('wildwing')}<span>Hurricane: ${target.name} ${moved?(dir==='forward'?'сдвинут вперёд на 1 позицию':'отброшен назад на 1 позицию'):'остаётся на месте'}.</span>`);spend();render()});
+    const card=document.getElementById(`hero-${target.team}-${target.id}`);
+    if(!card)return;
+    if(!document.getElementById('chen-direction-arrows-style')){
+      const st=document.createElement('style');st.id='chen-direction-arrows-style';st.textContent=`
+        .chen-direction-arrows{position:fixed;z-index:140;pointer-events:none}
+        .chen-direction-arrows button{position:fixed;width:42px;height:42px;border-radius:50%;border:2px solid #9fd7ff;background:rgba(13,24,40,.96);color:#fff;font:900 24px/1 system-ui;box-shadow:0 0 14px #58b8ff88;pointer-events:auto;touch-action:manipulation}
+        .chen-direction-arrows button:disabled{opacity:.22;filter:grayscale(1);pointer-events:none}
+      `;document.head.appendChild(st);
+    }
+    const box=card.getBoundingClientRect(),ov=document.createElement('div');ov.className='chen-direction-arrows';
+    ov.innerHTML='<button type="button" data-dir="forward" aria-label="Вперёд">➜</button><button type="button" data-dir="back" aria-label="Назад">➜</button>';
+    document.body.appendChild(ov);
+    const towardCenter=target.team===1?'left':'right',away=target.team===1?'right':'left';
+    const place=(btn,side,flip)=>{btn.style.top=(box.top+box.height/2-21)+'px';btn.style[side]=(side==='left'?(box.left-50):(innerWidth-box.right-50))+'px';btn.style.transform=flip?'rotate(180deg)':'none'};
+    const fwd=ov.querySelector('[data-dir="forward"]'),back=ov.querySelector('[data-dir="back"]');
+    fwd.disabled=!canF;back.disabled=!canB;
+    place(fwd,towardCenter,target.team===1);place(back,away,target.team===0);
+    const close=()=>ov.remove();
+    ov.querySelectorAll('[data-dir]').forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();playCreepSkillSound('wildwing');const dir=b.dataset.dir;playChenCreepSkillFx('wildwing',slot,[target],{dir});window.emitNetVfx?.('chen-creep-skill',slot,{skillKind:'wildwing',targets:[creepTargetRef(target)].filter(Boolean),dir});const moved=dir==='forward'?moveForwardOne(target):knockBackOne(target);close();markCreepSkillUsed(slot);addLog(`${creepLogIcon('wildwing')}<span>Hurricane: ${target.name} ${moved?(dir==='forward'?'сдвинут вперёд на 1 позицию':'отброшен назад на 1 позицию'):'остаётся на месте'}.</span>`);spend();render()});
+    setTimeout(()=>document.addEventListener('pointerdown',e=>{if(!ov.contains(e.target))close()},{once:true}),0);
   }
   function useCreepSkill(slot){
     if(!G||active()!==slot||slot.dead||G.actions<1||targetMode)return;const c=currentCreep(slot);if(!c||c.skillCd>0)return;const kind=c.kind;
@@ -306,7 +340,7 @@
       playCreepSkillSound(kind);playChenCreepSkillFx('ogre',slot,[t]);window.emitNetVfx?.('chen-creep-skill',slot,{skillKind:'ogre',targets:[creepTargetRef(t)].filter(Boolean)});damage(t,.5,`${creepLogIcon(kind)} Ogre Smash!: `,slot,{impactDelay:220});t.stun=Math.max(Number(t.stun)||0,1);addLog(`${creepLogIcon(kind)}<span>Ogre Smash! оглушает ${t.name} на 1 активацию.</span>`);markCreepSkillUsed(slot);spend();return;
     }
     if(kind==='satyr'){
-      const targets=currentLineOrder(1-slot.team).filter(x=>!x.dead);if(!targets.length)return;playCreepSkillSound(kind);playChenCreepSkillFx('satyr',slot,targets);window.emitNetVfx?.('chen-creep-skill',slot,{skillKind:'satyr',targets:targets.map(creepTargetRef).filter(Boolean)});for(const t of targets)spellDamage(t,.75,`${creepLogIcon(kind)} Shockwave: `,slot,{impactDelay:280});addLog(`${creepLogIcon(kind)}<span>Shockwave проходит по вражеской линии и наносит каждому задетому врагу 0.75 урона.</span>`);markCreepSkillUsed(slot);spend();return;
+      const targets=currentLineOrder(1-slot.team).filter(x=>!x.dead);if(!targets.length)return;playCreepSkillSound(kind);playChenCreepSkillFx('satyr',slot,targets);window.emitNetVfx?.('chen-creep-skill',slot,{skillKind:'satyr',targets:targets.map(creepTargetRef).filter(Boolean)});for(const t of targets){spellDamage(t,1,`${creepLogIcon(kind)} Shockwave: `,slot,{impactDelay:280});applySatyrArmorBreak(t)}addLog(`${creepLogIcon(kind)}<span>Shockwave наносит всем противникам по 1 магического урона и снижает броню на 0.5 на 4 общих хода.</span>`);markCreepSkillUsed(slot);spend();return;
     }
     if(kind==='wildwing'){
       const opts=currentLineOrder(1-slot.team).slice(0,2);if(!opts.length)return;targetMode={promptText:'Выберите первого или второго врага для Hurricane',filter:h=>opts.includes(h),onPick:t=>directionChoice(slot,t),team:1-slot.team,frontOnly:false,icon:creepIcon(kind)};render();return;
@@ -325,6 +359,13 @@
       },'');if(targetMode){targetMode.icon=creepIcon(kind);render()}return;
     }
   }
+
+  const baseChenOverlayEffects=invokerOverlayEffects;
+  invokerOverlayEffects=function(h){
+    const out=baseChenOverlayEffects(h);
+    if(h&&!h.dead&&(h.chenSatyrArmorTurns||0)>0)out.push({icon:CREEPS.satyr.icon,tone:'bad',count:h.chenSatyrArmorTurns,label:`Shockwave: броня −0.5 • ещё ${h.chenSatyrArmorTurns} общ. ход.`});
+    return out;
+  };
 
   const baseSkill=skill;
   skill=function(id){
