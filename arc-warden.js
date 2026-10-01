@@ -6,8 +6,8 @@
     {id:'field',name:'Magnetic Field',cd:3,desc:'Создаёт купол на передней позиции своей команды. Пока Magnetic Field активен, герой, стоящий впереди, получает 100% уклонения от обычных атак. Эффект держится 2 хода команды. Перезарядка: 3 хода героя.'},
     {id:'tempest',name:'Tempest Double',cd:3,desc:'Призывает Tempest Double позади Arc Warden. В следующий ход команды активируется именно двойник. У него собственные перезарядки способностей и предметов, те же предметы, текущие характеристики и отдельная карточка. Tempest Double живёт 4 хода команды. Перезарядка: 3 хода Arc Warden.'}
   ];
-  DATA[ARC_ID]={name:'ARC WARDEN',hp:7,atk:1,img:'assets/arcwarden.jpg',skills:ARC_SKILLS};
-  DATA[ARC_CLONE_ID]={name:'TEMPEST DOUBLE',hp:7,atk:1,img:'assets/arcwarden.jpg',skills:ARC_SKILLS};
+  DATA[ARC_ID]={name:'ARC WARDEN',hp:7,atk:2,img:'assets/arcwarden.jpg',skills:ARC_SKILLS};
+  DATA[ARC_CLONE_ID]={name:'TEMPEST DOUBLE',hp:7,atk:2,img:'assets/arcwarden.jpg',skills:ARC_SKILLS};
   HERO_ICONS[ARC_ID]='assets/arcwarden_icon.png';
   HERO_ICONS[ARC_CLONE_ID]='assets/arcwarden_clone_icon.png';
   if(!DRAFT_ORDER.includes(ARC_ID))DRAFT_ORDER.push(ARC_ID);
