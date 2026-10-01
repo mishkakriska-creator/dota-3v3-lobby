@@ -8,8 +8,8 @@
 
   DATA[AXE_ID]={name:'AXE',hp:9,atk:1,img:'assets/axe.jpg',skills:[
     {id:'call',name:"Berserker's Call",cd:3,desc:'Axe получает +2 брони и на 3 общих хода вынуждает врагов при их активации бесплатно ударять его с руки, где бы он ни стоял. Такая вынужденная атака не тратит действие. Перезарядка: 3 хода Axe.'},
-    {id:'helix',name:'Counter Helix — ПАССИВНАЯ',cd:0,passive:true,desc:'После каждого 2-го полученного удара с руки Axe мгновенно прокручивается и наносит 2 чистого урона тому, кто нанёс второй удар.'},
-    {id:'culling',name:'Culling Blade',cd:4,desc:'Разрубает выбранного врага на 2 чистого урона. Убивает сквозь невосприимчивость к эффектам, уклонение и Borrowed Time Abaddon. За каждое убийство этим навыком Axe получает +2 брони до конца матча. Если цель не убита — перезарядка 4 хода Axe; если убита — перезарядки нет.'}
+    {id:'helix',name:'Counter Helix — ПАССИВНАЯ',cd:0,passive:true,desc:'После каждого 2-го полученного удара с руки Axe мгновенно прокручивается и наносит 2.5 чистого урона тому, кто нанёс второй удар.'},
+    {id:'culling',name:'Culling Blade',cd:4,desc:'Разрубает выбранного врага на 2.5 чистого урона. Убивает сквозь невосприимчивость к эффектам, уклонение и Borrowed Time Abaddon. За каждое убийство этим навыком Axe получает +2 брони до конца матча. Если цель не убита — перезарядка 4 хода Axe; если убита — перезарядки нет.'}
   ]};
 
   HERO_ICONS[AXE_ID]='assets/axe_icon.png';
@@ -180,7 +180,7 @@
       node.classList.toggle('axe-called',isAxeCallActive(hero));
       const aura=node.querySelector('.axe-call-aura');
       if(aura)aura.title=isAxeCallActive(hero)?`Berserker's Call: ${hero.axeCallTurns} общ. ход.`:'';
-      if(hero.id===AXE_ID){let meter=node.querySelector('.axe-helix-meter');if(!meter){meter=document.createElement('span');meter.className='axe-helix-meter';node.querySelector('.hero-body').appendChild(meter)}meter.textContent=`Helix ${hero.axeHelixHits||0}/2`;meter.title='На второй полученной тычке — 2 чистого урона последнему атакующему.';}
+      if(hero.id===AXE_ID){let meter=node.querySelector('.axe-helix-meter');if(!meter){meter=document.createElement('span');meter.className='axe-helix-meter';node.querySelector('.hero-body').appendChild(meter)}meter.textContent=`Helix ${hero.axeHelixHits||0}/2`;meter.title='На второй полученной тычке — 2.5 чистого урона последнему атакующему.';}
     }
   };
 
@@ -256,9 +256,9 @@
         render();
       }else{
         const wasActive=attacker===active();
-        pureDamage(attacker,2,`${logIcon(AXE_ID,'helix')} ${target.name}: `,target,{impactDelay:220});
+        pureDamage(attacker,2.5,`${logIcon(AXE_ID,'helix')} ${target.name}: `,target,{impactDelay:220});
         if(wasActive&&attacker.dead)attacker._fellDuringAttack=true;
-        addLog(`${logIcon(AXE_ID,'helix')}<span>${target.name} прокручивается Counter Helix и бьёт ${attacker.name}${illusion?' (ответ за удар его иллюзии)':''} на 2 чистого урона.</span>`);
+        addLog(`${logIcon(AXE_ID,'helix')}<span>${target.name} прокручивается Counter Helix и бьёт ${attacker.name}${illusion?' (ответ за удар его иллюзии)':''} на 2.5 чистого урона.</span>`);
       }
       return true;
     }
