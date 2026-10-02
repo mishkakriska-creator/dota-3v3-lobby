@@ -212,8 +212,14 @@
   function fx(cls,x,y){const el=document.createElement('div');el.className='es-fx '+cls;el.style.left=x+'px';el.style.top=y+'px';fxRoot().appendChild(el);return el}
   function fissureFx(caster,targets=[]){
     const a=center(caster),b=center(targets[0]||frontHero(1-caster.team));if(!a||!b)return;
-    const dx=b.x-a.x,dy=b.y-a.y,len=Math.max(110,Math.hypot(dx,dy)*.78),ang=Math.atan2(dy,dx)*180/Math.PI;
-    const line=fx('es-fissure-cast',a.x,a.y);line.style.width=len+'px';line.style.transform='translateY(-50%) rotate('+ang+'deg)';
+    const dx=b.x-a.x,dy=b.y-a.y,dist=Math.hypot(dx,dy),dir=Math.atan2(dy,dx);
+    const forward=Math.max(68,Math.min(110,dist*.32));
+    const len=110;
+    const cx=a.x+Math.cos(dir)*forward,cy=a.y+Math.sin(dir)*forward;
+    const ang=dir*180/Math.PI+90;
+    const line=fx('es-fissure-cast',cx,cy);
+    line.style.width=len+'px';
+    line.style.transform='translate(-50%,-50%) rotate('+ang+'deg)';
     for(let i=0;i<10;i++){const rock=document.createElement('i');rock.style.left=(8+i*9)+'%';rock.style.animationDelay=(i*32)+'ms';line.appendChild(rock)}
     setTimeout(()=>line.remove(),1150);
   }
@@ -241,10 +247,10 @@
     .es-totem-ready-badge{position:absolute;left:3px;bottom:3px;z-index:45;width:18px;height:18px;border-radius:50%;border:1px solid #ffd17c;background:#5b2808 url('${SKILLS.totem}') center/cover no-repeat;box-shadow:0 0 8px #ff9a2e;animation:esTotemBadge .8s ease-in-out infinite alternate}
     @keyframes esTotemBadge{to{transform:scale(1.12);box-shadow:0 0 14px #ffb548}}
     #earthshakerFieldRoot{position:fixed;inset:0;pointer-events:none;z-index:35}
-    .es-fissure-live{position:fixed;height:20px;transform-origin:left center;filter:drop-shadow(0 3px 5px rgba(0,0,0,.75));opacity:.96}
+    .es-fissure-live{position:fixed;height:20px;transform-origin:center center;filter:drop-shadow(0 3px 5px rgba(0,0,0,.75));opacity:.96}
     .es-fissure-live:before{content:"";position:absolute;inset:4px 0;background:linear-gradient(90deg,#4a2712,#9f5624 18%,#5d3218 38%,#bd6d2f 56%,#4b2711 78%,#9b5525);clip-path:polygon(0 58%,7% 18%,14% 57%,22% 5%,31% 62%,42% 20%,53% 75%,63% 12%,72% 57%,84% 7%,92% 62%,100% 28%,100% 84%,0 88%);box-shadow:0 0 12px #ff7b20}
     .es-fissure-live:after{content:"";position:absolute;left:2%;right:2%;top:8px;height:4px;background:#ff9a32;box-shadow:0 0 12px #ff7a18,0 0 22px rgba(255,92,16,.7);opacity:.72}
-    .es-fx{position:fixed;pointer-events:none}.es-fissure-cast{height:32px;transform-origin:left center}
+    .es-fx{position:fixed;pointer-events:none}.es-fissure-cast{height:32px;transform-origin:center center}
     .es-fissure-cast:before{content:"";position:absolute;left:0;right:0;top:13px;height:6px;background:linear-gradient(90deg,#fff0a6,#ff9b24 20%,#ff6a12 70%,rgba(255,81,10,.15));box-shadow:0 0 12px #ff9b22,0 0 26px #f45a0f;clip-path:polygon(0 45%,7% 0,13% 62%,22% 15%,31% 77%,42% 18%,52% 72%,62% 4%,72% 68%,82% 22%,91% 80%,100% 30%,100% 70%,0 75%);animation:esCrack 1s ease-out forwards}
     .es-fissure-cast i{position:absolute;top:7px;width:16px;height:22px;background:linear-gradient(135deg,#a5662c,#4b2915);clip-path:polygon(50% 0,100% 55%,75% 100%,12% 86%,0 35%);filter:drop-shadow(0 2px 3px #000);animation:esRock .65s cubic-bezier(.2,.8,.2,1) both}
     @keyframes esRock{0%{transform:translateY(22px) scale(.35);opacity:0}55%{transform:translateY(-7px) scale(1.15);opacity:1}100%{transform:translateY(0) scale(1);opacity:.85}}
@@ -273,8 +279,15 @@
         let ready=portrait.querySelector('.es-totem-ready-badge');if(h.esTotemReady&&!ready){ready=document.createElement('span');ready.className='es-totem-ready-badge';ready.title='Enchant Totem заряжен: +'+h.esTotemBonus+'% к следующей атаке';portrait.appendChild(ready)}if(!h.esTotemReady&&ready)ready.remove();
       }
       if((h.esFissureTurns||0)>0){
-        const a=center(h),enemy=center(frontHero(1-team));if(!a||!enemy)continue;const dx=enemy.x-a.x,dy=enemy.y-a.y,dist=Math.hypot(dx,dy),start=54,len=Math.max(75,Math.min(190,dist*.38)),ang=Math.atan2(dy,dx);
-        const line=document.createElement('div');line.className='es-fissure-live';line.style.left=(a.x+Math.cos(ang)*start)+'px';line.style.top=(a.y+Math.sin(ang)*start)+'px';line.style.width=len+'px';line.style.transform='translateY(-50%) rotate('+(ang*180/Math.PI)+'deg)';line.title='Fissure: '+h.esFissureTurns+' общ. ход.';fieldRoot().appendChild(line);
+        const a=center(h),enemy=center(frontHero(1-team));if(!a||!enemy)continue;
+        const dx=enemy.x-a.x,dy=enemy.y-a.y,dist=Math.hypot(dx,dy),dir=Math.atan2(dy,dx);
+        const forward=Math.max(68,Math.min(110,dist*.32)),len=100;
+        const x=a.x+Math.cos(dir)*forward,y=a.y+Math.sin(dir)*forward,ang=dir*180/Math.PI+90;
+        const line=document.createElement('div');line.className='es-fissure-live';
+        line.style.left=x+'px';line.style.top=y+'px';line.style.width=len+'px';
+        line.style.transform='translate(-50%,-50%) rotate('+ang+'deg)';
+        line.title='Fissure: '+h.esFissureTurns+' общ. ход.';
+        fieldRoot().appendChild(line);
       }
     }
   }
