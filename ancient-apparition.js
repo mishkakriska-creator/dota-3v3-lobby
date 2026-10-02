@@ -48,9 +48,9 @@
   const VORTEX_TURNS=4, BLAST_TURNS=4, BLAST_TRAVEL_MS=1500;
 
   DATA[ID]={name:'ANCIENT APPARITION',hp:7,atk:1,img:DRAFT,staticPortrait:false,skills:[
-    {id:'ice_vortex',name:'Ice Vortex',cd:2,desc:'Создаёт вихрь ледяной энергии перед вражеской линией на 4 общих хода. Герой, находящийся впереди линии, получает 0.25 магического урона за общий ход и получает на 50% больше магического урона. Перезарядка: 2 хода Ancient Apparition.'},
+    {id:'ice_vortex',name:'Ice Vortex',cd:2,desc:'Создаёт вихрь ледяной энергии перед вражеской линией на 4 общих хода. Герой, находящийся впереди линии, получает 0.25 магического урона за общий ход и получает на 20% больше магического урона. Перезарядка: 2 хода Ancient Apparition.'},
     {id:'chilling_touch',name:'Chilling Touch',cd:2,desc:'Усиливает следующую атаку: Ancient Apparition может выбрать первого или второго врага в линии. Это обычная атака — на неё работают криты, вампиризм и атакующие эффекты — и она дополнительно наносит 1.5 магического урона. Использование считается обычной атакой этого хода. Перезарядка: 2 хода Ancient Apparition.'},
-    {id:'ice_blast',name:'Ice Blast',cd:4,desc:'Отправляет ледяной шар в выбранную карточку. При взрыве цель получает 1 магический урон. Все враги на пути до цели получают застывшую кровь на 4 общих хода: 0.5 магического урона за общий ход, полная блокировка лечения и восстановления здоровья. Если здоровье поражённого героя падает ниже 30% от максимального, он мгновенно разбивается и погибает. Перезарядка: 4 хода Ancient Apparition.'}
+    {id:'ice_blast',name:'Ice Blast',cd:4,desc:'Отправляет ледяной шар в выбранную карточку. При взрыве цель получает 1 магический урон. Все враги на пути до цели получают застывшую кровь на 4 общих хода: 0.5 магического урона за общий ход, полная блокировка лечения и восстановления здоровья. Если здоровье поражённого героя падает ниже 20% от максимального, он мгновенно разбивается и погибает. Перезарядка: 4 хода Ancient Apparition.'}
   ]};
   HERO_ICONS[ID]=ICON;
   SKILL_ICONS[ID]=[SKILLS.vortex,SKILLS.touch,SKILLS.blast];
@@ -144,7 +144,7 @@
       const h=currentLineOrder(team)[0];if(!h)continue;
       const host=document.querySelector('#hero-'+team+'-'+h.id+' .hero-portrait');if(!host)continue;
       if(getComputedStyle(host).position==='static')host.style.position='relative';
-      const el=document.createElement('i');el.className='aa-vortex-field';el.title='Ice Vortex: +50% получаемого магического урона';host.appendChild(el);
+      const el=document.createElement('i');el.className='aa-vortex-field';el.title='Ice Vortex: +20% получаемого магического урона';host.appendChild(el);
     }
   }
   function vortexCastFx(team){
@@ -251,11 +251,11 @@
   }
   function aaCheckShatter(h,attacker=null){
     if(!G||!h||h.dead||(h.aaIceBlastTurns||0)<=0||h._aaShattering||!(h.maxHp>0))return false;
-    if((Number(h.hp)||0)/(Number(h.maxHp)||1)>=.30)return false;
+    if((Number(h.hp)||0)/(Number(h.maxHp)||1)>=.20)return false;
     h._aaShattering=true;
     const caster=aaSourceFor(h)||attacker||null;
     shatterFx(h);window.emitNetVfx&&window.emitNetVfx('aa-shatter',caster||{team:h.team,id:ID},{targetTeam:h.team,targetId:h.id});
-    addLog(logIcon(ID,'ice_blast')+'<span>'+h.name+' падает ниже 30% здоровья и разбивается от Ice Blast.</span>');
+    addLog(logIcon(ID,'ice_blast')+'<span>'+h.name+' падает ниже 20% здоровья и разбивается от Ice Blast.</span>');
     h.aaIceBlastTurns=0;
     h.hp=0;h.dead=true;
     if(caster)awardHeroKill(h,caster);
@@ -272,8 +272,8 @@
   damage=function(h,n,src='',attacker=null,fx={}){
     let amount=Math.max(0,Number(n)||0),label=src;
     if(h&&fx&&fx.damageType==='magic'&&aaVortexActiveOn(h)&&!fx.ignoreAaVortexAmp){
-      const before=amount;amount=Math.round(before*1.5*4)/4;
-      label+='[Ice Vortex ×1.5: '+before+'→'+amount+'] ';
+      const before=amount;amount=Math.round(before*1.2*4)/4;
+      label+='[Ice Vortex ×1.2: '+before+'→'+amount+'] ';
     }
     const out=baseDamage(h,amount,label,attacker,fx);
     if(h&&!h.dead&&(h.aaIceBlastTurns||0)>0&&!fx.fromAaShatter)aaCheckShatter(h,attacker);
@@ -328,9 +328,9 @@
     invokerOverlayEffects=function(h){
       const out=baseOverlayEffects(h);
       if(h&&!h.dead&&aaVortexActiveOn(h)){
-        const v=G.aaVortex[h.team];out.push({icon:SKILLS.vortex,tone:'bad',count:v.turns,label:'Ice Vortex: +50% получаемого магического урона • ещё '+v.turns+' общ. ход.'});
+        const v=G.aaVortex[h.team];out.push({icon:SKILLS.vortex,tone:'bad',count:v.turns,label:'Ice Vortex: +20% получаемого магического урона • ещё '+v.turns+' общ. ход.'});
       }
-      if(h&&!h.dead&&(h.aaIceBlastTurns||0)>0)out.push({icon:SKILLS.blast,tone:'bad',count:h.aaIceBlastTurns,label:'Ice Blast: лечение заблокировано • 0.5 маг. урона за общий ход • смерть ниже 30% HP.'});
+      if(h&&!h.dead&&(h.aaIceBlastTurns||0)>0)out.push({icon:SKILLS.blast,tone:'bad',count:h.aaIceBlastTurns,label:'Ice Blast: лечение заблокировано • 0.5 маг. урона за общий ход • смерть ниже 20% HP.'});
       return out;
     };
   }
