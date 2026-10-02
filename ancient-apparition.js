@@ -217,13 +217,13 @@
       if(!noNet)window.emitNetVfx&&window.emitNetVfx('audio-skill',h,{skillId:id});
       if(id==='ice_vortex'){
         playAAFile(skillAudio,SFX.vortex,.78);
-        if(Math.random()<.5)playAARandomVoice(VOICES.vortex,noNet,h);
+        if(!noNet&&Math.random()<.5)playAARandomVoice(VOICES.vortex,false,h);
       }else if(id==='chilling_touch'){
         playAAFile(skillAudio,SFX.touch,.78);
-        playAARandomVoice(VOICES.touch,noNet,h);
+        if(!noNet)playAARandomVoice(VOICES.touch,false,h);
       }else if(id==='ice_blast'){
         playAAFile(skillAudio,SFX.blastRelease,.82);
-        playAARandomVoice(VOICES.blast,noNet,h);
+        if(!noNet)playAARandomVoice(VOICES.blast,false,h);
       }
       return;
     }
