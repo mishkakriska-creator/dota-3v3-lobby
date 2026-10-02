@@ -410,6 +410,7 @@
     }
     if(G&&G.winner===null&&Number(G.enigmaBlackHoleSkipEnemyTurns||0)>0&&G.team===G.enigmaBlackHoleEnemyTeam){
       const h=active?.();
+      advanceTeamEconomy(G.team);
       addLog(`${logIcon(ENIGMA_ID,'black_hole')}<span>${h?.name||'Вражеский герой'} пропускает активацию из-за Black Hole.</span>`);
       G.enigmaBlackHoleSkipEnemyTurns=Math.max(0,Number(G.enigmaBlackHoleSkipEnemyTurns||0)-1);
       G.actions=0;render();nativeSetTimeout(()=>{if(G&&G.winner===null)endTurn(true)},650);return;
