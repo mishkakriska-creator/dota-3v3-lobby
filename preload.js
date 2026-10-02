@@ -3,6 +3,7 @@
   const loader=document.getElementById('assetLoader'), bar=document.getElementById('assetLoaderBar'), text=document.getElementById('assetLoaderText');
   if(!loader)return;
   const critical=[
+    'assets/earthshaker/earthshaker_draft.png','assets/turn_earthshaker.png','assets/skills/earthshaker_fissure.png','assets/skills/earthshaker_enchant_totem.png','assets/skills/earthshaker_aftershock.png','assets/skills/earthshaker_echo_slam.png','assets/portraits/earthshaker.webm',
     'assets/ui/gold.png',
     'assets/mastery/bronze.png','assets/mastery/silver.png','assets/mastery/gold.png','assets/mastery/platinum.png','assets/mastery/master.png','assets/mastery/grandmaster.png',
     'assets/phantomlancer.png','assets/turn_phantomlancer.webp','assets/skills/phantomlancer1.png','assets/skills/phantomlancer2.png','assets/portraits/phantomlancer.webm','assets/portraits/phantomlancer_illusion.webm',
@@ -23,6 +24,7 @@
     'assets/axe.jpg','assets/axe_icon.png','assets/turn_axe.png','assets/skills/axe_call.png','assets/skills/axe_helix.png','assets/skills/axe_culling.png','assets/portraits/axe.webm'
   ];
   const lazy=[
+    'assets/audio/earthshaker_fissure.mp3','assets/audio/earthshaker_echo_slam.mp3','assets/audio/earthshaker_enchant_totem.mp3','assets/audio/earthshaker_attack_impact.mp3','assets/audio/earthshaker_preattack.mp3',
     'assets/audio/phantomlancer_turn1.mp3','assets/audio/phantomlancer_turn2.mp3','assets/audio/phantomlancer_laugh.mp3','assets/audio/phantomlancer_attack.mp3','assets/audio/phantomlancer_lance.mp3','assets/audio/phantomlancer_spawn.mp3','assets/audio/phantomlancer_death.mp3',
     'assets/audio/background_music.mp3','assets/audio/bane_attack.mp3','assets/audio/bane_skill1.mp3','assets/audio/bane_skill2.mp3','assets/audio/bane_turn1.mp3','assets/audio/bane_turn2.mp3',
     'assets/audio/lifestealer_attack.mp3','assets/audio/lifestealer_skill2.mp3','assets/audio/lifestealer_turn1.mp3','assets/audio/lifestealer_turn2.mp3',
