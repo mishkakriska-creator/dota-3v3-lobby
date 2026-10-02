@@ -7,7 +7,7 @@ Object.assign(ITEMS,{
  moon_shard:{name:'Moon Shard',cost:12,img:'assets/items/moon_shard.png',category:'weapon',active:true,free:true,desc:'Даёт +70% шанса дополнительной тычки. Можно поглотить без траты действия: слот освобождается, а герой навсегда получает +40%.'},
  ultimate_orb:{name:'Ultimate Orb',cost:6,img:'assets/items/ultimate_orb.png',category:'misc',desc:'Даёт +1 HP, +0.5 брони и +0.5 урона. Два Ultimate Orb автоматически улучшаются в Eye of Skadi.'},
  ring_tarrasque:{name:'Ring of Tarrasque',cost:6,img:'assets/items/ring_of_tarrasque.webp',category:'misc',desc:'Восстанавливает 0.5 HP за каждый общий ход. Улучшается в Heart of Tarrasque.'},
- claymore:{name:'Claymore',cost:4,img:'assets/items/claymore_v2.webp',category:'misc',desc:'Даёт +0.5 к урону. Улучшается в Armlet of Mordiggian.'},
+ claymore:{name:'Claymore',cost:4,img:'assets/items/claymore.png',category:'misc',desc:'Даёт +0.5 к урону. Улучшается в Armlet of Mordiggian.'},
  demon_edge:{name:'Demon Edge',cost:8,img:'assets/items/demon_edge.webp',category:'weapon',desc:'Даёт +1 к урону. Улучшается в Daedalus.'},
  armlet:{name:'Armlet of Mordiggian',cost:10,img:'assets/items/armlet.png',activeImg:'assets/items/armlet_active_v2.png',category:'weapon',active:true,desc:'Пассивно даёт +0.5 к урону. Переключаемый эффект тратит 1 действие: пока включён, даёт +2 HP. Бонус здоровья сохраняется до ручного выключения. Собирается из Claymore.'}
 });

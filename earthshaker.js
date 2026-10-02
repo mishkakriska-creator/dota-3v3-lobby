@@ -214,7 +214,7 @@
     const a=center(caster),b=center(targets[0]||frontHero(1-caster.team));if(!a||!b)return;
     const dx=b.x-a.x,dy=b.y-a.y,dist=Math.hypot(dx,dy),dir=Math.atan2(dy,dx);
     const forward=Math.max(68,Math.min(110,dist*.32));
-    const len=110;
+    const len=170;
     const cx=a.x+Math.cos(dir)*forward,cy=a.y+Math.sin(dir)*forward;
     const ang=dir*180/Math.PI+90;
     const line=fx('es-fissure-cast',cx,cy);
@@ -281,7 +281,7 @@
       if((h.esFissureTurns||0)>0){
         const a=center(h),enemy=center(frontHero(1-team));if(!a||!enemy)continue;
         const dx=enemy.x-a.x,dy=enemy.y-a.y,dist=Math.hypot(dx,dy),dir=Math.atan2(dy,dx);
-        const forward=Math.max(68,Math.min(110,dist*.32)),len=100;
+        const forward=Math.max(68,Math.min(110,dist*.32)),len=155;
         const x=a.x+Math.cos(dir)*forward,y=a.y+Math.sin(dir)*forward,ang=dir*180/Math.PI+90;
         const line=document.createElement('div');line.className='es-fissure-live';
         line.style.left=x+'px';line.style.top=y+'px';line.style.width=len+'px';
