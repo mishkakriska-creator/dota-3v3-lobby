@@ -1,8 +1,8 @@
 (()=>{
   const ID='ancient_apparition';
   const DRAFT='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/ancient_apparition.png';
-  const PORTRAIT='https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/ancient_apparition.webm';
-  const ICON='https://cdn.dota2.com/apps/dota2/images/heroes/ancient_apparition_sb.png';
+  const PORTRAIT='assets/ancient_apparition/ancient_apparition_portrait_v2.webm';
+  const ICON='assets/ancient_apparition/ancient_apparition_icon_v2.png';
   const SKILLS={
     vortex:'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/abilities/ancient_apparition_ice_vortex.png',
     touch:'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/abilities/ancient_apparition_chilling_touch.png',
@@ -77,20 +77,21 @@
     '.aa-vortex-cast{width:130px;height:100px;margin:-50px 0 0 -65px;border-radius:50%;background:radial-gradient(circle,rgba(230,252,255,.88) 0 7%,rgba(90,207,255,.5) 23%,rgba(71,132,255,.18) 51%,transparent 72%);border:3px solid rgba(173,239,255,.9);animation:aaVortexCast 1.55s ease-out forwards}'+
     '.aa-vortex-cast:after{content:"";position:absolute;inset:12px;border-radius:50%;border:6px dashed rgba(210,248,255,.88);animation:aaVortexSpin .7s linear infinite}'+
     '@keyframes aaVortexCast{0%{opacity:0;transform:scale(.2) rotate(-35deg)}18%{opacity:1}100%{opacity:0;transform:scale(1.55) rotate(110deg)}}'+
-    '.aa-touch-cast{width:92px;height:92px;margin:-46px 0 0 -46px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.95),rgba(125,224,255,.52) 30%,rgba(80,118,255,.15) 58%,transparent 72%);animation:aaTouchPulse 1.35s ease-out forwards}'+
+    '.aa-touch-cast{width:118px;height:118px;margin:-59px 0 0 -59px;border-radius:50%;background:radial-gradient(circle,#fff 0 7%,rgba(160,239,255,.95) 9% 18%,rgba(78,180,255,.55) 30%,rgba(74,93,255,.16) 56%,transparent 72%);box-shadow:0 0 18px #bdf6ff,0 0 45px #55bfff88;animation:aaTouchPulse 1.25s ease-out forwards}'+
     '.aa-touch-cast:before,.aa-touch-cast:after{content:"";position:absolute;left:42px;top:-18px;width:8px;height:128px;background:linear-gradient(transparent,#dff8ff,transparent);transform:rotate(30deg);filter:blur(1px)}'+
     '.aa-touch-cast:after{transform:rotate(-36deg)}'+
     '@keyframes aaTouchPulse{0%{opacity:0;transform:scale(.35)}22%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.42)}}'+
-    '.aa-touch-projectile{width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:radial-gradient(circle,#fff 0 14%,#9be7ff 28%,#4b9cff 55%,transparent 74%);box-shadow:0 0 15px #7bdfff,0 0 32px rgba(75,148,255,.75)}'+
-    '.aa-touch-impact{width:76px;height:76px;margin:-38px 0 0 -38px;border-radius:50%;border:4px solid #b7efff;box-shadow:0 0 24px #6bd9ff,inset 0 0 22px #72afff;animation:aaImpact .72s ease-out forwards}'+
-    '.aa-blast-orb{width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;background:radial-gradient(circle,#fff 0 8%,#bfeeff 25%,#4ca9ff 47%,rgba(48,88,255,.28) 65%,transparent 74%);box-shadow:0 0 18px #b7efff,0 0 45px #428fff}'+
+    '.aa-touch-projectile{width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;background:radial-gradient(circle,#fff 0 11%,#c9f7ff 20%,#80dfff 38%,#467aff 62%,transparent 76%);box-shadow:0 0 18px #bff7ff,0 0 42px #58bfff,0 0 75px rgba(62,91,255,.65)}'+
+    '.aa-touch-impact{width:106px;height:106px;margin:-53px 0 0 -53px;border-radius:50%;border:5px solid #d8f8ff;background:radial-gradient(circle,rgba(255,255,255,.92) 0 6%,rgba(102,211,255,.34) 25%,transparent 58%);box-shadow:0 0 28px #a8efff,0 0 58px #4e9fff,inset 0 0 28px #7ad9ff;animation:aaImpact .85s ease-out forwards}'+
+    '.aa-blast-orb{width:72px;height:72px;margin:-36px 0 0 -36px;border-radius:50%;background:radial-gradient(circle,#fff 0 7%,#dcfaff 15%,#7edbff 31%,#3f8fff 49%,rgba(52,70,255,.3) 67%,transparent 76%);border:2px solid rgba(210,249,255,.8);box-shadow:0 0 25px #c4f5ff,0 0 62px #4498ff,0 0 96px rgba(66,82,255,.5)}'+
     '.aa-blast-orb:after{content:"";position:absolute;left:-72px;top:21px;width:84px;height:12px;border-radius:50%;background:linear-gradient(90deg,transparent,rgba(160,227,255,.72),#fff);filter:blur(3px)}'+
-    '.aa-blast-impact{width:154px;height:154px;margin:-77px 0 0 -77px;border-radius:50%;background:radial-gradient(circle,#fff 0 5%,rgba(167,235,255,.88) 15%,rgba(83,161,255,.43) 35%,rgba(66,101,255,.12) 58%,transparent 72%);animation:aaBlastImpact 1.35s ease-out forwards}'+
-    '.aa-blast-impact:before,.aa-blast-impact:after{content:"";position:absolute;left:72px;top:-22px;width:8px;height:195px;background:linear-gradient(transparent,#e7fbff 30%,#77c9ff 68%,transparent);transform:rotate(46deg);filter:drop-shadow(0 0 5px #91ddff)}'+
+    '.aa-blast-impact{width:210px;height:210px;margin:-105px 0 0 -105px;border-radius:50%;background:radial-gradient(circle,#fff 0 4%,rgba(213,250,255,.98) 8%,rgba(127,224,255,.72) 20%,rgba(74,151,255,.42) 37%,rgba(76,90,255,.14) 58%,transparent 74%);box-shadow:0 0 34px #bff5ff,0 0 85px rgba(65,144,255,.72);animation:aaBlastImpact 1.5s cubic-bezier(.12,.7,.2,1) forwards}'+
+    '.aa-blast-impact:before,.aa-blast-impact:after{content:"";position:absolute;left:101px;top:-30px;width:8px;height:268px;background:linear-gradient(transparent,#fff 22%,#a9efff 43%,#4f9dff 70%,transparent);transform:rotate(46deg);filter:drop-shadow(0 0 7px #9fe7ff)}'+
     '.aa-blast-impact:after{transform:rotate(-47deg)}'+
     '.aa-blast-frosted{filter:saturate(.58) brightness(1.12) drop-shadow(0 0 10px #82dfff)!important}'+
     '.aa-shatter{width:130px;height:130px;margin:-65px 0 0 -65px;animation:aaShatter .85s ease-out forwards;background:repeating-conic-gradient(from 4deg,transparent 0 9deg,rgba(212,248,255,.94) 10deg 13deg,transparent 14deg 27deg);filter:drop-shadow(0 0 8px #8ee5ff)}'+
-    '@keyframes aaImpact{0%{opacity:1;transform:scale(.25)}100%{opacity:0;transform:scale(1.5)}}'+
+    '.aa-ice-shard{position:fixed;width:6px;height:34px;margin:-17px 0 0 -3px;background:linear-gradient(#fff,#9ee8ff 55%,rgba(84,128,255,.15));clip-path:polygon(50% 0,100% 75%,55% 100%,0 76%);filter:drop-shadow(0 0 5px #85dfff);pointer-events:none;z-index:2147483647}'+
+    '@keyframes aaImpact{0%{opacity:1;transform:scale(.25) rotate(0)}65%{opacity:.9}100%{opacity:0;transform:scale(1.8) rotate(24deg)}}'+
     '@keyframes aaBlastImpact{0%{opacity:0;transform:scale(.18) rotate(-20deg)}18%{opacity:1}100%{opacity:0;transform:scale(1.65) rotate(28deg)}}'+
     '@keyframes aaShatter{0%{opacity:1;transform:scale(.25) rotate(0)}100%{opacity:0;transform:scale(1.8) rotate(38deg)}}';
   document.head.appendChild(style);
@@ -156,7 +157,7 @@
     setTimeout(()=>{
       const orb=fx('aa-touch-projectile',a.x,a.y),dx=b.x-a.x,dy=b.y-a.y;
       orb.animate([{transform:'translate(-50%,-50%) scale(.65)',opacity:.25},{transform:'translate(calc(-50% + '+dx+'px),calc(-50% + '+dy+'px)) scale(1.05)',opacity:1}],{duration:520,easing:'cubic-bezier(.2,.75,.2,1)',fill:'forwards'});
-      setTimeout(()=>{orb.remove();const hit=fx('aa-touch-impact',b.x,b.y);setTimeout(()=>hit.remove(),800)},500);
+      setTimeout(()=>{orb.remove();const hit=fx('aa-touch-impact',b.x,b.y);for(let i=0;i<12;i++){const sh=fx('aa-ice-shard',b.x,b.y),ang=(Math.PI*2*i/12)+(Math.random()-.5)*.28,dist=38+Math.random()*55;sh.animate([{transform:'translate(-50%,-50%) rotate('+(ang*57.3)+'deg) scale(.7)',opacity:1},{transform:'translate(calc(-50% + '+Math.cos(ang)*dist+'px),calc(-50% + '+Math.sin(ang)*dist+'px)) rotate('+(ang*57.3+90)+'deg) scale(1.15)',opacity:0}],{duration:620+Math.random()*220,easing:'cubic-bezier(.15,.7,.2,1)',fill:'forwards'});setTimeout(()=>sh.remove(),900)}setTimeout(()=>hit.remove(),900)},500);
     },170);
   }
   function blastFx(caster,target,path=[]){
@@ -165,7 +166,7 @@
     orb.animate([{transform:'translate(-50%,-50%) scale(.65)',opacity:.25},{transform:'translate(calc(-50% + '+(dx*.45)+'px),calc(-50% + '+(dy*.45)+'px)) scale(1.12)',opacity:1,offset:.56},{transform:'translate(calc(-50% + '+dx+'px),calc(-50% + '+dy+'px)) scale(.9)',opacity:1}],{duration:BLAST_TRAVEL_MS,easing:'cubic-bezier(.12,.62,.18,1)',fill:'forwards'});
     setTimeout(()=>{
       orb.remove();playAAFile(blastTargetAudio,SFX.blastTarget,.82);
-      const hit=fx('aa-blast-impact',b.x,b.y);setTimeout(()=>hit.remove(),1500);
+      const hit=fx('aa-blast-impact',b.x,b.y);for(let i=0;i<22;i++){const sh=fx('aa-ice-shard',b.x,b.y),ang=(Math.PI*2*i/22)+(Math.random()-.5)*.22,dist=70+Math.random()*105;sh.style.width=(4+Math.random()*5)+'px';sh.style.height=(24+Math.random()*44)+'px';sh.animate([{transform:'translate(-50%,-50%) rotate('+(ang*57.3)+'deg) scale(.55)',opacity:1},{transform:'translate(calc(-50% + '+Math.cos(ang)*dist+'px),calc(-50% + '+Math.sin(ang)*dist+'px)) rotate('+(ang*57.3+120)+'deg) scale(1.25)',opacity:0}],{duration:900+Math.random()*500,easing:'cubic-bezier(.08,.72,.16,1)',fill:'forwards'});setTimeout(()=>sh.remove(),1500)}setTimeout(()=>hit.remove(),1600);
       path.map(fromRef).filter(Boolean).forEach(h=>{
         const node=document.getElementById('hero-'+h.team+'-'+h.id);
         if(node){node.classList.add('aa-blast-frosted');setTimeout(()=>node.classList.remove('aa-blast-frosted'),2250)}
@@ -256,8 +257,13 @@
     shatterFx(h);window.emitNetVfx&&window.emitNetVfx('aa-shatter',caster||{team:h.team,id:ID},{targetTeam:h.team,targetId:h.id});
     addLog(logIcon(ID,'ice_blast')+'<span>'+h.name+' падает ниже 30% здоровья и разбивается от Ice Blast.</span>');
     h.aaIceBlastTurns=0;
-    const amount=Math.max(999,(Number(h.hp)||0)+999);
-    baseDamage(h,amount,'❄️ Ice Blast — SHATTER: ',caster,{ignoreBorrowedTime:true,ignoreDefenseMatrix:true,ignoreBroodShield:true,fromAaShatter:true});
+    h.hp=0;h.dead=true;
+    if(caster)awardHeroKill(h,caster);
+    if(h.id==='io')breakTether(h,true);
+    if(h.tetheredBy){const io=findHero(h.team,h.tetheredBy);if(io)breakTether(io,true)}
+    if(caster?.id===ID)window.playAncientApparitionKillVoice?.(caster,h);
+    addLog('❄️ Ice Blast — SHATTER: '+h.name+' разбивается и погибает.');
+    const deadFront=h;active(h.team);if(G.winner===null)marsArenaWallHit(h.team,deadFront);checkWin();if(G.winner===null)render();
     h._aaShattering=false;
     return true;
   }
