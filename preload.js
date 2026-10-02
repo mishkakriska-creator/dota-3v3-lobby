@@ -25,6 +25,7 @@
   ];
   const lazy=[
     'assets/audio/earthshaker_fissure.mp3','assets/audio/earthshaker_echo_slam.mp3','assets/audio/earthshaker_enchant_totem.mp3','assets/audio/earthshaker_attack_impact.mp3','assets/audio/earthshaker_preattack.mp3',
+    'assets/audio/earthshaker_spawn_01.mp3','assets/audio/earthshaker_spawn_02.mp3','assets/audio/earthshaker_move_06.mp3','assets/audio/earthshaker_fissure_voice_01.mp3','assets/audio/earthshaker_fissure_voice_02.mp3','assets/audio/earthshaker_enchant_voice_01.mp3','assets/audio/earthshaker_enchant_voice_02.mp3','assets/audio/earthshaker_echo_voice_02.mp3','assets/audio/earthshaker_echo_voice_03.mp3','assets/audio/earthshaker_kill_01.mp3','assets/audio/earthshaker_kill_02.mp3','assets/audio/earthshaker_rival_14.mp3','assets/audio/earthshaker_rival_15.mp3','assets/audio/earthshaker_rival_20.mp3','assets/audio/earthshaker_rival_21.mp3','assets/audio/earthshaker_item_03.mp3',
     'assets/audio/phantomlancer_turn1.mp3','assets/audio/phantomlancer_turn2.mp3','assets/audio/phantomlancer_laugh.mp3','assets/audio/phantomlancer_attack.mp3','assets/audio/phantomlancer_lance.mp3','assets/audio/phantomlancer_spawn.mp3','assets/audio/phantomlancer_death.mp3',
     'assets/audio/background_music.mp3','assets/audio/bane_attack.mp3','assets/audio/bane_skill1.mp3','assets/audio/bane_skill2.mp3','assets/audio/bane_turn1.mp3','assets/audio/bane_turn2.mp3',
     'assets/audio/lifestealer_attack.mp3','assets/audio/lifestealer_skill2.mp3','assets/audio/lifestealer_turn1.mp3','assets/audio/lifestealer_turn2.mp3',
