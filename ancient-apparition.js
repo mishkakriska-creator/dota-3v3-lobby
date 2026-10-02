@@ -1,7 +1,7 @@
 (()=>{
   const ID='ancient_apparition';
   const DRAFT='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/ancient_apparition.png';
-  const PORTRAIT=DRAFT;
+  const PORTRAIT='https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/ancient_apparition.webm';
   const ICON='https://cdn.dota2.com/apps/dota2/images/heroes/ancient_apparition_sb.png';
   const SKILLS={
     vortex:'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/abilities/ancient_apparition_ice_vortex.png',
@@ -9,16 +9,16 @@
     blast:'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/abilities/ancient_apparition_ice_blast.png'
   };
   const SFX={
-    attackLaunch:'https://liquipedia.net/commons/Special:Redirect/file/Weapons_hero_ancient_apparition_attack2.mp3',
-    attackImpact:'https://liquipedia.net/commons/Special:Redirect/file/Weapons_hero_ancient_apparition_attack_impact2.mp3',
-    vortex:'https://liquipedia.net/commons/Special:Redirect/file/Weapons_hero_ancient_apparition_ice_vortex_cast.mp3',
-    touch:'https://liquipedia.net/commons/Special:Redirect/file/Weapons_hero_ancient_apparition_chilling_touch_cast.mp3',
-    blastRelease:'https://liquipedia.net/commons/Special:Redirect/file/Weapons_hero_ancient_apparition_iceblast_release.mp3',
-    blastTarget:'https://liquipedia.net/commons/Special:Redirect/file/Weapons_hero_ancient_apparition_iceblast_explode.mp3'
+    attackLaunch:'https://dota2.fandom.com/wiki/Special:Redirect/file/Ancient_Apparition_projectile_launch2.mp3',
+    attackImpact:'https://dota2.fandom.com/wiki/Special:Redirect/file/Ancient_Apparition_projectile_impact2.mp3',
+    vortex:'https://dota2.fandom.com/wiki/Special:Redirect/file/Ice_Vortex_cast.mp3',
+    touch:'https://dota2.fandom.com/wiki/Special:Redirect/file/Chilling_Touch.mp3',
+    blastRelease:'https://dota2.fandom.com/wiki/Special:Redirect/file/Release_%28Ice_Blast%29.mp3',
+    blastTarget:'https://dota2.fandom.com/wiki/Special:Redirect/file/Ice_Blast_target.mp3'
   };
   const VORTEX_TURNS=4, BLAST_TURNS=4, BLAST_TRAVEL_MS=1500;
 
-  DATA[ID]={name:'ANCIENT APPARITION',hp:7,atk:1,img:DRAFT,staticPortrait:DRAFT,skills:[
+  DATA[ID]={name:'ANCIENT APPARITION',hp:7,atk:1,img:DRAFT,staticPortrait:false,skills:[
     {id:'ice_vortex',name:'Ice Vortex',cd:2,desc:'Создаёт вихрь ледяной энергии перед вражеской линией на 4 общих хода. Герой, находящийся впереди линии, получает 0.25 магического урона за общий ход и получает на 50% больше магического урона. Перезарядка: 2 хода Ancient Apparition.'},
     {id:'chilling_touch',name:'Chilling Touch',cd:2,desc:'Усиливает следующую атаку: Ancient Apparition может выбрать первого или второго врага в линии. Это обычная атака — на неё работают криты, вампиризм и атакующие эффекты — и она дополнительно наносит 1.5 магического урона. Использование считается обычной атакой этого хода. Перезарядка: 2 хода Ancient Apparition.'},
     {id:'ice_blast',name:'Ice Blast',cd:4,desc:'Отправляет ледяной шар в выбранную карточку. При взрыве цель получает 1 магический урон. Все враги на пути до цели получают застывшую кровь на 4 общих хода: 0.5 магического урона за общий ход, полная блокировка лечения и восстановления здоровья. Если здоровье поражённого героя падает ниже 30% от максимального, он мгновенно разбивается и погибает. Перезарядка: 4 хода Ancient Apparition.'}
@@ -147,7 +147,7 @@
   const baseMkHero=mkHero;
   mkHero=function(id,team){
     const h=baseMkHero(id,team);
-    if(id===ID){h.staticPortrait=true;h.portrait=PORTRAIT;h.img=DRAFT;h.aaIceBlastTurns=0;h.aaIceBlastAppliedTurn=0;h.aaIceBlastSourceTeam=null;h.aaIceBlastSourceId=null}
+    if(id===ID){h.staticPortrait=false;h.portrait=PORTRAIT;h.img=DRAFT;h.aaIceBlastTurns=0;h.aaIceBlastAppliedTurn=0;h.aaIceBlastSourceTeam=null;h.aaIceBlastSourceId=null}
     return h;
   };
   const baseBattlePortraitSrcFor=battlePortraitSrcFor;
