@@ -17,6 +17,17 @@
     impact:'assets/audio/earthshaker_attack_impact.mp3?v=1'
   };
 
+  const VOICE={
+    turn:['assets/audio/earthshaker_spawn_01.mp3?v=1','assets/audio/earthshaker_spawn_02.mp3?v=1','assets/audio/earthshaker_move_06.mp3?v=1'],
+    fissure:['assets/audio/earthshaker_fissure_voice_01.mp3?v=1','assets/audio/earthshaker_fissure_voice_02.mp3?v=1'],
+    totem:['assets/audio/earthshaker_enchant_voice_01.mp3?v=1','assets/audio/earthshaker_enchant_voice_02.mp3?v=1'],
+    echo:['assets/audio/earthshaker_echo_voice_02.mp3?v=1','assets/audio/earthshaker_echo_voice_03.mp3?v=1'],
+    kill:['assets/audio/earthshaker_kill_01.mp3?v=1','assets/audio/earthshaker_kill_02.mp3?v=1'],
+    rivalChen:['assets/audio/earthshaker_rival_14.mp3?v=1','assets/audio/earthshaker_rival_15.mp3?v=1'],
+    rivalPL:['assets/audio/earthshaker_rival_20.mp3?v=1','assets/audio/earthshaker_rival_21.mp3?v=1'],
+    heart:'assets/audio/earthshaker_item_03.mp3?v=1'
+  };
+
   DATA[ID]={
     name:'EARTHSHAKER',hp:8,atk:1,img:DRAFT,staticPortrait:false,
     skills:[
@@ -58,12 +69,25 @@
     miniHeroIcon=function(id){return id===ID?ICON:baseMiniHeroIcon(id)};
   }
 
-  const aPre=new Audio(),aImpact=new Audio(),aSkill=new Audio();
-  [aPre,aImpact,aSkill].forEach(a=>{a.preload='auto';a.volume=.78});
+  const aPre=new Audio(),aImpact=new Audio(),aSkill=new Audio(),aVoice=new Audio();
+  [aPre,aImpact,aSkill,aVoice].forEach(a=>{a.preload='auto';a.volume=.78});
   function playEs(a,src,vol=.78){
     if(!src)return;
     try{a.pause();a.currentTime=0;a.src=src;a.volume=vol;const p=a.play();if(p&&p.catch)p.catch(()=>{})}catch(_){}
   }
+  function randomVoice(list){return Array.isArray(list)&&list.length?list[Math.floor(Math.random()*list.length)]:null}
+  function playVoice(src,h=null,noNet=false){if(!src)return;playEs(aVoice,src,.86);if(!noNet&&h)window.emitNetVfx?.('es-voice',h,{voiceSrc:src})}
+  window.playEarthshakerVoice=function(src){if(src)playVoice(src,null,true)};
+  function playRandomVoice(list,h,noNet=false){const src=randomVoice(list);if(src)playVoice(src,h,noNet);return src}
+
+  const basePlayTurnVoice=playTurnVoice;
+  playTurnVoice=function(h,noNet=false){
+    if(h?.id!==ID)return basePlayTurnVoice(h,noNet);
+    if(G&&active()!==h)return;
+    if(noNet)return;
+    playRandomVoice(VOICE.turn,h,false);
+  };
+
   const basePlayAttackSound=playAttackSound;
   playAttackSound=function(h,noNet=false){
     if(h?.id!==ID)return basePlayAttackSound(h,noNet);
@@ -75,9 +99,9 @@
   playSkillSound=function(h,id,noNet=false){
     if(h?.id!==ID)return basePlaySkillSound(h,id,noNet);
     if(!noNet)window.emitNetVfx?.('audio-skill',h,{skillId:id});
-    if(id==='fissure')playEs(aSkill,SFX.fissure,.82);
-    else if(id==='enchant_totem')playEs(aSkill,SFX.totem,.82);
-    else if(id==='echo_slam')playEs(aSkill,SFX.echo,.84);
+    if(id==='fissure'){playEs(aSkill,SFX.fissure,.82);if(!noNet&&Math.random()<.50)playRandomVoice(VOICE.fissure,h,false)}
+    else if(id==='enchant_totem'){playEs(aSkill,SFX.totem,.82);if(!noNet&&Math.random()<.50)playRandomVoice(VOICE.totem,h,false)}
+    else if(id==='echo_slam'){playEs(aSkill,SFX.echo,.84);if(!noNet)playRandomVoice(VOICE.echo,h,false)}
   };
 
   function shakerForTeam(team){return (G?.teams?.[team]||[]).find(h=>h?.id===ID&&!h.dead)||null}
@@ -104,13 +128,24 @@
   };
   const baseDamage=damage;
   damage=function(h,n,src='',attacker=null,fx={}){
+    const wasAlive=!!h&&!h.dead&&(Number(h.hp)||0)>0;
     try{
       if(h&&attacker&&attacker.team!==h.team){
         const s=String(src||'');
         if(s.includes('Паучок')||s.includes('Forge Spirit'))window.registerEarthshakerBasicHit?.(h,attacker,s.includes('Паучок')?'spider':'forge');
       }
     }catch(_){}
-    return baseDamage(h,n,src,attacker,fx);
+    const out=baseDamage(h,n,src,attacker,fx);
+    try{
+      if(wasAlive&&h&&(h.dead||(Number(h.hp)||0)<=0)&&attacker?.id===ID&&!h._earthshakerKillVoice){
+        h._earthshakerKillVoice=true;
+        let special=null;
+        if(h.id==='chen'&&Math.random()<.50)special=VOICE.rivalChen;
+        else if(h.id==='phantomlancer'&&Math.random()<.50)special=VOICE.rivalPL;
+        playRandomVoice(special||VOICE.kill,attacker,false);
+      }
+    }catch(_){}
+    return out;
   };
 
   function aftershockTier(h){const n=Math.max(0,Number(h?.esAftershock)||0);return n>=20?2:n>=10?1:0}
@@ -284,6 +319,12 @@
       for(const t of targets){if(!t.dead)spellDamage(t,dmg,'<img class="log-skill-icon" src="'+SKILLS.echo+'" alt=""> Echo Slam ('+units+' × '+per+'): ',h,{impactDelay:260})}
       putOnCooldown(h,id);addSkillLog(h,id,h.name+' использует Echo Slam: '+units+' вражеских единиц × '+per+' = '+dmg+' магического урона каждой цели.');spend();return;
     }
+  };
+
+  const baseOnDotaItemPurchased=window.onDotaItemPurchased;
+  window.onDotaItemPurchased=function(h,id){
+    try{baseOnDotaItemPurchased?.(h,id)}catch(_){}
+    if(h?.id===ID&&id==='heart')playVoice(VOICE.heart,h,false);
   };
 
   try{draft()}catch(_){}
