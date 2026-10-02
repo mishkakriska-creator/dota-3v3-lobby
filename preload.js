@@ -3,7 +3,7 @@
   const loader=document.getElementById('assetLoader'), bar=document.getElementById('assetLoaderBar'), text=document.getElementById('assetLoaderText');
   if(!loader)return;
   const critical=[
-    'assets/earthshaker/earthshaker_draft.png','assets/turn_earthshaker.png','assets/skills/earthshaker_fissure.png','assets/skills/earthshaker_enchant_totem.png','assets/skills/earthshaker_aftershock.png','assets/skills/earthshaker_echo_slam.png','assets/portraits/earthshaker.webm',
+    'assets/earthshaker_v2/draft.png','assets/earthshaker_v2/turn.png','assets/earthshaker_v2/fissure.png','assets/earthshaker_v2/enchant_totem.png','assets/earthshaker_v2/aftershock.png','assets/earthshaker_v2/echo_slam.png','assets/earthshaker_v2/portrait.webm',
     'assets/ui/gold.png',
     'assets/mastery/bronze.png','assets/mastery/silver.png','assets/mastery/gold.png','assets/mastery/platinum.png','assets/mastery/master.png','assets/mastery/grandmaster.png',
     'assets/phantomlancer.png','assets/turn_phantomlancer.webp','assets/skills/phantomlancer1.png','assets/skills/phantomlancer2.png','assets/portraits/phantomlancer.webm','assets/portraits/phantomlancer_illusion.webm',
