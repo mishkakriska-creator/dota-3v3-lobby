@@ -190,6 +190,7 @@
       if(ev.kind?.startsWith('arc-')){if(Date.now()-(ev.at||0)<6000)window.playArcFx?.(ev);continue}
       if(ev.kind?.startsWith('axe-')){if(Date.now()-(ev.at||0)<4000)window.playAxeFx?.(ev);continue}
       if(ev.kind?.startsWith('necro-')){if(Date.now()-(ev.at||0)<6000)window.playNecrophosFx?.(ev);continue}
+      if(ev.kind?.startsWith('aa-')){if(Date.now()-(ev.at||0)<6500)window.playAncientApparitionFx?.(ev);continue}
       if(ev.kind?.startsWith('aa-')){if(Date.now()-(ev.at||0)<7000)window.playAncientApparitionFx?.(ev);continue}
       if(ev.kind?.startsWith('abaddon-')){if(Date.now()-(ev.at||0)<4000)window.playAbaddonFx?.({kind:ev.kind.replace('abaddon-',''),...ev});continue}
       if(ev.kind?.startsWith('mars-')){if(Date.now()-(ev.at||0)<5000)window.playMarsFx?.({kind:ev.kind.replace('mars-',''),...ev});continue}
