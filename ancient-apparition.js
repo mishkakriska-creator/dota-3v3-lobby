@@ -2,7 +2,7 @@
   const ID='ancient_apparition';
   const DRAFT='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/ancient_apparition.png';
   const PORTRAIT=DRAFT;
-  const ICON='assets/ancient_apparition/ancient_apparition_icon.webp';
+  const ICON='https://cdn.dota2.com/apps/dota2/images/heroes/ancient_apparition_sb.png';
   const SKILLS={
     vortex:'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/abilities/ancient_apparition_ice_vortex.png',
     touch:'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/abilities/ancient_apparition_chilling_touch.png',
