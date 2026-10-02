@@ -1,37 +1,12 @@
 (()=>{
   const ID='ancient_apparition';
   const DRAFT='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/ancient_apparition.png';
-  const PORTRAIT_PARTS=[
-    'assets/ancient_apparition/hq_chunks/c00.txt',
-    'assets/ancient_apparition/hq_chunks/c01.txt',
-    'assets/ancient_apparition/hq_chunks/c02.txt',
-    'assets/ancient_apparition/hq_chunks/c03.txt',
-    'assets/ancient_apparition/hq_chunks/c04.txt',
-    'assets/ancient_apparition/hq_chunks/c05.txt',
-    'assets/ancient_apparition/hq_chunks/c06.txt',
-    'assets/ancient_apparition/hq_chunks/c07.txt',
-    'assets/ancient_apparition/hq_chunks/c08.txt'
-  ];
-  let AA_PORTRAIT_URL='';
+  const PORTRAIT='assets/ancient_apparition/ancient_apparition_portrait_user_original.webm?v=7';
+  let AA_PORTRAIT_URL=PORTRAIT;
   let AA_PORTRAIT_PROMISE=null;
   async function loadUploadedAAPortrait(){
-    if(AA_PORTRAIT_URL)return AA_PORTRAIT_URL;
-    if(AA_PORTRAIT_PROMISE)return AA_PORTRAIT_PROMISE;
-    AA_PORTRAIT_PROMISE=(async()=>{
-      const parts=await Promise.all(PORTRAIT_PARTS.map((u,i)=>fetch(u+'?hq=5',{cache:'force-cache'}).then(r=>{
-        if(!r.ok)throw new Error('AA portrait part '+i+' failed: '+r.status);
-        return r.text();
-      })));
-      const b64=parts.join('').replace(/\s+/g,'');
-      const raw=atob(b64);
-      const bytes=new Uint8Array(raw.length);
-      for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
-      AA_PORTRAIT_URL=URL.createObjectURL(new Blob([bytes],{type:'video/webm'}));
-      return AA_PORTRAIT_URL;
-    })().catch(err=>{console.error(err);AA_PORTRAIT_PROMISE=null;return '';});
-    return AA_PORTRAIT_PROMISE;
+    return PORTRAIT;
   }
-  const PORTRAIT='';
   const ICON='assets/ancient_apparition/ancient_apparition_icon_v2.png';
   const SKILLS={
     vortex:'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/abilities/ancient_apparition_ice_vortex.png',
