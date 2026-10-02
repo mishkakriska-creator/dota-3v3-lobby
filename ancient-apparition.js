@@ -1,7 +1,7 @@
 (()=>{
   const ID='ancient_apparition';
   const DRAFT='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/ancient_apparition.png';
-  const PORTRAIT='assets/ancient_apparition/ancient_apparition_portrait_v2.webm';
+  const PORTRAIT='https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/ancient_apparition.webm';
   const ICON='assets/ancient_apparition/ancient_apparition_icon_v2.png';
   const SKILLS={
     vortex:'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/abilities/ancient_apparition_ice_vortex.png',
@@ -341,8 +341,22 @@
     if(G&&G.winner===null){tickAA();render()}
     return r;
   };
+  function forceAAPortraitMotion(){
+    const node=document.querySelector('#game .hero[data-hero="ancient_apparition"] .hero-portrait');
+    const v=node?.querySelector('video');
+    if(!v)return;
+    node.classList.remove('video-pending');
+    v.muted=true;v.defaultMuted=true;v.autoplay=true;v.loop=true;v.playsInline=true;v.setAttribute('muted','');v.setAttribute('playsinline','');v.setAttribute('autoplay','');v.setAttribute('loop','');
+    if(v.src!==PORTRAIT&&v.getAttribute('src')!==PORTRAIT){v.src=PORTRAIT;try{v.load()}catch(_){}}
+    const kick=()=>{try{const p=v.play();if(p?.catch)p.catch(()=>{})}catch(_){}};
+    if(v.readyState>=2)kick();else{v.addEventListener('loadeddata',kick,{once:true});v.addEventListener('canplay',kick,{once:true})}
+    clearTimeout(v.__aaKick);v.__aaKick=setTimeout(kick,120);
+    clearInterval(v.__aaKeepAlive);v.__aaKeepAlive=setInterval(()=>{if(!document.hidden&&v.isConnected&&v.paused)kick()},900);
+  }
   const baseRender=render;
-  render=function(){const r=baseRender();syncVortexDom();return r};
+  render=function(){const r=baseRender();syncVortexDom();setTimeout(forceAAPortraitMotion,0);return r};
+  document.addEventListener('pointerdown',()=>setTimeout(forceAAPortraitMotion,0),{passive:true});
+  document.addEventListener('touchstart',()=>setTimeout(forceAAPortraitMotion,0),{passive:true});
 
   async function chillingAttack(h,t){
     if(!G||!h||!t||h.dead||t.dead)return;
