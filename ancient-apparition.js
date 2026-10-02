@@ -1,7 +1,31 @@
 (()=>{
   const ID='ancient_apparition';
   const DRAFT='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/ancient_apparition.png';
-  const PORTRAIT='https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/ancient_apparition.webm';
+  const PORTRAIT_FALLBACK='https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/ancient_apparition.webm';
+  const PORTRAIT_CHUNKS=[
+    'assets/ancient_apparition/portrait_v4.b64.0',
+    'assets/ancient_apparition/portrait_v4.b64.1',
+    'assets/ancient_apparition/portrait_v4.b64.2',
+    'assets/ancient_apparition/portrait_v4.b64.3'
+  ];
+  let PORTRAIT=PORTRAIT_FALLBACK,aaPortraitPromise=null;
+  async function loadUploadedAAPortrait(){
+    if(PORTRAIT!==PORTRAIT_FALLBACK)return PORTRAIT;
+    if(aaPortraitPromise)return aaPortraitPromise;
+    aaPortraitPromise=(async()=>{
+      const parts=await Promise.all(PORTRAIT_CHUNKS.map(async u=>{
+        const r=await fetch(u,{cache:'force-cache'});
+        if(!r.ok)throw new Error('AA portrait chunk '+u+' '+r.status);
+        return (await r.text()).trim();
+      }));
+      const raw=atob(parts.join(''));
+      const bytes=new Uint8Array(raw.length);
+      for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
+      PORTRAIT=URL.createObjectURL(new Blob([bytes],{type:'video/webm'}));
+      return PORTRAIT;
+    })().catch(err=>{console.error('AA portrait v4 load failed',err);return PORTRAIT_FALLBACK});
+    return aaPortraitPromise;
+  }
   const ICON='assets/ancient_apparition/ancient_apparition_icon_v2.png';
   const SKILLS={
     vortex:'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/abilities/ancient_apparition_ice_vortex.png',
@@ -95,6 +119,25 @@
     '@keyframes aaBlastImpact{0%{opacity:0;transform:scale(.18) rotate(-20deg)}18%{opacity:1}100%{opacity:0;transform:scale(1.65) rotate(28deg)}}'+
     '@keyframes aaShatter{0%{opacity:1;transform:scale(.25) rotate(0)}100%{opacity:0;transform:scale(1.8) rotate(38deg)}}';
   document.head.appendChild(style);
+  const portraitStyle=document.createElement('style');
+  portraitStyle.textContent=`
+    #game .hero[data-hero="ancient_apparition"] .hero-name{
+      font-size:10.5px!important;
+      letter-spacing:-.55px!important;
+      white-space:nowrap!important;
+      overflow:visible!important;
+      text-overflow:clip!important;
+      max-width:none!important;
+      transform:scaleX(.92);
+      transform-origin:left center;
+    }
+    #game .hero[data-hero="ancient_apparition"] .hero-name-row{overflow:visible!important}
+    #game .hero[data-hero="ancient_apparition"] .hero-portrait video{
+      width:100%!important;height:100%!important;object-fit:cover!important;object-position:center center!important;
+    }
+  `;
+  document.head.appendChild(portraitStyle);
+
 
   const attackLaunchAudio=new Audio(),attackImpactAudio=new Audio(),skillAudio=new Audio(),blastTargetAudio=new Audio();
   [attackLaunchAudio,attackImpactAudio,skillAudio,blastTargetAudio].forEach(a=>{a.preload='auto';a.volume=.74});
@@ -341,17 +384,29 @@
     if(G&&G.winner===null){tickAA();render()}
     return r;
   };
-  function forceAAPortraitMotion(){
+  async function forceAAPortraitMotion(){
     const node=document.querySelector('#game .hero[data-hero="ancient_apparition"] .hero-portrait');
     const v=node?.querySelector('video');
     if(!v)return;
     node.classList.remove('video-pending');
-    v.muted=true;v.defaultMuted=true;v.autoplay=true;v.loop=true;v.playsInline=true;v.setAttribute('muted','');v.setAttribute('playsinline','');v.setAttribute('autoplay','');v.setAttribute('loop','');
-    if(v.src!==PORTRAIT&&v.getAttribute('src')!==PORTRAIT){v.src=PORTRAIT;try{v.load()}catch(_){}}
-    const kick=()=>{try{const p=v.play();if(p?.catch)p.catch(()=>{})}catch(_){}};
-    if(v.readyState>=2)kick();else{v.addEventListener('loadeddata',kick,{once:true});v.addEventListener('canplay',kick,{once:true})}
+    v.muted=true;v.defaultMuted=true;v.autoplay=true;v.loop=true;v.playsInline=true;
+    v.setAttribute('muted','');v.setAttribute('playsinline','');v.setAttribute('autoplay','');v.setAttribute('loop','');
+    const wanted=await loadUploadedAAPortrait();
+    if(!v.isConnected)return;
+    if(v.src!==wanted&&v.getAttribute('src')!==wanted){
+      try{v.pause()}catch(_){}
+      v.src=wanted;v.preload='auto';
+      try{v.load()}catch(_){}
+    }
+    const kick=()=>{try{if(v.currentTime>=v.duration-.05&&Number.isFinite(v.duration))v.currentTime=0;const p=v.play();if(p?.catch)p.catch(()=>{})}catch(_){}};
+    if(v.readyState>=2)kick();else{
+      v.addEventListener('loadeddata',kick,{once:true});
+      v.addEventListener('canplay',kick,{once:true});
+    }
+    v.onended=()=>{try{v.currentTime=0;v.play().catch(()=>{})}catch(_){}};
     clearTimeout(v.__aaKick);v.__aaKick=setTimeout(kick,120);
-    clearInterval(v.__aaKeepAlive);v.__aaKeepAlive=setInterval(()=>{if(!document.hidden&&v.isConnected&&v.paused)kick()},900);
+    clearInterval(v.__aaKeepAlive);
+    v.__aaKeepAlive=setInterval(()=>{if(!document.hidden&&v.isConnected&&v.paused)kick()},700);
   }
   const baseRender=render;
   render=function(){const r=baseRender();syncVortexDom();setTimeout(forceAAPortraitMotion,0);return r};
