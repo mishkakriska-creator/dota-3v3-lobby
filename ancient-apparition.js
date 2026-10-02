@@ -16,6 +16,35 @@
     blastRelease:'https://dota2.fandom.com/wiki/Special:Redirect/file/Release_%28Ice_Blast%29.mp3',
     blastTarget:'https://dota2.fandom.com/wiki/Special:Redirect/file/Ice_Blast_target.mp3'
   };
+  const VOICE_BASE='https://dota2.fandom.com/wiki/Special:Redirect/file/';
+  const VOICES={
+    turn:[
+      VOICE_BASE+'Vo_ancient_apparition_appa_spawn_01.mp3',
+      VOICE_BASE+'Vo_ancient_apparition_appa_spawn_02.mp3',
+      VOICE_BASE+'Vo_ancient_apparition_appa_spawn_03.mp3'
+    ],
+    vortex:[
+      VOICE_BASE+'Vo_ancient_apparition_appa_ability_vortex_01.mp3',
+      VOICE_BASE+'Vo_ancient_apparition_appa_ability_vortex_02.mp3',
+      VOICE_BASE+'Vo_ancient_apparition_appa_ability_vortex_03.mp3'
+    ],
+    touch:[
+      VOICE_BASE+'Vo_ancient_apparition_appa_ability_touch_02.mp3',
+      VOICE_BASE+'Vo_ancient_apparition_appa_ability_touch_04.mp3'
+    ],
+    blast:[
+      VOICE_BASE+'Vo_ancient_apparition_appa_ability_iceblast_01.mp3',
+      VOICE_BASE+'Vo_ancient_apparition_appa_ability_iceblast_06.mp3'
+    ],
+    kill:[
+      VOICE_BASE+'Vo_ancient_apparition_appa_kill_01.mp3',
+      VOICE_BASE+'Vo_ancient_apparition_appa_kill_02.mp3',
+      VOICE_BASE+'Vo_ancient_apparition_appa_kill_03.mp3'
+    ],
+    mekanism:VOICE_BASE+'Vo_ancient_apparition_appa_item_02.mp3',
+    skadi:VOICE_BASE+'Vo_ancient_apparition_appa_item_03.mp3',
+    purchase:VOICE_BASE+'Vo_ancient_apparition_appa_purch_02.mp3'
+  };
   const VORTEX_TURNS=4, BLAST_TURNS=4, BLAST_TRAVEL_MS=1500;
 
   DATA[ID]={name:'ANCIENT APPARITION',hp:7,atk:1,img:DRAFT,staticPortrait:false,skills:[
@@ -25,7 +54,7 @@
   ]};
   HERO_ICONS[ID]=ICON;
   SKILL_ICONS[ID]=[SKILLS.vortex,SKILLS.touch,SKILLS.blast];
-  AUDIO[ID]={turn:[],skills:{ice_vortex:SFX.vortex,chilling_touch:SFX.touch,ice_blast:SFX.blastRelease}};
+  AUDIO[ID]={turn:[...VOICES.turn],skills:{ice_vortex:SFX.vortex,chilling_touch:SFX.touch,ice_blast:SFX.blastRelease},voices:{ice_vortex:VOICES.vortex,chilling_touch:VOICES.touch,ice_blast:VOICES.blast},killVoices:VOICES.kill};
   ATTACK_AUDIO[ID]=SFX.attackLaunch;
   ATTACK_IMPACT_MS[ID]=360;
 
@@ -71,6 +100,16 @@
   function playAAFile(a,src,vol=.74){
     if(!src)return;
     try{a.pause();a.currentTime=0;a.volume=vol;playFile(a,src)}catch(_){try{a.src=src;a.play().catch(()=>{})}catch(__){}}
+  }
+  function playAAVoice(src,noNet=false,hero=null){
+    if(!src)return;
+    playAAFile(abilityVoiceAudio,src,.78);
+    if(!noNet&&hero)window.emitNetVfx?.('aa-voice',hero,{voiceSrc:src});
+  }
+  function playAARandomVoice(list,noNet=false,hero=null){
+    if(!Array.isArray(list)||!list.length)return null;
+    const src=list[Math.floor(Math.random()*list.length)];
+    playAAVoice(src,noNet,hero);return src;
   }
   function center(h){
     if(!h)return null;
@@ -142,6 +181,7 @@
     if(ev.kind==='aa-chilling-touch'){const c=fromRef({team:ev.team,id:ev.heroId}),t=fromRef({team:ev.targetTeam,id:ev.targetId});if(c&&t)touchFx(c,t);return}
     if(ev.kind==='aa-ice-blast'){const c=fromRef({team:ev.team,id:ev.heroId}),t=fromRef({team:ev.targetTeam,id:ev.targetId});if(c&&t)blastFx(c,t,ev.path||[]);return}
     if(ev.kind==='aa-shatter'){const t=fromRef({team:ev.targetTeam,id:ev.targetId})||{team:ev.targetTeam,id:ev.targetId};shatterFx(t);return}
+    if(ev.kind==='aa-voice'){if(ev.voiceSrc)playAAVoice(ev.voiceSrc,true,null);return}
   };
 
   const baseMkHero=mkHero;
@@ -175,12 +215,33 @@
   playSkillSound=function(h,id,noNet=false){
     if(h&&h.id===ID){
       if(!noNet)window.emitNetVfx&&window.emitNetVfx('audio-skill',h,{skillId:id});
-      if(id==='ice_vortex')playAAFile(skillAudio,SFX.vortex,.78);
-      else if(id==='chilling_touch')playAAFile(skillAudio,SFX.touch,.78);
-      else if(id==='ice_blast')playAAFile(skillAudio,SFX.blastRelease,.82);
+      if(id==='ice_vortex'){
+        playAAFile(skillAudio,SFX.vortex,.78);
+        if(Math.random()<.5)playAARandomVoice(VOICES.vortex,noNet,h);
+      }else if(id==='chilling_touch'){
+        playAAFile(skillAudio,SFX.touch,.78);
+        playAARandomVoice(VOICES.touch,noNet,h);
+      }else if(id==='ice_blast'){
+        playAAFile(skillAudio,SFX.blastRelease,.82);
+        playAARandomVoice(VOICES.blast,noNet,h);
+      }
       return;
     }
     return basePlaySkillSound(h,id,noNet);
+  };
+
+  window.playAncientApparitionKillVoice=function(killer,victim,noNet=false){
+    if(!killer||killer.id!==ID)return;
+    playAARandomVoice(VOICES.kill,noNet,killer);
+  };
+
+  const previousItemPurchased=window.onDotaItemPurchased;
+  window.onDotaItemPurchased=function(hero,itemId){
+    try{previousItemPurchased?.(hero,itemId)}catch(_){}
+    if(!hero||hero.id!==ID)return;
+    if(itemId==='mekanism'){playAAVoice(VOICES.mekanism,false,hero);return}
+    if(itemId==='skadi'){playAAVoice(VOICES.skadi,false,hero);return}
+    if(Math.random()<.5)playAAVoice(VOICES.purchase,false,hero);
   };
 
   function aaSourceFor(h){
