@@ -32,7 +32,7 @@
     name:'EARTHSHAKER',hp:8,atk:1,img:DRAFT,staticPortrait:false,
     skills:[
       {id:'fissure',name:'Fissure',cd:3,desc:'Разбивает землю тотемом: все враги получают 1 магического урона. Перед Earthshaker появляется непроходимая каменная борозда на 3 общих хода. Пока она стоит, обычной тычкой Earthshaker атаковать нельзя; способности и модифицированные атаки с выбором цели проходят через борозду. При 10 жетонах Aftershock борозда держится 4 общих хода, при 20 — 6.'},
-      {id:'enchant_totem',name:'Enchant Totem',cd:2,desc:'Заряжает тотем: следующая обычная атака Earthshaker получает +100% урона. При 10 жетонах Aftershock бонус становится +150%, при 20 — +200%.'},
+      {id:'enchant_totem',name:'Enchant Totem',cd:2,desc:'Заряжает тотем: следующая обычная атака Earthshaker получает +150% урона от его обычной тычки. При 10 жетонах Aftershock бонус становится +200%, при 20 — +250%.'},
       {id:'aftershock',name:'Aftershock',cd:0,passive:true,desc:'За каждую попавшую обычную атаку по Earthshaker или его союзнику получает 1 жетон. Учитываются дополнительные тычки, иллюзии, паучки, крипы и Forge Spirit. На 10 жетонах усиливает Fissure, Enchant Totem и Echo Slam; на 20 жетонах усиливает их ещё раз. Каждое использование способности Earthshaker имеет 40% шанс оглушить переднего врага на 1 активацию.'},
       {id:'echo_slam',name:'Echo Slam',cd:4,desc:'Ударные волны поражают всю вражескую линию. Каждый живой враг даёт по 0.5 магического урона, и итоговый урон получает каждый враг. Паучки, крипы Chen, Forge Spirit, иллюзии и клон Arc Warden тоже увеличивают число целей для расчёта. При 10 жетонах каждый враг добавляет ещё +1 урона, при 20 — ещё +2.'}
     ]
@@ -54,7 +54,7 @@
     if(id===ID){
       h.staticPortrait=false;h.portrait=PORTRAIT;h.img=DRAFT;
       h.esAftershock=0;h.esFissureTurns=0;h.esFissureAppliedTurn=0;
-      h.esTotemReady=false;h.esTotemBonus=100;
+      h.esTotemReady=false;h.esTotemBonus=150;
     }
     return h;
   };
@@ -150,7 +150,7 @@
 
   function aftershockTier(h){const n=Math.max(0,Number(h?.esAftershock)||0);return n>=20?2:n>=10?1:0}
   function fissureDuration(h){return aftershockTier(h)===2?6:aftershockTier(h)===1?4:3}
-  function totemBonus(h){return aftershockTier(h)===2?200:aftershockTier(h)===1?150:100}
+  function totemBonus(h){return aftershockTier(h)===2?250:aftershockTier(h)===1?200:150}
   function echoPerUnit(h){return .5+(aftershockTier(h)===2?2:aftershockTier(h)===1?1:0)}
 
   function tryAftershockStun(h){
