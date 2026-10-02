@@ -1,8 +1,32 @@
 (()=>{
   const ID='ancient_apparition';
   const DRAFT='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/ancient_apparition.png';
-  const PORTRAIT='assets/ancient_apparition/ancient_apparition_portrait_hq_v8.webm';
-  async function loadUploadedAAPortrait(){return PORTRAIT}
+  const PORTRAIT_PARTS=[
+    'assets/ancient_apparition/portrait_v4.b64.0',
+    'assets/ancient_apparition/portrait_v4.b64.1',
+    'assets/ancient_apparition/portrait_v4.b64.2',
+    'assets/ancient_apparition/portrait_v4.b64.3'
+  ];
+  let AA_PORTRAIT_URL='';
+  let AA_PORTRAIT_PROMISE=null;
+  async function loadUploadedAAPortrait(){
+    if(AA_PORTRAIT_URL)return AA_PORTRAIT_URL;
+    if(AA_PORTRAIT_PROMISE)return AA_PORTRAIT_PROMISE;
+    AA_PORTRAIT_PROMISE=(async()=>{
+      const parts=await Promise.all(PORTRAIT_PARTS.map((u,i)=>fetch(u+'?hq=4',{cache:'force-cache'}).then(r=>{
+        if(!r.ok)throw new Error('AA portrait part '+i+' failed: '+r.status);
+        return r.text();
+      })));
+      const b64=parts.join('').replace(/\s+/g,'');
+      const raw=atob(b64);
+      const bytes=new Uint8Array(raw.length);
+      for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
+      AA_PORTRAIT_URL=URL.createObjectURL(new Blob([bytes],{type:'video/webm'}));
+      return AA_PORTRAIT_URL;
+    })().catch(err=>{console.error(err);AA_PORTRAIT_PROMISE=null;return '';});
+    return AA_PORTRAIT_PROMISE;
+  }
+  const PORTRAIT='';
   const ICON='assets/ancient_apparition/ancient_apparition_icon_v2.png';
   const SKILLS={
     vortex:'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/abilities/ancient_apparition_ice_vortex.png',
@@ -208,7 +232,7 @@
   const baseMkHero=mkHero;
   mkHero=function(id,team){
     const h=baseMkHero(id,team);
-    if(id===ID){h.staticPortrait=false;h.portrait=PORTRAIT;h.img=DRAFT;h.aaIceBlastTurns=0;h.aaIceBlastAppliedTurn=0;h.aaIceBlastSourceTeam=null;h.aaIceBlastSourceId=null}
+    if(id===ID){h.staticPortrait=false;h.portrait='';h.img=DRAFT;h.aaIceBlastTurns=0;h.aaIceBlastAppliedTurn=0;h.aaIceBlastSourceTeam=null;h.aaIceBlastSourceId=null}
     return h;
   };
   const baseBattlePortraitSrcFor=battlePortraitSrcFor;
@@ -369,7 +393,7 @@
     v.muted=true;v.defaultMuted=true;v.autoplay=true;v.loop=true;v.playsInline=true;
     v.setAttribute('muted','');v.setAttribute('playsinline','');v.setAttribute('autoplay','');v.setAttribute('loop','');
     const wanted=await loadUploadedAAPortrait();
-    if(!v.isConnected)return;
+    if(!v.isConnected||!wanted)return;
     if(v.src!==wanted&&v.getAttribute('src')!==wanted){
       try{v.pause()}catch(_){}
       v.src=wanted;v.preload='auto';
