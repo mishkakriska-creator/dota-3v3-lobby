@@ -5972,3 +5972,6 @@ html.dota-landscape-mobile.dota-android body.game-running #game .battlefield .te
   overflow:visible!important;
   text-overflow:clip!important;
 }
+
+/* AA full name hard fit */
+.hero[data-hero="ancient_apparition"] .hero-name{font-size:10px!important;letter-spacing:-.6px!important;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;transform:scaleX(.88);transform-origin:left center;}
