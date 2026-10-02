@@ -5963,3 +5963,12 @@ html.dota-landscape-mobile.dota-android body.game-running #game .battlefield .te
   min-height:19px!important;
   max-height:19px!important;
 }
+
+/* Ancient Apparition full battle-card name */
+.hero[data-hero="ancient_apparition"] .hero-name{
+  font-size:clamp(9px,0.68vw,11px)!important;
+  letter-spacing:-.55px!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
