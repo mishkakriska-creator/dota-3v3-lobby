@@ -1,7 +1,7 @@
 (()=>{
   const ID='ancient_apparition';
   const DRAFT='https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/ancient_apparition.png';
-  const PORTRAIT='assets/ancient_apparition/ancient_apparition_portrait_hq.webm';
+  const PORTRAIT='assets/ancient_apparition/ancient_apparition_portrait_hq_v8.webm';
   async function loadUploadedAAPortrait(){return PORTRAIT}
   const ICON='assets/ancient_apparition/ancient_apparition_icon_v2.png';
   const SKILLS={
