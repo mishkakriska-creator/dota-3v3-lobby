@@ -637,7 +637,7 @@
     if(refreshHeroStats){refreshHeroStats.disabled=true;refreshHeroStats.textContent='ОБНОВЛЕНИЕ…'}
     try{
       const r=await lobbyFetch('/api/heroes',{cache:'no-store'});
-      const j=await r.json(),heroes=Array.isArray(j.heroes)?j.heroes:[];
+      const j=await r.json(),heroes=(Array.isArray(j.heroes)?j.heroes:[]).filter(h=>String(h?.heroId||'')!=='chen_creeps');
       heroStatsList.innerHTML='';
       if(!heroes.length){heroStatsList.innerHTML='<div class="mp-help">Статистики пока нет.</div>';return}
       for(const h of heroes){
