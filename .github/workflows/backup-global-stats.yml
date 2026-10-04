@@ -19,14 +19,34 @@ jobs:
           ref: stats-backup
           fetch-depth: 1
 
-      - name: Fetch live Render stats
+      - name: Fetch freshest live stats
         shell: bash
         run: |
           set -euo pipefail
-          curl --fail --silent --show-error --retry 8 --retry-delay 3 --max-time 20 \
-            https://dota-3v3-lobby.onrender.com/api/stats-export \
-            -o stats.new.json
-          node -e "const fs=require('fs');const s=JSON.parse(fs.readFileSync('stats.new.json','utf8'));if(!s||typeof s.players!=='object'||typeof s.heroes!=='object'||typeof s.matches!=='object')process.exit(1);console.log('backup',Object.keys(s.matches).length,'matches',Object.keys(s.players).length,'players')"
+          node <<'NODE'
+          const fs=require('fs');
+          const urls=[
+            'https://dota-3v3-lobby.onrender.com/api/stats-export',
+            'https://lobby-server-nfqg-production.up.railway.app/api/stats-export'
+          ];
+          async function get(url){
+            const c=new AbortController(),t=setTimeout(()=>c.abort(),12000);
+            try{
+              const r=await fetch(url+'?_ts='+Date.now(),{cache:'no-store',signal:c.signal});
+              if(!r.ok)throw new Error('HTTP '+r.status);
+              const s=await r.json();
+              if(!s||typeof s.players!=='object'||typeof s.heroes!=='object'||typeof s.matches!=='object')throw new Error('invalid stats');
+              return {url,s,updatedAt:Number(s.updatedAt)||0,matches:Object.keys(s.matches).length,players:Object.keys(s.players).length};
+            }finally{clearTimeout(t)}
+          }
+          const settled=await Promise.allSettled(urls.map(get));
+          const ok=settled.filter(x=>x.status==='fulfilled').map(x=>x.value);
+          if(!ok.length){console.error(settled.map(x=>x.reason?.message||x.status));process.exit(1)}
+          ok.sort((a,b)=>b.updatedAt-a.updatedAt||b.matches-a.matches||b.players-a.players);
+          const best=ok[0];
+          console.log('backup from',best.url,best.matches,'matches',best.players,'players','updatedAt',best.updatedAt);
+          fs.writeFileSync('stats.new.json',JSON.stringify(best.s));
+          NODE
           mv stats.new.json stats.json
 
       - name: Save snapshot
