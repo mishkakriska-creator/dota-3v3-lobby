@@ -2451,3 +2451,28 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   opacity:1!important;
 }
 #draft .draft-attribute-head span{color:#c8d1df!important}
+
+/* v1.86.227 — exact user icons at native size, no resampling */
+#draft .draft-attribute-head::before{display:none!important;content:none!important}
+#draft .draft-attribute-head img{
+  display:block!important;
+  width:24px!important;
+  height:24px!important;
+  flex:0 0 24px!important;
+  max-width:24px!important;
+  max-height:24px!important;
+  min-width:24px!important;
+  min-height:24px!important;
+  object-fit:none!important;
+  image-rendering:auto!important;
+  transform:none!important;
+  filter:none!important;
+  background:transparent!important;
+  border:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+  border-radius:0!important;
+  padding:0!important;
+  margin:0!important;
+  opacity:1!important;
+}
