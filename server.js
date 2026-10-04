@@ -84,7 +84,7 @@ async function restoreStatsBackup(){
     ]);
     const candidates=settled.filter(x=>x.status==='fulfilled').map(x=>x.value);
     candidates.push({url:'local',data:local,updatedAt:local.updatedAt,matches:Object.keys(local.matches).length,players:Object.keys(local.players).length});
-    candidates.sort((a,b)=>b.updatedAt-a.updatedAt||b.matches-a.matches||b.players-a.players);
+    candidates.sort((a,b)=>b.matches-a.matches||b.players-a.players||b.updatedAt-a.updatedAt);
     const best=candidates[0];
     if(best&&best.url!=='local'){
       stats=best.data;
