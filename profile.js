@@ -125,6 +125,19 @@
    el.innerHTML=`<span class="mp-profile-rank"><img src="${icon}" alt=""></span><span><b>${esc(p.nick||'Профиль')}</b><small>${esc(p.rank)} • ${p.rating} MMR • Победы: ${p.wins} • Поражения: ${p.losses}</small></span>`;
  }
  function render(){[0,1].forEach(n=>{for(const id of ['playerProfile'+n,'draftProfile'+n]){let el=document.getElementById(id);if(el){el.innerHTML=html(dataFor(n));el.classList.add('profile-clickable');el.title='Открыть профиль и лучшие тиры героев';el.onclick=()=>openMasteryProfile(n)}}});renderMenu();let menu=document.getElementById('menuProfileStats');if(menu){menu.classList.add('profile-clickable');menu.title='Открыть профиль и лучшие тиры героев';menu.onclick=()=>openMasteryProfile(localPlayer)}let menuBtn=document.getElementById('menuProfileBtn');if(menuBtn)menuBtn.onclick=()=>openEditor();window.refreshMasteryUI?.()}
+ async function syncCloudProfileNow(){
+   if(!WEB_STATIC||!ready)return getPublic();
+   const nick=String(local?.nick||'').trim();if(!nick)return getPublic();
+   const cloud=await fetchCloudProfile(nick);if(!cloud)return getPublic();
+   const cloudMastery=cleanMastery(cloud.heroMastery||{}),merged={...localMastery};
+   for(const id of HERO_IDS)merged[id]=Math.max(Number(localMastery[id])||0,Number(cloudMastery[id])||0);
+   localMastery=cleanMastery(merged);saveMastery();
+   local=clean({...local,rating:cloud.rating??local.rating,wins:cloud.wins??local.wins,losses:cloud.losses??local.losses,heroMastery:localMastery},localPlayer);
+   saveWebProfile();render();
+   localSig=JSON.stringify({nick:local.nick,avatar:local.avatar,rating:local.rating,wins:local.wins,losses:local.losses,heroMastery:localMastery});
+   window.dispatchEvent(new CustomEvent('dota-profile-ready',{detail:{profile:getPublic(),ready:true,cloudSync:true}}));
+   return getPublic();
+ }
  async function load(){
    if(loading)return loading;
    loading=(async()=>{
@@ -297,6 +310,14 @@
  }
  function masteryInfoFor(playerIndex,heroId){if(heroId==='arcwarden_clone')heroId='arcwarden';let p=dataFor(Number.isInteger(playerIndex)?playerIndex:localPlayer),xp=Math.max(0,Math.floor(Number(p?.heroMastery?.[heroId])||0));return masteryInfoFromXp(xp)}
  function masteryBadgeHTML(playerIndex,heroId,compact=false){let m=masteryInfoFor(playerIndex,heroId),title=`${m.tierName} • уровень ${m.level} • ${m.xp} XP${m.level<MASTERY_MAX_LEVEL?` • ${m.nextXp-m.levelXp} XP до уровня ${m.level+1}`:' • максимальный уровень'}`;return `<span class="hero-mastery ${compact?'compact':''} tier-${m.tier.key}" title="${esc(title)}"><img src="${m.icon}" alt="${esc(m.tierName)}"><b>${m.level}</b></span>`}
- window.DotaProfile={getPublic,applyGlobalStats,setLocalPlayer,setRemote,render,load,recordResult,rankFor,rankIndexFor,rankIconFor,mmrFromWL,masteryInfoFor,masteryBadgeHTML,masteryLevelForXp,xpForLevel,xpToNext,topMasteriesForProfile,masteryProfileRowsHTML,openMasteryProfile,openEditor,setLocalProfile:updateLocalProfile,isReady:()=>ready};
- document.addEventListener('DOMContentLoaded',()=>{render();retryLoad();setInterval(()=>load(),4000)});
+ window.DotaProfile={getPublic,applyGlobalStats,setLocalPlayer,setRemote,render,load,syncCloudProfileNow,recordResult,rankFor,rankIndexFor,rankIconFor,mmrFromWL,masteryInfoFor,masteryBadgeHTML,masteryLevelForXp,xpForLevel,xpToNext,topMasteriesForProfile,masteryProfileRowsHTML,openMasteryProfile,openEditor,setLocalProfile:updateLocalProfile,isReady:()=>ready};
+ document.addEventListener('DOMContentLoaded',()=>{
+   render();retryLoad();setInterval(()=>load(),4000);
+   let lastCloudSync=0;
+   const resync=()=>{const now=Date.now();if(now-lastCloudSync<15000)return;lastCloudSync=now;syncCloudProfileNow().catch(()=>{})};
+   window.addEventListener('focus',resync);
+   window.addEventListener('pageshow',resync);
+   document.addEventListener('visibilitychange',()=>{if(!document.hidden)resync()});
+   setInterval(resync,30000);
+ });
 })();
