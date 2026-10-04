@@ -72,7 +72,7 @@
    nick=String(nick||'').trim();if(!WEB_STATIC||!nick)return null;
    try{
      const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),7000);
-     const r=await fetch(CLOUD_PROFILE_BASE+'/api/profile?nick='+encodeURIComponent(nick),{cache:'no-store',signal:ctrl.signal});
+     const r=await fetch(CLOUD_PROFILE_BASE+'/api/profile?nick='+encodeURIComponent(nick)+'&_ts='+Date.now(),{cache:'no-store',signal:ctrl.signal});
      clearTimeout(timer);if(!r.ok)return null;
      const data=await r.json();return data?.profile||null;
    }catch{return null}
