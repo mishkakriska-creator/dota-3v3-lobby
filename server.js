@@ -143,7 +143,7 @@ function playerByNick(nick,source=stats){
   const p=source.players?.['nick:'+nk]||Object.values(source.players||{}).find(x=>normalizedNick(x?.nick)===nk);
   if(!p)return null;
   const rating=Math.max(0,Math.floor(Number(p.rating)||0));
-  return {nick:safeNick(p.nick),rating,wins:Math.max(0,Math.floor(Number(p.wins)||0)),losses:Math.max(0,Math.floor(Number(p.losses)||0)),heroMastery:cleanHeroMastery(p.heroMastery),...rankFor(rating)};
+  return {nick:safeNick(p.nick),rating,wins:Math.max(0,Math.floor(Number(p.wins)||0)),losses:Math.max(0,Math.floor(Number(p.losses)||0)),heroMastery:cleanHeroMastery(p.heroMastery),updatedAt:Number(p.updatedAt)||0,...rankFor(rating)};
 }
 function mergeProfileProgress(body,source=stats){
   const nick=safeNick(body?.nick);
@@ -156,12 +156,15 @@ function mergeProfileProgress(body,source=stats){
   const incomingLosses=Math.max(0,Math.floor(Number(body?.losses)||0));
   const existingWins=Math.max(0,Math.floor(Number(existing.wins)||0));
   const existingLosses=Math.max(0,Math.floor(Number(existing.losses)||0));
-  const incomingAtLeastAsCurrent=incomingWins>=existingWins&&incomingLosses>=existingLosses;
-  const rating=exists?(incomingAtLeastAsCurrent?Math.max(existingRating,incomingRating):existingRating):incomingRating;
-  const wins=Math.max(existingWins,incomingWins);
-  const losses=Math.max(existingLosses,incomingLosses);
+  const incomingGames=incomingWins+incomingLosses,existingGames=existingWins+existingLosses;
+  const incomingUpdatedAt=Math.max(0,Math.floor(Number(body?.updatedAt)||0));
+  const existingUpdatedAt=Math.max(0,Math.floor(Number(existing.updatedAt)||0));
+  let rating=existingRating,wins=existingWins,losses=existingLosses;
+  if(!exists || incomingGames>existingGames || (incomingGames===existingGames&&incomingUpdatedAt>existingUpdatedAt)){
+    rating=incomingRating;wins=incomingWins;losses=incomingLosses;
+  }
   const heroMastery=mergeHeroMastery(existing.heroMastery,body?.heroMastery);
-  source.players[key]={...existing,nick,rating,wins,losses,heroMastery,updatedAt:Date.now()};
+  source.players[key]={...existing,nick,rating,wins,losses,heroMastery,updatedAt:Math.max(existingUpdatedAt,incomingUpdatedAt,Date.now())};
   saveStats();
   return playerByNick(nick,source);
 }
