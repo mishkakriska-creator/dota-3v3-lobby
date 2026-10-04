@@ -161,9 +161,9 @@ if(ITEMS.sange_yasha)ITEMS.sange_yasha.desc='Даёт +1 к силе и +1 бр�
 
 // Battle card attribute strip
 const ATTRIBUTE_CARD_ICONS={
- strength:'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/icons/hero_strength.png',
- agility:'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/icons/hero_agility.png',
- intelligence:'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/icons/hero_intelligence.png'
+ strength:"data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23c84a4a'/%3E%3Cpath d='M9 9l7-3 7 3v7c0 5-3.2 8.6-7 10-3.8-1.4-7-5-7-10V9zm4 4v6h2v3h2v-3h2v-6h-2v3h-2v-3h-2z' fill='white'/%3E%3C/svg%3E",
+ agility:"data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%234fa95d'/%3E%3Cpath d='M7 19c4-7 9-11 18-12-2 6-6 11-12 14l-3 4-1-4-2-2zm6-1c3-1 6-3 9-7-4 2-7 4-9 7z' fill='white'/%3E%3C/svg%3E",
+ intelligence:"data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%234c74c9'/%3E%3Cpath d='M16 6l7 7-7 13-7-13 7-7zm0 5l-3 3 3 6 3-6-3-3z' fill='white'/%3E%3C/svg%3E"
 };
 function renderBattleCardAttributes(h,node){
  if(!h||!node)return;
@@ -194,17 +194,46 @@ renderTeam=function(t,sel){
 
 const attributeCardStyle=document.createElement('style');
 attributeCardStyle.textContent=`
-.battle-card-attributes{display:flex;align-items:center;justify-content:center;gap:7px;margin:3px 0 4px;min-height:18px;line-height:1;pointer-events:none}
-.battle-card-attribute{display:inline-flex;align-items:center;justify-content:center;gap:3px;min-width:26px;color:#e8edf5;font-size:12px;font-weight:800;text-shadow:0 1px 2px #000}
-.battle-card-attribute img{width:15px;height:15px;object-fit:contain;display:block}
-.battle-card-attribute.primary{filter:brightness(1.18)}
-.battle-card-attribute.primary b{color:#fff}
-html.dota-landscape-mobile .battle-card-attributes{gap:4px;margin:1px 0 3px;min-height:14px}
-html.dota-landscape-mobile .battle-card-attribute{gap:2px;min-width:22px;font-size:10px}
-html.dota-landscape-mobile .battle-card-attribute img{width:12px;height:12px}
-html.dota-android .battle-card-attributes{gap:3px;margin:0 0 2px}
-html.dota-android .battle-card-attribute{min-width:20px;font-size:9px}
-html.dota-android .battle-card-attribute img{width:11px;height:11px}
+.battlefield .hero-body{position:relative!important}
+.battle-card-attributes{
+  position:absolute!important;
+  left:0!important;
+  right:0!important;
+  bottom:35px!important;
+  z-index:3!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  margin:0!important;
+  min-height:18px!important;
+  line-height:1!important;
+  pointer-events:none!important;
+}
+.battle-card-attribute{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:3px!important;
+  min-width:27px!important;
+  color:#eef2f8!important;
+  font-size:12px!important;
+  font-weight:900!important;
+  text-shadow:0 1px 2px #000!important;
+}
+.battle-card-attribute img{
+  width:15px!important;
+  height:15px!important;
+  min-width:15px!important;
+  object-fit:contain!important;
+  display:block!important;
+}
+html.dota-landscape-mobile .battle-card-attributes{bottom:32px!important;gap:5px!important;min-height:14px!important}
+html.dota-landscape-mobile .battle-card-attribute{gap:2px!important;min-width:22px!important;font-size:10px!important}
+html.dota-landscape-mobile .battle-card-attribute img{width:12px!important;height:12px!important;min-width:12px!important}
+html.dota-android .battle-card-attributes{bottom:30px!important;gap:4px!important}
+html.dota-android .battle-card-attribute{min-width:20px!important;font-size:9px!important}
+html.dota-android .battle-card-attribute img{width:11px!important;height:11px!important;min-width:11px!important}
 `;
 document.head.appendChild(attributeCardStyle);
 
