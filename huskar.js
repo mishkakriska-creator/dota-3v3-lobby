@@ -413,10 +413,7 @@
     #game .hero.huskar-life-break-target{z-index:80!important}
     .huskar-life-break-flyer{box-sizing:border-box!important}
     .huskar-life-break-flyer video,.huskar-life-break-flyer img{pointer-events:none!important}
-    #game .hero.huskar-life-break-target.huskar-life-break-impact{animation:huskarTargetImpact .26s ease-out!important;filter:brightness(1.9) saturate(1.55) drop-shadow(0 0 20px rgba(255,55,8,.98))!important}
-    .huskar-life-break-trail{position:fixed;width:36px;height:36px;margin:-18px 0 0 -18px;border-radius:50%;pointer-events:none;z-index:9997;background:radial-gradient(circle,#fff6bc 0 8%,#ff9d1c 18%,rgba(255,47,0,.65) 42%,transparent 72%);box-shadow:0 0 18px #ffb126,0 0 44px #ff3e00;animation:huskarTrail 1.2s ease-in forwards}
-    .huskar-life-break-ring{position:fixed;width:34px;height:34px;margin:-17px 0 0 -17px;border:5px solid #ffd36c;border-radius:50%;pointer-events:none;z-index:10000;box-shadow:0 0 20px #ffb01f,0 0 46px #ff4300;animation:huskarRing .48s ease-out forwards}
-    @keyframes huskarRing{0%{transform:scale(.3);opacity:1}100%{transform:scale(4.2);opacity:0}}
+    #game .hero.huskar-life-break-target.huskar-life-break-impact{animation:huskarTargetImpact .26s ease-out!important;filter:brightness(1.9) saturate(1.55) drop-shadow(0 0 20px rgba(255,55,8,.98))!important}100%{transform:scale(4.2);opacity:0}}
     @keyframes huskarTargetImpact{0%{transform:translateX(0) scale(1)}30%{transform:translateX(9px) scale(.94)}62%{transform:translateX(-6px) scale(1.04)}100%{transform:translateX(0) scale(1)}}
   `;
   document.head.appendChild(style);
