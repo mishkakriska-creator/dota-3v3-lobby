@@ -2434,3 +2434,20 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 #draft .draft-attribute-head span{
   color:#c8d1df!important;
 }
+
+/* v1.86.226 — true vector attribute icons */
+#draft .draft-attribute-head::before{display:none!important;content:none!important}
+#draft .draft-attribute-head img{
+  display:block!important;
+  width:30px!important;
+  height:30px!important;
+  flex:0 0 30px!important;
+  object-fit:contain!important;
+  image-rendering:auto!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  filter:none!important;
+  opacity:1!important;
+}
+#draft .draft-attribute-head span{color:#c8d1df!important}
