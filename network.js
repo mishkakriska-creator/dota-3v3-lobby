@@ -608,25 +608,30 @@
     arcwarden:'ARC WARDEN',axe:'AXE',broodmother:'BROODMOTHER',phantomlancer:'PHANTOM LANCER',mars:'MARS',enigma:'ENIGMA'
   };
   function rankIconPath(i){i=Math.max(1,Math.min(99,Number(i)||1));return `assets/ranks/rank_${String(i).padStart(2,'0')}.png`}
-  async function primaryStatsFetch(path){
-    const base='https://dota-3v3-lobby.onrender.com';
-    const sep=path.includes('?')?'&':'?';
-    const url=base+path+sep+'_ts='+Date.now();
-    const controller=new AbortController();
-    const timer=setTimeout(()=>controller.abort(),15000);
-    try{
-      const r=await fetch(url,{cache:'no-store',headers:{'Cache-Control':'no-cache','Pragma':'no-cache'},signal:controller.signal});
-      if(!r.ok)throw new Error('HTTP '+r.status);
-      return r;
-    }finally{clearTimeout(timer)}
+  async function freshestStatsJson(path){
+    const bases=window.DotaServerCandidates();
+    const jobs=bases.map(async base=>{
+      const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
+      try{
+        const sep=path.includes('?')?'&':'?';
+        const r=await fetch(base+path+sep+'_ts='+Date.now(),{cache:'no-store',signal:controller.signal});
+        if(!r.ok)throw new Error('HTTP '+r.status);
+        const data=await r.json();
+        return {data,updatedAt:Number(data?.updatedAt)||0,matches:Number(data?.matches)||0,base};
+      }finally{clearTimeout(timer)}
+    });
+    const settled=await Promise.allSettled(jobs);
+    const ok=settled.filter(x=>x.status==='fulfilled').map(x=>x.value);
+    if(!ok.length)throw new Error('No server available');
+    ok.sort((a,b)=>b.updatedAt-a.updatedAt||b.matches-a.matches);
+    return ok[0].data;
   }
   async function loadLeaderboard(){
     leaderboardError.textContent='';leaderboardList.innerHTML='<div class="mp-help">Загрузка топа…</div>';
     if(refreshLeaderboard){refreshLeaderboard.disabled=true;refreshLeaderboard.textContent='ОБНОВЛЕНИЕ…'}
     try{
       try{await window.DotaProfile?.syncCloudProfileNow?.()}catch{}
-      const r=await primaryStatsFetch('/api/leaderboard');
-      const j=await r.json(),players=Array.isArray(j.players)?j.players:[];
+      const j=await freshestStatsJson('/api/leaderboard'),players=Array.isArray(j.players)?j.players:[];
       const me=window.DotaProfile?.getPublic?.();
       const mine=players.find(p=>String(p.nick||'').trim().toLowerCase()===String(me?.nick||'').trim().toLowerCase());
       if(mine)window.DotaProfile?.applyGlobalStats?.(mine);
@@ -649,8 +654,7 @@
     heroStatsError.textContent='';heroStatsList.innerHTML='<div class="mp-help">Загрузка статистики…</div>';
     if(refreshHeroStats){refreshHeroStats.disabled=true;refreshHeroStats.textContent='ОБНОВЛЕНИЕ…'}
     try{
-      const r=await primaryStatsFetch('/api/heroes');
-      const j=await r.json(),heroes=(Array.isArray(j.heroes)?j.heroes:[]).filter(h=>String(h?.heroId||'')!=='chen_creeps');
+      const j=await freshestStatsJson('/api/heroes'),heroes=(Array.isArray(j.heroes)?j.heroes:[]).filter(h=>String(h?.heroId||'')!=='chen_creeps');
       heroStatsList.innerHTML='';
       if(!heroes.length){heroStatsList.innerHTML='<div class="mp-help">Статистики пока нет.</div>';return}
       for(const h of heroes){
