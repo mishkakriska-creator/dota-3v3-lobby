@@ -2368,116 +2368,8 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   #draft .draft-attribute-cards{grid-template-columns:repeat(3,minmax(0,1fr))!important}
 }
 
-/* v1.86.223 — clean attribute icons */
-#draft .draft-attribute-head img{
-  display:block!important;
-  width:28px!important;
-  height:28px!important;
-  flex:0 0 28px!important;
-  object-fit:contain!important;
-  object-position:center!important;
-  background:none!important;
-  background-color:transparent!important;
-  border:0!important;
-  outline:0!important;
-  box-shadow:none!important;
-  border-radius:0!important;
-  padding:0!important;
-  margin:0!important;
-  opacity:1!important;
-  visibility:visible!important;
-}
 
-/* v1.86.225 — render attribute icons as masks: impossible to show white RGB halos */
-#draft .draft-attribute-head{
-  position:relative!important;
-}
-#draft .draft-attribute-head img{
-  display:none!important;
-}
-#draft .draft-attribute-head::before{
-  content:"";
-  display:block;
-  width:28px;
-  height:28px;
-  flex:0 0 28px;
-  background:currentColor;
-  -webkit-mask-repeat:no-repeat;
-  mask-repeat:no-repeat;
-  -webkit-mask-position:center;
-  mask-position:center;
-  -webkit-mask-size:contain;
-  mask-size:contain;
-}
-#draft .draft-attribute-strength .draft-attribute-head{
-  color:#ff5a2a!important;
-}
-#draft .draft-attribute-strength .draft-attribute-head::before{
-  -webkit-mask-image:url('assets/attributes/strength.png?v=3');
-  mask-image:url('assets/attributes/strength.png?v=3');
-}
-#draft .draft-attribute-agility .draft-attribute-head{
-  color:#55e84d!important;
-}
-#draft .draft-attribute-agility .draft-attribute-head::before{
-  -webkit-mask-image:url('assets/attributes/agility.png?v=3');
-  mask-image:url('assets/attributes/agility.png?v=3');
-}
-#draft .draft-attribute-intelligence .draft-attribute-head{
-  color:#38d9ff!important;
-}
-#draft .draft-attribute-intelligence .draft-attribute-head::before{
-  -webkit-mask-image:url('assets/attributes/intelligence.png?v=3');
-  mask-image:url('assets/attributes/intelligence.png?v=3');
-}
-/* text keeps neutral color */
-#draft .draft-attribute-head span{
-  color:#c8d1df!important;
-}
-
-/* v1.86.226 — true vector attribute icons */
-#draft .draft-attribute-head::before{display:none!important;content:none!important}
-#draft .draft-attribute-head img{
-  display:block!important;
-  width:30px!important;
-  height:30px!important;
-  flex:0 0 30px!important;
-  object-fit:contain!important;
-  image-rendering:auto!important;
-  background:transparent!important;
-  border:0!important;
-  box-shadow:none!important;
-  filter:none!important;
-  opacity:1!important;
-}
-#draft .draft-attribute-head span{color:#c8d1df!important}
-
-/* v1.86.227 — exact user icons at native size, no resampling */
-#draft .draft-attribute-head::before{display:none!important;content:none!important}
-#draft .draft-attribute-head img{
-  display:block!important;
-  width:24px!important;
-  height:24px!important;
-  flex:0 0 24px!important;
-  max-width:24px!important;
-  max-height:24px!important;
-  min-width:24px!important;
-  min-height:24px!important;
-  object-fit:none!important;
-  image-rendering:auto!important;
-  transform:none!important;
-  filter:none!important;
-  background:transparent!important;
-  border:0!important;
-  outline:0!important;
-  box-shadow:none!important;
-  border-radius:0!important;
-  padding:0!important;
-  margin:0!important;
-  opacity:1!important;
-}
-
-/* v1.86.228 — Dota-like attribute headers, no cropping */
+/* v1.86.229 — single native attribute icon renderer */
 #draft .draft-attribute-head{
   height:34px!important;
   display:flex!important;
@@ -2486,18 +2378,19 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   gap:6px!important;
   padding-left:0!important;
 }
+#draft .draft-attribute-head::before{display:none!important;content:none!important}
 #draft .draft-attribute-head img{
   display:block!important;
-  width:20px!important;
-  height:20px!important;
-  min-width:20px!important;
-  min-height:20px!important;
-  max-width:20px!important;
-  max-height:20px!important;
-  flex:0 0 20px!important;
+  width:24px!important;
+  height:24px!important;
+  min-width:24px!important;
+  min-height:24px!important;
+  max-width:24px!important;
+  max-height:24px!important;
+  flex:0 0 24px!important;
   object-fit:contain!important;
   object-position:center!important;
-  image-rendering:auto!important;
+  image-rendering:pixelated!important;
   transform:none!important;
   filter:none!important;
   background:transparent!important;
@@ -2507,11 +2400,12 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   border-radius:0!important;
   padding:0!important;
   margin:0!important;
+  opacity:1!important;
 }
 #draft .draft-attribute-head span{
   color:#aeb8ca!important;
   font-size:15px!important;
   font-weight:900!important;
   letter-spacing:2.5px!important;
-  line-height:20px!important;
+  line-height:24px!important;
 }
