@@ -2324,3 +2324,46 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 @media(max-width:650px){
   #draft .draft-attribute-cards{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
+
+/* v1.86.221 — restore attribute icons + give pick panels more room */
+#draft .draft-stage{
+  grid-template-columns:240px minmax(0,1fr) 240px!important;
+  gap:14px!important;
+}
+#draft .draft-side{
+  width:240px!important;
+  min-width:240px!important;
+}
+#draft #draftCards.draft-grid{
+  gap:18px!important;
+}
+#draft .draft-attribute-cards{
+  grid-template-columns:repeat(2,minmax(0,0.92fr))!important;
+  justify-content:start!important;
+  gap:9px!important;
+}
+#draft .draft-attribute-cards .draft-card{
+  max-width:185px!important;
+}
+#draft .draft-attribute-head img{
+  display:block!important;
+  opacity:1!important;
+  visibility:visible!important;
+  width:28px!important;
+  height:28px!important;
+  flex:0 0 28px!important;
+}
+@media(min-width:1700px){
+  #draft .draft-stage{grid-template-columns:250px minmax(0,1fr) 250px!important}
+  #draft .draft-side{width:250px!important;min-width:250px!important}
+}
+@media(max-width:1260px){
+  #draft .draft-stage{grid-template-columns:190px minmax(0,1fr) 190px!important}
+  #draft .draft-side{width:190px!important;min-width:190px!important}
+  #draft .draft-attribute-cards .draft-card{max-width:none!important}
+}
+@media(max-width:980px){
+  #draft .draft-stage{grid-template-columns:1fr!important}
+  #draft .draft-side{width:100%!important;min-width:0!important}
+  #draft .draft-attribute-cards{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
