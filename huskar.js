@@ -14,8 +14,14 @@
     spear:'assets/audio/huskar_burning_spear.mp3?v=1',
     life:'assets/audio/huskar_life_break.mp3?v=1'
   };
-  const aPre=new Audio(),aImpact=new Audio(),aSpear=new Audio(),aLife=new Audio();
-  [aPre,aImpact,aSpear,aLife].forEach(a=>{a.preload='auto';a.volume=.82});
+  const VOICE={
+    turn:['assets/audio/huskar_spawn_01.mp3','assets/audio/huskar_kill_01.mp3','assets/audio/huskar_level_02.mp3'],
+    spear:'assets/audio/huskar_brnspear.mp3',
+    kill:['assets/audio/huskar_kill_01.mp3','assets/audio/huskar_kill_05.mp3','assets/audio/huskar_kill_07.mp3','assets/audio/huskar_kill_08.mp3'],
+    item:'assets/audio/huskar_item_02.mp3'
+  };
+  const aPre=new Audio(),aImpact=new Audio(),aSpear=new Audio(),aLife=new Audio(),aVoice=new Audio();
+  [aPre,aImpact,aSpear,aLife,aVoice].forEach(a=>{a.preload='auto';a.volume=.82});
   function playFile(a,src,vol=.82){try{a.pause();a.currentTime=0;a.src=src;a.volume=vol;const p=a.play();if(p&&p.catch)p.catch(()=>{})}catch(_){}}
   function playNormalAttackAudio(h,noNet=false){
     playFile(aPre,SFX.pre,.78);
@@ -30,6 +36,16 @@
     playFile(aLife,SFX.life,.9);
     if(!noNet)window.emitNetVfx?.('huskar-life-break',h);
   }
+  function playVoiceSrc(src,h,noNet=false){
+    if(!src)return;
+    playFile(aVoice,src,.88);
+    if(!noNet&&h)window.emitNetVfx?.('huskar-voice',h,{voiceSrc:src});
+  }
+  function randomVoice(list){return list?.length?list[Math.floor(Math.random()*list.length)]:null}
+  function playHuskarKillVoice(h,noNet=false){playVoiceSrc(randomVoice(VOICE.kill),h,noNet)}
+  function playHuskarItemVoice(h,noNet=false){playVoiceSrc(VOICE.item,h,noNet)}
+
+  AUDIO[ID]={...(AUDIO[ID]||{}),turn:VOICE.turn};
 
   DATA[ID]={
     name:'HUSKAR',hp:8,atk:1,img:DRAFT,staticPortrait:false,
@@ -154,6 +170,7 @@
     const hero=window.findHero?.(ev.team,ev.heroId)||null;
     if(ev.kind==='huskar-attack-audio'){if(hero){if(ev.spear)playSpearAttackAudio(hero,true);else playNormalAttackAudio(hero,true)}return}
     if(ev.kind==='huskar-life-break'){if(hero)playLifeBreakAudio(hero,true);return}
+    if(ev.kind==='huskar-voice'){if(ev.voiceSrc)playVoiceSrc(ev.voiceSrc,hero,true);return}
     if(ev.kind==='huskar-life-break-dash'){
       const target=window.findHero?.(ev.targetTeam,ev.targetId)||null;
       if(hero&&target)animateLifeBreak(hero,target,true);
@@ -193,6 +210,7 @@
       if(!G||G.resolving||G.winner!==null||targetMode)return;
       if(isHeroSilenced(h)){alert('Huskar обезмолвлен и не может переключить Burning Spear.');return}
       h.huskarBurningSpear=!h.huskarBurningSpear;
+      if(Math.random()<.10)playVoiceSrc(VOICE.spear,h,false);
       addSkillLog(h,id,'Burning Spear '+(h.huskarBurningSpear?'включён.':'выключен.'));
       render();
       return;
@@ -267,6 +285,20 @@
       G.resolving=false;
       spend();
     });
+  };
+
+  const baseDamage=damage;
+  damage=function(target,n,src='',attacker=null,fx={}){
+    const wasAlive=!!target&&!target.dead;
+    const out=baseDamage(target,n,src,attacker,fx);
+    if(wasAlive&&target?.dead&&attacker?.id===ID&&target.id!=='arcwarden_clone'&&target.id!=='phantomlancer_illusion')playHuskarKillVoice(attacker,false);
+    return out;
+  };
+
+  const prevItemPurchased=window.onDotaItemPurchased;
+  window.onDotaItemPurchased=function(hero,itemId){
+    try{prevItemPurchased?.(hero,itemId)}catch(_){}
+    if(hero?.id===ID&&itemId==='heart')playHuskarItemVoice(hero,false);
   };
 
   const baseOverlay=invokerOverlayEffects;
