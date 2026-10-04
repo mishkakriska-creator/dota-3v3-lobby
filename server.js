@@ -424,6 +424,20 @@ setInterval(()=>{
 },30000).unref();
 
 await restoreStatsBackup();
+
+const LEGACY_PROFILE_REPAIRS={
+  'nick:zxcfucker':{nick:'ZXCFUCKER',wins:40,losses:27}
+};
+for(const [key,fix] of Object.entries(LEGACY_PROFILE_REPAIRS)){
+  const p=stats.players?.[key];
+  if(!p)continue;
+  const wins=Math.max(0,Math.floor(Number(p.wins)||0)),losses=Math.max(0,Math.floor(Number(p.losses)||0));
+  if(wins===0&&losses===0){
+    stats.players[key]={...p,nick:fix.nick||p.nick,wins:fix.wins,losses:fix.losses,updatedAt:Date.now()};
+    saveStats();
+    console.log('Repaired legacy profile counters',key,fix.wins+'-'+fix.losses);
+  }
+}
 if(consolidatePlayers(stats)){
   saveStats();
   console.log('Consolidated duplicate global players by nickname');
