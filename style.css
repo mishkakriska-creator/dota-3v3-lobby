@@ -2369,7 +2369,8 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 }
 
 
-/* v1.86.229 — single native attribute icon renderer */
+
+/* v1.86.231 — raw user PNGs, untouched */
 #draft .draft-attribute-head{
   height:34px!important;
   display:flex!important;
@@ -2390,10 +2391,11 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   flex:0 0 24px!important;
   object-fit:contain!important;
   object-position:center!important;
-  image-rendering:pixelated!important;
+  image-rendering:auto!important;
   transform:none!important;
   filter:none!important;
-  background:transparent!important;
+  background:none!important;
+  background-color:transparent!important;
   border:0!important;
   outline:0!important;
   box-shadow:none!important;
