@@ -624,7 +624,7 @@
     leaderboardError.textContent='';leaderboardList.innerHTML='<div class="mp-help">Загрузка топа…</div>';
     if(refreshLeaderboard){refreshLeaderboard.disabled=true;refreshLeaderboard.textContent='ОБНОВЛЕНИЕ…'}
     try{
-      await window.DotaProfile?.syncCloudProfileNow?.().catch?.(()=>{});
+      try{await window.DotaProfile?.syncCloudProfileNow?.()}catch{}
       const r=await primaryStatsFetch('/api/leaderboard');
       const j=await r.json(),players=Array.isArray(j.players)?j.players:[];
       const me=window.DotaProfile?.getPublic?.();
