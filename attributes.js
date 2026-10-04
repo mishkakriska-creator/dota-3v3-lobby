@@ -50,9 +50,9 @@ function strengthBonus(h){
  if(h.items?.includes('sange_yasha'))n+=1;
  n+=count(h,'ultimate_orb');
  if(h.items?.includes('skadi'))n+=2;
- if(h.items?.includes('armlet')&&h.armletActive)n+=2;
  return n;
 }
+function nonAttributeHpBonus(h){return h?.items?.includes('armlet')&&h.armletActive?2:0}
 function agilityBonus(h){
  if(!h)return 0;
  let n=0;
@@ -70,7 +70,7 @@ function intelligenceBonus(h){
  return n;
 }
 function attrBase(h,key){
- const a=ATTR[h?.id]||ATTR[h?.ownerId]||null;
+ const id=h?.id==='arcwarden_clone'?'arcwarden':h?.id;const a=ATTR[id]||null;
  return Math.max(0,Number(a?.[key])||0);
 }
 window.heroAttributeValue=function(h,key){
@@ -96,7 +96,7 @@ mkHero=function(id,team){
 };
 
 // Strength replaces the old direct +HP packages. Armlet's existing +2 HP remains a non-attribute active bonus.
-itemHpBonus=function(h){return strengthBonus(h)};
+itemHpBonus=function(h){return strengthBonus(h)+nonAttributeHpBonus(h)};
 
 const previousSyncItemHpBonus=syncItemHpBonus;
 syncItemHpBonus=function(h){
