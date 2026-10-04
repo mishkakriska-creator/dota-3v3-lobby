@@ -2387,3 +2387,50 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   opacity:1!important;
   visibility:visible!important;
 }
+
+/* v1.86.225 — render attribute icons as masks: impossible to show white RGB halos */
+#draft .draft-attribute-head{
+  position:relative!important;
+}
+#draft .draft-attribute-head img{
+  display:none!important;
+}
+#draft .draft-attribute-head::before{
+  content:"";
+  display:block;
+  width:28px;
+  height:28px;
+  flex:0 0 28px;
+  background:currentColor;
+  -webkit-mask-repeat:no-repeat;
+  mask-repeat:no-repeat;
+  -webkit-mask-position:center;
+  mask-position:center;
+  -webkit-mask-size:contain;
+  mask-size:contain;
+}
+#draft .draft-attribute-strength .draft-attribute-head{
+  color:#ff5a2a!important;
+}
+#draft .draft-attribute-strength .draft-attribute-head::before{
+  -webkit-mask-image:url('assets/attributes/strength.png?v=3');
+  mask-image:url('assets/attributes/strength.png?v=3');
+}
+#draft .draft-attribute-agility .draft-attribute-head{
+  color:#55e84d!important;
+}
+#draft .draft-attribute-agility .draft-attribute-head::before{
+  -webkit-mask-image:url('assets/attributes/agility.png?v=3');
+  mask-image:url('assets/attributes/agility.png?v=3');
+}
+#draft .draft-attribute-intelligence .draft-attribute-head{
+  color:#38d9ff!important;
+}
+#draft .draft-attribute-intelligence .draft-attribute-head::before{
+  -webkit-mask-image:url('assets/attributes/intelligence.png?v=3');
+  mask-image:url('assets/attributes/intelligence.png?v=3');
+}
+/* text keeps neutral color */
+#draft .draft-attribute-head span{
+  color:#c8d1df!important;
+}
