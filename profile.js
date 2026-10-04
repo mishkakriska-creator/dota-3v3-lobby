@@ -25,7 +25,7 @@
  ];
  function ratingSnapshot(p){
    const wins=Math.max(0,Math.floor(Number(p?.wins)||0)),losses=Math.max(0,Math.floor(Number(p?.losses)||0));
-   return {globalId:String(p?.globalId||globalId()),nick:String(p?.nick||'').trim().slice(0,24),rating:Math.max(0,Math.floor(Number(p?.rating)||0)),wins,losses,games:wins+losses,updatedAt:Math.max(0,Math.floor(Number(p?.profileUpdatedAt||p?.updatedAt)||Date.now()))};
+   return {globalId:String(p?.globalId||globalId()),nick:String(p?.nick||'').trim().slice(0,24),rating:Math.max(0,Math.floor(Number(p?.rating)||0)),wins,losses,games:wins+losses,updatedAt:Math.max(0,Math.floor(Number(p?.profileUpdatedAt??p?.updatedAt)||0))};
  }
  function readRatingBackup(){
    try{
@@ -35,10 +35,14 @@
      return rows[0];
    }catch{return null}
  }
- function saveRatingBackup(profile,updatedAt=Date.now()){
+ function saveRatingBackup(profile,updatedAt=null){
    if(!WEB_STATIC||!profile)return;
    try{
-     const snap=ratingSnapshot({...profile,profileUpdatedAt:updatedAt});
+     const prev=readRatingBackup();
+     const base=ratingSnapshot(profile);
+     const same=prev&&prev.nick===base.nick&&prev.rating===base.rating&&prev.wins===base.wins&&prev.losses===base.losses;
+     const stamp=updatedAt!=null?Math.max(0,Math.floor(Number(updatedAt)||0)):(same?(prev.updatedAt||0):Date.now());
+     const snap={...base,updatedAt:stamp};
      const text=JSON.stringify(snap);
      localStorage.setItem(MMR_STATE_KEY,text);
      localStorage.setItem(MMR_BACKUP_KEY,text);
@@ -115,7 +119,7 @@
    }catch{return null}
  }
  async function pushProfileMirrors(profile){
-   const snap=ratingSnapshot(profile);const payload=JSON.stringify({nick:profile.nick,rating:profile.rating,wins:profile.wins,losses:profile.losses,games:snap.games,updatedAt:snap.updatedAt,heroMastery:localMastery});
+   const snap={...ratingSnapshot(profile),updatedAt:readRatingBackup()?.updatedAt||0};const payload=JSON.stringify({nick:profile.nick,rating:profile.rating,wins:profile.wins,losses:profile.losses,games:snap.games,updatedAt:snap.updatedAt,heroMastery:localMastery});
    const bases=['https://dota-3v3-lobby.onrender.com','https://lobby-server-nfqg-production.up.railway.app'];
    await Promise.allSettled(bases.map(async base=>{
      const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),5000);
@@ -127,7 +131,7 @@
    if(!WEB_STATIC||!profile?.nick)return null;
    try{
      const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),7000);
-     const r=await fetch(CLOUD_PROFILE_BASE+'/api/profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nick:profile.nick,rating:profile.rating,wins:profile.wins,losses:profile.losses,games:(Number(profile.wins)||0)+(Number(profile.losses)||0),updatedAt:Date.now(),heroMastery:localMastery}),signal:ctrl.signal});
+     const r=await fetch(CLOUD_PROFILE_BASE+'/api/profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nick:profile.nick,rating:profile.rating,wins:profile.wins,losses:profile.losses,games:(Number(profile.wins)||0)+(Number(profile.losses)||0),updatedAt:readRatingBackup()?.updatedAt||0,heroMastery:localMastery}),signal:ctrl.signal});
      clearTimeout(timer);if(!r.ok)return null;
      const data=await r.json();return data?.profile||null;
    }catch{return null}
