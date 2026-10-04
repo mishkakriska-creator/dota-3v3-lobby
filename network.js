@@ -608,11 +608,24 @@
     arcwarden:'ARC WARDEN',axe:'AXE',broodmother:'BROODMOTHER',phantomlancer:'PHANTOM LANCER',mars:'MARS',enigma:'ENIGMA'
   };
   function rankIconPath(i){i=Math.max(1,Math.min(99,Number(i)||1));return `assets/ranks/rank_${String(i).padStart(2,'0')}.png`}
+  async function primaryStatsFetch(path){
+    const base='https://dota-3v3-lobby.onrender.com';
+    const sep=path.includes('?')?'&':'?';
+    const url=base+path+sep+'_ts='+Date.now();
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),15000);
+    try{
+      const r=await fetch(url,{cache:'no-store',headers:{'Cache-Control':'no-cache','Pragma':'no-cache'},signal:controller.signal});
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      return r;
+    }finally{clearTimeout(timer)}
+  }
   async function loadLeaderboard(){
     leaderboardError.textContent='';leaderboardList.innerHTML='<div class="mp-help">Загрузка топа…</div>';
     if(refreshLeaderboard){refreshLeaderboard.disabled=true;refreshLeaderboard.textContent='ОБНОВЛЕНИЕ…'}
     try{
-      const r=await lobbyFetch('/api/leaderboard',{cache:'no-store'});
+      await window.DotaProfile?.syncCloudProfileNow?.().catch?.(()=>{});
+      const r=await primaryStatsFetch('/api/leaderboard');
       const j=await r.json(),players=Array.isArray(j.players)?j.players:[];
       const me=window.DotaProfile?.getPublic?.();
       const mine=players.find(p=>String(p.nick||'').trim().toLowerCase()===String(me?.nick||'').trim().toLowerCase());
@@ -636,7 +649,7 @@
     heroStatsError.textContent='';heroStatsList.innerHTML='<div class="mp-help">Загрузка статистики…</div>';
     if(refreshHeroStats){refreshHeroStats.disabled=true;refreshHeroStats.textContent='ОБНОВЛЕНИЕ…'}
     try{
-      const r=await lobbyFetch('/api/heroes',{cache:'no-store'});
+      const r=await primaryStatsFetch('/api/heroes');
       const j=await r.json(),heroes=(Array.isArray(j.heroes)?j.heroes:[]).filter(h=>String(h?.heroId||'')!=='chen_creeps');
       heroStatsList.innerHTML='';
       if(!heroes.length){heroStatsList.innerHTML='<div class="mp-help">Статистики пока нет.</div>';return}
