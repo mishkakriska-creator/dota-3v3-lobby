@@ -74,8 +74,17 @@
      const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),7000);
      const r=await fetch(CLOUD_PROFILE_BASE+'/api/profile?nick='+encodeURIComponent(nick)+'&_ts='+Date.now(),{cache:'no-store',signal:ctrl.signal});
      clearTimeout(timer);if(!r.ok)return null;
-     const data=await r.json();return data?.profile||null;
+     const data=await r.json();pushProfileMirrors(profile).catch(()=>{});return data?.profile||null;
    }catch{return null}
+ }
+ async function pushProfileMirrors(profile){
+   const payload=JSON.stringify({nick:profile.nick,rating:profile.rating,wins:profile.wins,losses:profile.losses,heroMastery:localMastery});
+   const bases=['https://dota-3v3-lobby.onrender.com','https://lobby-server-nfqg-production.up.railway.app'];
+   await Promise.allSettled(bases.map(async base=>{
+     const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),5000);
+     try{await fetch(base+'/api/profile',{method:'POST',headers:{'Content-Type':'application/json'},body:payload,cache:'no-store',signal:ctrl.signal})}
+     finally{clearTimeout(timer)}
+   }));
  }
  async function pushCloudProfile(profile=getPublic()){
    if(!WEB_STATIC||!profile?.nick)return null;
