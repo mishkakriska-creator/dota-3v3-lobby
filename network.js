@@ -232,14 +232,24 @@
     };
   }
   const PENDING_MATCH_KEY='dota3v3_pending_global_matches_v1';
-  function readPendingMatches(){try{const x=JSON.parse(localStorage.getItem(PENDING_MATCH_KEY)||'[]');return Array.isArray(x)?x:[]}catch{return[]}}
-  function writePendingMatches(rows){try{localStorage.setItem(PENDING_MATCH_KEY,JSON.stringify((rows||[]).slice(-20)))}catch{}}
+  function readPendingMatches(){
+    try{
+      const x=JSON.parse(localStorage.getItem(PENDING_MATCH_KEY)||'[]');
+      const cutoff=Date.now()-30*24*60*60*1000;
+      return (Array.isArray(x)?x:[]).filter(row=>(Number(row?._journalAt)||Date.now())>=cutoff).slice(-100);
+    }catch{return[]}
+  }
+  function writePendingMatches(rows){try{localStorage.setItem(PENDING_MATCH_KEY,JSON.stringify((rows||[]).slice(-100)))}catch{}}
   function queuePendingMatch(payload){
     if(!payload?.matchId)return;
     const id=String(payload.matchId),rows=readPendingMatches().filter(x=>String(x?.matchId)!==id);
-    rows.push(payload);writePendingMatches(rows);
+    rows.push({...payload,_journalAt:Date.now()});writePendingMatches(rows);
   }
-  function clearPendingMatch(matchId){const id=String(matchId||'');writePendingMatches(readPendingMatches().filter(x=>String(x?.matchId)!==id))}
+  function clearPendingMatch(matchId){
+    // Intentionally keep an append-only 30-day local journal.
+    // Replays are idempotent because the server deduplicates by matchId.
+    writePendingMatches(readPendingMatches());
+  }
   async function mirrorMatchResult(payload){
     const bases=window.DotaServerCandidates?.()||[];
     const body=JSON.stringify(payload);
