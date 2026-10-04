@@ -293,8 +293,19 @@
     try{
       const h=G&&active?.();
       if(h?.id===ID){
-        const buttons=[...document.querySelectorAll('#actions button.skill')];
-        const btn=buttons.find(x=>x.textContent.includes('Burning Spear'));
+        const acts=document.getElementById('actions');
+        let buttons=[...document.querySelectorAll('#actions button.skill')];
+        let btn=buttons.find(x=>x.textContent.includes('Burning Spear'));
+        if(!btn&&acts){
+          btn=document.createElement('button');
+          btn.className='skill huskar-free-toggle';
+          btn.innerHTML='<img class="skill-icon" src="'+SKILLS.spear+'"><span>Burning Spear</span>';
+          btn.title=DATA[ID].skills[0].desc;
+          btn.onclick=()=>skill('burning_spear');
+          acts.prepend(btn);
+          buttons=[...document.querySelectorAll('#actions button.skill')];
+        }
+        btn=btn||buttons.find(x=>x.textContent.includes('Burning Spear'));
         if(btn){
           btn.classList.toggle('selected',!!h.huskarBurningSpear);
           const span=btn.querySelector('span');
