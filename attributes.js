@@ -172,7 +172,7 @@ function renderBattleCardAttributes(h,node){
  const primary=h.primaryAttribute||ATTR[h.id==='arcwarden_clone'?'arcwarden':h.id]?.primary||'';
  row.innerHTML=['strength','agility','intelligence'].map(key=>{
   const label=key==='strength'?'Сила':key==='agility'?'Ловкость':'Интеллект';
-  const icon=GROUPS.find(g=>g.id===key)?.icon||'';
+  const icon=`assets/attributes/${key}.png?v=9`;
   return `<span class="battle-card-attribute ${key} ${key===primary?'primary':''}" title="${label}"><i class="battle-card-attribute-icon" aria-hidden="true" style="background-image:url('${icon}')"></i><b>${values[key]}</b></span>`;
  }).join('');
 }
@@ -227,9 +227,13 @@ attributeCardStyle.textContent=`
  width:15px!important;
  height:15px!important;
  min-width:15px!important;
+ background-color:transparent!important;
  background-size:contain!important;
  background-position:center!important;
  background-repeat:no-repeat!important;
+ border:0!important;
+ border-radius:0!important;
+ box-shadow:none!important;
 }
 html.dota-landscape-mobile .battlefield .hero .battle-card-attributes{gap:5px!important;min-height:14px!important;margin:auto 0 3px!important}
 html.dota-landscape-mobile .battle-card-attribute{gap:2px!important;min-width:22px!important;font-size:10px!important}
