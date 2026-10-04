@@ -81,9 +81,11 @@
   const baseDraftSlotPortraitSrc=draftSlotPortraitSrc;
   draftSlotPortraitSrc=function(id){return id===ID?DRAFT:baseDraftSlotPortraitSrc(id)};
 
-  function missingHp(h){return Math.max(0,(Number(h?.maxHp)||0)-(Number(h?.hp)||0))}
-  function bloodMagicResist(h){return h?.id===ID?missingHp(h)*.25:0}
-  function bloodRepeat(h){return h?.id===ID?missingHp(h)*30:0}
+  function q25(v){return typeof quarterValue==='function'?quarterValue(v):Math.max(.25,Math.round((Math.max(0,Number(v)||0))*4)/4)}
+  function missingHp(h){return q25(Math.max(0,(Number(h?.maxHp)||0)-(Number(h?.hp)||0)))}
+  function missingWholeHp(h){return Math.max(0,Math.floor(missingHp(h)+1e-9))}
+  function bloodMagicResist(h){return h?.id===ID?missingWholeHp(h)*.25:0}
+  function bloodRepeat(h){return h?.id===ID?missingWholeHp(h)*30:0}
 
   const baseMagicResistValue=magicResistValue;
   magicResistValue=function(h){return baseMagicResistValue(h)+bloodMagicResist(h)};
@@ -121,7 +123,7 @@
         if(!h)continue;
 
         if(!h.dead&&h.id===ID){
-          const missing=missingHp(h);
+          const missing=missingWholeHp(h);
           const regen=missing*.25;
           if(regen>0)healHero(h,regen,"Berserker's Blood");
         }
@@ -182,23 +184,49 @@
     const a=heroNode(caster),b=heroNode(target);if(!a||!b)return 0;
     const ar=a.getBoundingClientRect(),br=b.getBoundingClientRect();
     const dx=(br.left+br.width/2)-(ar.left+ar.width/2),dy=(br.top+br.height/2)-(ar.top+ar.height/2);
+    const dir=dx>=0?1:-1;
+    const impactMs=1140,totalMs=1780;
     a.classList.add('huskar-life-break-dashing');
     b.classList.add('huskar-life-break-target');
-    a.style.setProperty('--huskar-dx',dx+'px');
-    a.style.setProperty('--huskar-dy',dy+'px');
-    requestAnimationFrame(()=>requestAnimationFrame(()=>a.classList.add('huskar-life-break-hit')));
-    setTimeout(()=>{b.classList.add('huskar-life-break-impact');},300);
+    const oldZ=a.style.zIndex;a.style.zIndex='9999';
+
+    const trail=document.createElement('div');
+    trail.className='huskar-life-break-trail';
+    trail.style.left=(ar.left+ar.width/2)+'px';
+    trail.style.top=(ar.top+ar.height/2)+'px';
+    trail.style.setProperty('--trail-x',dx+'px');
+    trail.style.setProperty('--trail-y',dy+'px');
+    document.body.appendChild(trail);
+
+    let anim=null;
+    try{
+      anim=a.animate([
+        {offset:0,transform:'translate(0,0) scale(1) rotate(0deg)',filter:'brightness(1)'},
+        {offset:.10,transform:'translate('+(-dir*18)+'px,8px) scale(.96) rotate('+(-dir*3)+'deg)',filter:'brightness(1.05)'},
+        {offset:.25,transform:'translate('+(-dir*10)+'px,-18px) scale(1.02) rotate('+(dir*4)+'deg)',filter:'brightness(1.15) drop-shadow(0 0 8px rgba(255,90,18,.7))'},
+        {offset:.58,transform:'translate('+(dx*.56)+'px,'+(dy*.56-42)+'px) scale(1.07) rotate('+(dir*8)+'deg)',filter:'brightness(1.25) drop-shadow(0 0 18px rgba(255,70,10,.95))'},
+        {offset:.64,transform:'translate('+(dx*.94)+'px,'+(dy*.94-7)+'px) scale(1.10) rotate('+(dir*3)+'deg)',filter:'brightness(1.5) drop-shadow(0 0 25px rgba(255,40,0,1))'},
+        {offset:.69,transform:'translate('+(dx*.88)+'px,'+(dy*.88+5)+'px) scale(1.03) rotate('+(-dir*2)+'deg)',filter:'brightness(1.15)'},
+        {offset:.84,transform:'translate('+(dx*.20)+'px,'+(dy*.20-10)+'px) scale(1.01) rotate(0deg)',filter:'brightness(1.05)'},
+        {offset:1,transform:'translate(0,0) scale(1) rotate(0deg)',filter:'brightness(1)'}
+      ],{duration:totalMs,easing:'cubic-bezier(.18,.72,.19,1)',fill:'none'});
+    }catch(_){}
+
     setTimeout(()=>{
-      a.classList.remove('huskar-life-break-hit');
-      b.classList.remove('huskar-life-break-impact');
-    },430);
+      b.classList.add('huskar-life-break-impact');
+      const ring=document.createElement('div');ring.className='huskar-life-break-ring';
+      ring.style.left=(br.left+br.width/2)+'px';ring.style.top=(br.top+br.height/2)+'px';
+      document.body.appendChild(ring);setTimeout(()=>ring.remove(),520);
+    },impactMs-30);
+    setTimeout(()=>b.classList.remove('huskar-life-break-impact'),impactMs+230);
     setTimeout(()=>{
-      a.classList.remove('huskar-life-break-dashing');
-      b.classList.remove('huskar-life-break-target');
-      a.style.removeProperty('--huskar-dx');a.style.removeProperty('--huskar-dy');
-    },720);
+      try{anim?.cancel()}catch(_){}
+      a.classList.remove('huskar-life-break-dashing');b.classList.remove('huskar-life-break-target');
+      a.style.zIndex=oldZ;trail.remove();
+    },totalMs+60);
+
     if(!noNet)window.emitNetVfx?.('huskar-life-break-dash',caster,{targetTeam:target.team,targetId:target.id});
-    return 320;
+    return impactMs;
   }
 
   const baseSkill=skill;
@@ -223,15 +251,15 @@
       chooseEnemyAny('Выберите цель для Life Break',()=>true,t=>{
         if(!t||t.dead)return;
         G.resolving='huskar-life-break';
-        const targetHp=Math.max(0,Number(t.hp)||0);
-        const selfHp=Math.max(0,Number(h.hp)||0);
+        const targetHp=q25(Math.max(0,Number(t.hp)||0));
+        const selfHp=q25(Math.max(0,Number(h.hp)||0));
         playLifeBreakAudio(h,false);
         const impactDelay=animateLifeBreak(h,t,false)||320;
         putOnCooldown(h,'life_break');
         setTimeout(()=>{
           if(!G||h.dead||!t)return;
-          spellDamage(t,targetHp*.5,'<img class="log-skill-icon" src="'+SKILLS.life+'" alt=""> Life Break: ',h,{impactDelay:0});
-          if(!h.dead)spellDamage(h,selfHp*.5,'<img class="log-skill-icon" src="'+SKILLS.life+'" alt=""> Life Break (самоурон): ',null,{impactDelay:0});
+          spellDamage(t,q25(targetHp*.5),'<img class="log-skill-icon" src="'+SKILLS.life+'" alt=""> Life Break: ',h,{impactDelay:0});
+          if(!h.dead)spellDamage(h,q25(selfHp*.5),'<img class="log-skill-icon" src="'+SKILLS.life+'" alt=""> Life Break (самоурон): ',null,{impactDelay:0});
           if(!t.dead&&canReceiveNegativeEffect(t)){
             const turns=reducedNegativeTurns(t,3);
             if(turns>0){
@@ -242,7 +270,7 @@
           addSkillLog(h,'life_break',h.name+' использует Life Break: 50% текущего HP цели и 50% своего текущего HP магическим уроном; цель получает −30% повторной атаки на 3 общих хода.');
           render();
         },impactDelay);
-        setTimeout(()=>{if(G){G.resolving=false;spend();render()}},760);
+        setTimeout(()=>{if(G){G.resolving=false;spend();render()}},1840);
       },'life_break');
       return;
     }
@@ -287,6 +315,15 @@
     });
   };
 
+  const basePerformFreeRepeatAttack=performFreeRepeatAttack;
+  performFreeRepeatAttack=function(attacker,target){
+    const spear=attacker?.id===ID&&!!attacker.huskarBurningSpear;
+    const beforeDead=!!target?.dead;
+    const ok=basePerformFreeRepeatAttack(attacker,target);
+    if(spear&&ok&&!beforeDead&&target&&!target.dead)addSpearStack(target,attacker);
+    return ok;
+  };
+
   const baseDamage=damage;
   damage=function(target,n,src='',attacker=null,fx={}){
     const wasAlive=!!target&&!target.dead;
@@ -306,8 +343,8 @@
     const out=baseOverlay(h);
     if(!h)return out;
     if(h.id===ID){
-      const missing=missingHp(h);
-      out.push({icon:SKILLS.blood,tone:'good',count:missing?String(Math.round(missing*100)/100):'',label:"Berserker's Blood: "+(missing*.25)+" магрезиста • "+(missing*.25)+" HP/общ. ход • +"+(missing*30)+"% повторной атаки"});
+      const missing=missingWholeHp(h);
+      out.push({icon:SKILLS.blood,tone:'good',count:missing?String(missing):'',label:"Berserker's Blood: "+(missing*.25)+" магрезиста • "+(missing*.25)+" HP/общ. ход • +"+(missing*30)+"% повторной атаки"});
       if(h.huskarBurningSpear)out.push({icon:SKILLS.spear,tone:'good',count:'ON',label:'Burning Spear включён: следующая обычная атака стоит 0.25 HP и накладывает горение.'});
     }
     if(Array.isArray(h.huskarBurnStacks)&&h.huskarBurnStacks.length){
@@ -353,12 +390,14 @@
   style.textContent=`
     #game .hero[data-hero="huskar"] .hero-portrait video{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important}
     #actions button.skill.selected{box-shadow:0 0 0 2px #ff7a1a inset,0 0 14px rgba(255,100,20,.55);border-color:#ff9b45!important}
-    #game .hero.huskar-life-break-dashing{position:relative!important;z-index:999!important;transition:transform .30s cubic-bezier(.18,.88,.28,1.18),filter .18s ease!important;will-change:transform;pointer-events:none}
-    #game .hero.huskar-life-break-dashing.huskar-life-break-hit{transform:translate(var(--huskar-dx),var(--huskar-dy)) scale(1.06)!important;filter:drop-shadow(0 0 16px rgba(255,77,20,.95)) brightness(1.18)!important}
-    #game .hero.huskar-life-break-dashing:not(.huskar-life-break-hit){transform:translate(0,0) scale(1)!important}
+    #game .hero.huskar-life-break-dashing{position:relative!important;z-index:9999!important;will-change:transform,filter;pointer-events:none}
     #game .hero.huskar-life-break-target{z-index:80!important}
-    #game .hero.huskar-life-break-target.huskar-life-break-impact{animation:huskarTargetImpact .22s ease-out!important;filter:brightness(1.8) saturate(1.45) drop-shadow(0 0 16px rgba(255,64,18,.95))!important}
-    @keyframes huskarTargetImpact{0%{transform:translateX(0) scale(1)}35%{transform:translateX(7px) scale(.97)}70%{transform:translateX(-5px) scale(1.02)}100%{transform:translateX(0) scale(1)}}
+    #game .hero.huskar-life-break-target.huskar-life-break-impact{animation:huskarTargetImpact .26s ease-out!important;filter:brightness(1.9) saturate(1.55) drop-shadow(0 0 20px rgba(255,55,8,.98))!important}
+    .huskar-life-break-trail{position:fixed;width:36px;height:36px;margin:-18px 0 0 -18px;border-radius:50%;pointer-events:none;z-index:9997;background:radial-gradient(circle,#fff6bc 0 8%,#ff9d1c 18%,rgba(255,47,0,.65) 42%,transparent 72%);box-shadow:0 0 18px #ffb126,0 0 44px #ff3e00;animation:huskarTrail 1.2s ease-in forwards}
+    .huskar-life-break-ring{position:fixed;width:34px;height:34px;margin:-17px 0 0 -17px;border:5px solid #ffd36c;border-radius:50%;pointer-events:none;z-index:10000;box-shadow:0 0 20px #ffb01f,0 0 46px #ff4300;animation:huskarRing .48s ease-out forwards}
+    @keyframes huskarTrail{0%{transform:translate(0,0) scale(.35);opacity:.2}25%{opacity:.85}95%{transform:translate(var(--trail-x),var(--trail-y)) scale(1.3);opacity:.55}100%{transform:translate(var(--trail-x),var(--trail-y)) scale(1.8);opacity:0}}
+    @keyframes huskarRing{0%{transform:scale(.3);opacity:1}100%{transform:scale(4.2);opacity:0}}
+    @keyframes huskarTargetImpact{0%{transform:translateX(0) scale(1)}30%{transform:translateX(9px) scale(.94)}62%{transform:translateX(-6px) scale(1.04)}100%{transform:translateX(0) scale(1)}}
   `;
   document.head.appendChild(style);
 
