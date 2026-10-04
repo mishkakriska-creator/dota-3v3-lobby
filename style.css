@@ -2193,3 +2193,39 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
  .screen{padding:8px!important}.battlefield{display:flex!important;flex-direction:column!important}.mid{order:-1!important;width:100%!important}.side{width:100%!important;min-width:0!important}.team{overflow-x:auto!important;justify-content:flex-start!important;gap:8px!important}.hero{min-width:145px!important}
  #draftCards{grid-template-columns:repeat(3,minmax(0,1fr))!important}.draft-card{width:auto!important;min-width:0!important}
 }
+
+/* v1.86.218 — attribute draft */
+#draft #draftCards.draft-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:18px!important;
+  align-items:start!important;
+}
+#draft .draft-attribute-group{min-width:0;display:flex;flex-direction:column;gap:10px}
+#draft .draft-attribute-head{
+  height:42px;display:flex;align-items:center;justify-content:center;gap:9px;
+  font-size:15px;font-weight:1000;letter-spacing:3px;color:#c8d1df;
+  text-transform:uppercase;
+}
+#draft .draft-attribute-head img{
+  width:30px!important;height:30px!important;aspect-ratio:1!important;object-fit:contain!important;
+  background:transparent!important;flex:0 0 30px;
+}
+#draft .draft-attribute-cards{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;align-items:start;
+}
+#draft .draft-attribute-group .draft-card{min-width:0!important;width:100%!important}
+#draft .draft-attribute-strength .draft-attribute-head{color:#b7bdca}
+#draft .draft-attribute-agility .draft-attribute-head{color:#b7bdca}
+#draft .draft-attribute-intelligence .draft-attribute-head{color:#b7bdca}
+@media(max-width:1180px){
+ #draft #draftCards.draft-grid{gap:12px!important}
+ #draft .draft-attribute-cards{grid-template-columns:1fr}
+}
+@media(max-width:880px){
+ #draft #draftCards.draft-grid{grid-template-columns:1fr!important}
+ #draft .draft-attribute-cards{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:620px){
+ #draft .draft-attribute-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+}

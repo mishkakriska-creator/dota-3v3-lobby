@@ -1,7 +1,7 @@
 // Dota Cards v0.41 — built-in portable multiplayer host.
 // If opened through HOST_GAME.bat, the page connects to the local WebSocket server.
 (() => {
-  const GAME_VERSION='1.86.216';
+  const GAME_VERSION='1.86.218';
   const PROTOCOL_VERSION=14;
   const DOTA_SERVER_CONFIG = {
     primary: localStorage.getItem('dota_server_primary') || 'https://dota-3v3-lobby.onrender.com',
@@ -751,7 +751,7 @@
     }
   });
   browse.addEventListener('click',()=>{hidePanels();connectPanel.classList.remove('hidden');loadLobbies()});refresh?.addEventListener('click',loadLobbies);
-  offline?.addEventListener('click',()=>{const version=String(window.DOTA_GAME_VERSION||'1.86.216'),build=version.replace(/\D/g,'');location.href=location.pathname+'?offline=1&build='+encodeURIComponent(build)});
+  offline?.addEventListener('click',()=>{const version=String(window.DOTA_GAME_VERSION||'1.86.218'),build=version.replace(/\D/g,'');location.href=location.pathname+'?offline=1&build='+encodeURIComponent(build)});
   hostContinue.addEventListener('click',()=>menu.classList.add('hidden'));const qs=new URLSearchParams(location.search);if(qs.has('room')||qs.has('offline'))menu.classList.add('hidden');if(qs.has('offline')){
     const draftText=document.querySelector('#draft > p');if(draftText)draftText.textContent='Офлайн-режим: управляй обеими командами на этом ПК. Нажми на портрет, чтобы открыть полную карту.';
     document.getElementById('game')?.classList.add('hidden');
