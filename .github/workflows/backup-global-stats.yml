@@ -43,11 +43,40 @@ jobs:
           const ok=settled.filter(x=>x.status==='fulfilled').map(x=>x.value);
           if(!ok.length){console.error(settled.map(x=>x.reason?.message||x.status));process.exit(1)}
           ok.sort((a,b)=>b.updatedAt-a.updatedAt||b.matches-a.matches||b.players-a.players);
+          ok.sort((a,b)=>b.matches-a.matches||b.players-a.players||b.updatedAt-a.updatedAt);
           const best=ok[0];
-          console.log('backup from',best.url,best.matches,'matches',best.players,'players','updatedAt',best.updatedAt);
-          fs.writeFileSync('stats.new.json',JSON.stringify(best.s));
+          let current=null;
+          try{current=JSON.parse(fs.readFileSync('stats.json','utf8'))}catch{}
+          const cm=current&&typeof current.matches==='object'?Object.keys(current.matches).length:0;
+          const cp=current&&typeof current.players==='object'?Object.keys(current.players).length:0;
+          if(current && (best.matches<cm || best.players<cp)){
+            console.log('REFUSE SHRINK: live',best.matches,'matches',best.players,'players; backup has',cm,'matches',cp,'players');
+            fs.writeFileSync('stats.new.json',JSON.stringify(current));
+          }else{
+            console.log('backup from',best.url,best.matches,'matches',best.players,'players','updatedAt',best.updatedAt);
+            fs.writeFileSync('stats.new.json',JSON.stringify(best.s));
+          }
           NODE
           mv stats.new.json stats.json
+          mkdir -p archive
+          node <<'NODE'
+          const fs=require('fs');
+          const d=new Date();
+          const day=d.toISOString().slice(0,10);
+          const hour=d.toISOString().slice(11,13);
+          const dir='archive/'+day;
+          fs.mkdirSync(dir,{recursive:true});
+          fs.copyFileSync('stats.json',dir+'/'+hour+'.json');
+          const s=JSON.parse(fs.readFileSync('stats.json','utf8'));
+          const manifest={
+            capturedAt:new Date().toISOString(),
+            updatedAt:Number(s.updatedAt)||0,
+            matches:Object.keys(s.matches||{}).length,
+            players:Object.keys(s.players||{}).length,
+            heroes:Object.keys(s.heroes||{}).length
+          };
+          fs.writeFileSync(dir+'/'+hour+'.meta.json',JSON.stringify(manifest,null,2));
+          NODE
 
       - name: Save snapshot
         shell: bash
@@ -55,10 +84,10 @@ jobs:
           set -euo pipefail
           git config user.name "dota-stats-bot"
           git config user.email "actions@users.noreply.github.com"
-          if git diff --quiet -- stats.json; then
+          if git diff --quiet -- stats.json archive; then
             echo "No stats changes"
             exit 0
           fi
-          git add stats.json
+          git add stats.json archive
           git commit -m "Backup global stats"
           git push origin HEAD:stats-backup
