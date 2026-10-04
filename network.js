@@ -196,6 +196,7 @@
       if(ev.kind?.startsWith('mars-')){if(Date.now()-(ev.at||0)<5000)window.playMarsFx?.({kind:ev.kind.replace('mars-',''),...ev});continue}
       if(ev.kind?.startsWith('enigma-')){if(Date.now()-(ev.at||0)<5000)window.playEnigmaFx?.(ev);continue}
       if(ev.kind==='es-voice'){if(Date.now()-(ev.at||0)<5000&&ev.voiceSrc)window.playEarthshakerVoice?.(ev.voiceSrc);continue}
+      if(ev.kind?.startsWith('huskar-')){if(Date.now()-(ev.at||0)<5000)window.playHuskarFx?.(ev);continue}
       if(ev.kind?.startsWith('es-')){if(Date.now()-(ev.at||0)<5000)window.playEarthshakerFx?.(ev);continue}
       if(!Number.isInteger(ev.team)||!ev.heroId||!['bomb','mine','raze'].includes(ev.kind))continue;
       const requested=Math.max(0,Number(ev.delay)||0),elapsed=ev.at?Math.max(0,Date.now()-Number(ev.at||0)):0,wait=Math.max(0,requested-elapsed);

@@ -8,6 +8,28 @@
     blood:'assets/skills/huskar_berserkers_blood.png?v=1',
     life:'assets/skills/huskar_life_break.png?v=1'
   };
+  const SFX={
+    pre:'assets/audio/huskar_preattack.mp3?v=1',
+    impact:'assets/audio/huskar_impact.mp3?v=1',
+    spear:'assets/audio/huskar_burning_spear.mp3?v=1',
+    life:'assets/audio/huskar_life_break.mp3?v=1'
+  };
+  const aPre=new Audio(),aImpact=new Audio(),aSpear=new Audio(),aLife=new Audio();
+  [aPre,aImpact,aSpear,aLife].forEach(a=>{a.preload='auto';a.volume=.82});
+  function playFile(a,src,vol=.82){try{a.pause();a.currentTime=0;a.src=src;a.volume=vol;const p=a.play();if(p&&p.catch)p.catch(()=>{})}catch(_){}}
+  function playNormalAttackAudio(h,noNet=false){
+    playFile(aPre,SFX.pre,.78);
+    setTimeout(()=>playFile(aImpact,SFX.impact,.84),Math.max(120,Math.min(360,typeof attackImpactMs==='function'?attackImpactMs(h):220)));
+    if(!noNet)window.emitNetVfx?.('huskar-attack-audio',h,{spear:false});
+  }
+  function playSpearAttackAudio(h,noNet=false){
+    playFile(aSpear,SFX.spear,.86);
+    if(!noNet)window.emitNetVfx?.('huskar-attack-audio',h,{spear:true});
+  }
+  function playLifeBreakAudio(h,noNet=false){
+    playFile(aLife,SFX.life,.9);
+    if(!noNet)window.emitNetVfx?.('huskar-life-break',h);
+  }
 
   DATA[ID]={
     name:'HUSKAR',hp:8,atk:1,img:DRAFT,staticPortrait:false,
@@ -121,6 +143,47 @@
     return out;
   };
 
+  const basePlayAttackSound=playAttackSound;
+  playAttackSound=function(hero,noNet=false){
+    if(hero?.id!==ID)return basePlayAttackSound(hero,noNet);
+    if(hero.huskarBurningSpear)playSpearAttackAudio(hero,noNet);
+    else playNormalAttackAudio(hero,noNet);
+  };
+  window.playHuskarFx=function(ev){
+    if(!ev)return;
+    const hero=window.findHero?.(ev.team,ev.heroId)||null;
+    if(ev.kind==='huskar-attack-audio'){if(hero){if(ev.spear)playSpearAttackAudio(hero,true);else playNormalAttackAudio(hero,true)}return}
+    if(ev.kind==='huskar-life-break'){if(hero)playLifeBreakAudio(hero,true);return}
+    if(ev.kind==='huskar-life-break-dash'){
+      const target=window.findHero?.(ev.targetTeam,ev.targetId)||null;
+      if(hero&&target)animateLifeBreak(hero,target,true);
+    }
+  };
+
+  function heroNode(h){return h?document.getElementById('hero-'+h.team+'-'+h.id):null}
+  function animateLifeBreak(caster,target,noNet=false){
+    const a=heroNode(caster),b=heroNode(target);if(!a||!b)return 0;
+    const ar=a.getBoundingClientRect(),br=b.getBoundingClientRect();
+    const dx=(br.left+br.width/2)-(ar.left+ar.width/2),dy=(br.top+br.height/2)-(ar.top+ar.height/2);
+    a.classList.add('huskar-life-break-dashing');
+    b.classList.add('huskar-life-break-target');
+    a.style.setProperty('--huskar-dx',dx+'px');
+    a.style.setProperty('--huskar-dy',dy+'px');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>a.classList.add('huskar-life-break-hit')));
+    setTimeout(()=>{b.classList.add('huskar-life-break-impact');},300);
+    setTimeout(()=>{
+      a.classList.remove('huskar-life-break-hit');
+      b.classList.remove('huskar-life-break-impact');
+    },430);
+    setTimeout(()=>{
+      a.classList.remove('huskar-life-break-dashing');
+      b.classList.remove('huskar-life-break-target');
+      a.style.removeProperty('--huskar-dx');a.style.removeProperty('--huskar-dy');
+    },720);
+    if(!noNet)window.emitNetVfx?.('huskar-life-break-dash',caster,{targetTeam:target.team,targetId:target.id});
+    return 320;
+  }
+
   const baseSkill=skill;
   skill=function(id){
     const h=G&&active?.();
@@ -141,21 +204,27 @@
       if((h.cd?.life_break||0)>1)return;
       chooseEnemyAny('Выберите цель для Life Break',()=>true,t=>{
         if(!t||t.dead)return;
+        G.resolving='huskar-life-break';
         const targetHp=Math.max(0,Number(t.hp)||0);
         const selfHp=Math.max(0,Number(h.hp)||0);
-        spellDamage(t,targetHp*.5,'<img class="log-skill-icon" src="'+SKILLS.life+'" alt=""> Life Break: ',h,{impactDelay:240});
-        if(!h.dead)spellDamage(h,selfHp*.5,'<img class="log-skill-icon" src="'+SKILLS.life+'" alt=""> Life Break (самоурон): ',null,{impactDelay:240});
-        if(!t.dead&&canReceiveNegativeEffect(t)){
-          const turns=reducedNegativeTurns(t,3);
-          if(turns>0){
-            t.huskarLifeBreakTurns=Math.max(Number(t.huskarLifeBreakTurns)||0,turns);
-            t.huskarLifeBreakAppliedTurn=G?.turnSerial||0;
-          }
-        }
+        playLifeBreakAudio(h,false);
+        const impactDelay=animateLifeBreak(h,t,false)||320;
         putOnCooldown(h,'life_break');
-        addSkillLog(h,'life_break',h.name+' использует Life Break: 50% текущего HP цели и 50% своего текущего HP магическим уроном; цель получает −30% повторной атаки на 3 общих хода.');
-        spend();
-        render();
+        setTimeout(()=>{
+          if(!G||h.dead||!t)return;
+          spellDamage(t,targetHp*.5,'<img class="log-skill-icon" src="'+SKILLS.life+'" alt=""> Life Break: ',h,{impactDelay:0});
+          if(!h.dead)spellDamage(h,selfHp*.5,'<img class="log-skill-icon" src="'+SKILLS.life+'" alt=""> Life Break (самоурон): ',null,{impactDelay:0});
+          if(!t.dead&&canReceiveNegativeEffect(t)){
+            const turns=reducedNegativeTurns(t,3);
+            if(turns>0){
+              t.huskarLifeBreakTurns=Math.max(Number(t.huskarLifeBreakTurns)||0,turns);
+              t.huskarLifeBreakAppliedTurn=G?.turnSerial||0;
+            }
+          }
+          addSkillLog(h,'life_break',h.name+' использует Life Break: 50% текущего HP цели и 50% своего текущего HP магическим уроном; цель получает −30% повторной атаки на 3 общих хода.');
+          render();
+        },impactDelay);
+        setTimeout(()=>{if(G){G.resolving=false;spend();render()}},760);
       },'life_break');
       return;
     }
@@ -241,6 +310,12 @@
   style.textContent=`
     #game .hero[data-hero="huskar"] .hero-portrait video{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important}
     #actions button.skill.selected{box-shadow:0 0 0 2px #ff7a1a inset,0 0 14px rgba(255,100,20,.55);border-color:#ff9b45!important}
+    #game .hero.huskar-life-break-dashing{position:relative!important;z-index:999!important;transition:transform .30s cubic-bezier(.18,.88,.28,1.18),filter .18s ease!important;will-change:transform;pointer-events:none}
+    #game .hero.huskar-life-break-dashing.huskar-life-break-hit{transform:translate(var(--huskar-dx),var(--huskar-dy)) scale(1.06)!important;filter:drop-shadow(0 0 16px rgba(255,77,20,.95)) brightness(1.18)!important}
+    #game .hero.huskar-life-break-dashing:not(.huskar-life-break-hit){transform:translate(0,0) scale(1)!important}
+    #game .hero.huskar-life-break-target{z-index:80!important}
+    #game .hero.huskar-life-break-target.huskar-life-break-impact{animation:huskarTargetImpact .22s ease-out!important;filter:brightness(1.8) saturate(1.45) drop-shadow(0 0 16px rgba(255,64,18,.95))!important}
+    @keyframes huskarTargetImpact{0%{transform:translateX(0) scale(1)}35%{transform:translateX(7px) scale(.97)}70%{transform:translateX(-5px) scale(1.02)}100%{transform:translateX(0) scale(1)}}
   `;
   document.head.appendChild(style);
 
