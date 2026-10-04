@@ -2367,3 +2367,23 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   #draft .draft-side{width:100%!important;min-width:0!important}
   #draft .draft-attribute-cards{grid-template-columns:repeat(3,minmax(0,1fr))!important}
 }
+
+/* v1.86.223 — clean attribute icons */
+#draft .draft-attribute-head img{
+  display:block!important;
+  width:28px!important;
+  height:28px!important;
+  flex:0 0 28px!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  background:none!important;
+  background-color:transparent!important;
+  border:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+  border-radius:0!important;
+  padding:0!important;
+  margin:0!important;
+  opacity:1!important;
+  visibility:visible!important;
+}

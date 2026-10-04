@@ -24,9 +24,9 @@ const ATTR={
  huskar:{primary:'strength',strength:8,agility:3,intelligence:1}
 };
 const GROUPS=[
- {id:'strength',name:'СИЛА',icon:'assets/attributes/strength.png',heroes:['lifestealer','pudge','axe','mars','earthshaker','huskar','abaddon']},
- {id:'agility',name:'ЛОВКОСТЬ',icon:'assets/attributes/agility.png',heroes:['morphling','shadowfiend','arcwarden','broodmother','phantomlancer']},
- {id:'intelligence',name:'ИНТЕЛЛЕКТ',icon:'assets/attributes/intelligence.png',heroes:['techies','bane','io','tinker','silencer','invoker','necrophos','ancient_apparition','enigma','chen']}
+ {id:'strength',name:'СИЛА',icon:'assets/attributes/strength.png?v=2',heroes:['lifestealer','pudge','axe','mars','earthshaker','huskar','abaddon']},
+ {id:'agility',name:'ЛОВКОСТЬ',icon:'assets/attributes/agility.png?v=2',heroes:['morphling','shadowfiend','arcwarden','broodmother','phantomlancer']},
+ {id:'intelligence',name:'ИНТЕЛЛЕКТ',icon:'assets/attributes/intelligence.png?v=2',heroes:['techies','bane','io','tinker','silencer','invoker','necrophos','ancient_apparition','enigma','chen']}
 ];
 window.HERO_ATTRIBUTES=ATTR;
 window.ATTRIBUTE_GROUPS=GROUPS;
