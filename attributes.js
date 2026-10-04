@@ -172,7 +172,8 @@ function renderBattleCardAttributes(h,node){
  const primary=h.primaryAttribute||ATTR[h.id==='arcwarden_clone'?'arcwarden':h.id]?.primary||'';
  row.innerHTML=['strength','agility','intelligence'].map(key=>{
   const label=key==='strength'?'Сила':key==='agility'?'Ловкость':'Интеллект';
-  return `<span class="battle-card-attribute ${key} ${key===primary?'primary':''}" title="${label}"><i class="battle-card-attribute-icon" aria-hidden="true"></i><b>${values[key]}</b></span>`;
+  const icon=GROUPS.find(g=>g.id===key)?.icon||'';
+  return `<span class="battle-card-attribute ${key} ${key===primary?'primary':''}" title="${label}"><i class="battle-card-attribute-icon" aria-hidden="true" style="background-image:url('${icon}')"></i><b>${values[key]}</b></span>`;
  }).join('');
 }
 const previousAttributeRenderTeam=renderTeam;
@@ -229,15 +230,6 @@ attributeCardStyle.textContent=`
  background-size:contain!important;
  background-position:center!important;
  background-repeat:no-repeat!important;
-}
-.battle-card-attribute.strength .battle-card-attribute-icon{
- background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23c84a4a'/%3E%3Cpath d='M9 9l7-3 7 3v7c0 5-3.2 8.6-7 10-3.8-1.4-7-5-7-10V9zm4 4v6h2v3h2v-3h2v-6h-2v3h-2v-3h-2z' fill='white'/%3E%3C/svg%3E")!important;
-}
-.battle-card-attribute.agility .battle-card-attribute-icon{
- background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%234fa95d'/%3E%3Cpath d='M7 19c4-7 9-11 18-12-2 6-6 11-12 14l-3 4-1-4-2-2zm6-1c3-1 6-3 9-7-4 2-7 4-9 7z' fill='white'/%3E%3C/svg%3E")!important;
-}
-.battle-card-attribute.intelligence .battle-card-attribute-icon{
- background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%234c74c9'/%3E%3Cpath d='M16 6l7 7-7 13-7-13 7-7zm0 5l-3 3 3 6 3-6-3-3z' fill='white'/%3E%3C/svg%3E")!important;
 }
 html.dota-landscape-mobile .battlefield .hero .battle-card-attributes{gap:5px!important;min-height:14px!important;margin:auto 0 3px!important}
 html.dota-landscape-mobile .battle-card-attribute{gap:2px!important;min-width:22px!important;font-size:10px!important}
