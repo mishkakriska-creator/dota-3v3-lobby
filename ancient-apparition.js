@@ -276,11 +276,16 @@
   function aaCheckShatter(h,attacker=null){
     if(!G||!h||h.dead||(h.aaIceBlastTurns||0)<=0||h._aaShattering||!(h.maxHp>0))return false;
     if((Number(h.hp)||0)/(Number(h.maxHp)||1)>=.20)return false;
+    if(typeof effectImmune==='function'&&effectImmune(h)){
+      addLog(logIcon(ID,'ice_blast')+'<span>'+h.name+' ниже порога Ice Blast, но находится под неуязвимостью.</span>');
+      return false;
+    }
     h._aaShattering=true;
     const caster=aaSourceFor(h)||attacker||null;
     shatterFx(h);window.emitNetVfx&&window.emitNetVfx('aa-shatter',caster||{team:h.team,id:ID},{targetTeam:h.team,targetId:h.id});
     addLog(logIcon(ID,'ice_blast')+'<span>'+h.name+' падает ниже 20% здоровья и разбивается от Ice Blast.</span>');
     h.aaIceBlastTurns=0;
+    // SHATTER is an execution, not magical/physical/pure damage: bypass armor, magic resistance and Huskar's Berserker's Blood.
     h.hp=0;h.dead=true;
     if(caster)awardHeroKill(h,caster);
     if(h.id==='io')breakTether(h,true);
@@ -291,6 +296,8 @@
     h._aaShattering=false;
     return true;
   }
+
+  window.aaCheckShatter=aaCheckShatter;
 
   const baseDamage=damage;
   damage=function(h,n,src='',attacker=null,fx={}){
