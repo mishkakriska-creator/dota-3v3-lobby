@@ -231,17 +231,39 @@
       ]
     };
   }
+  const PENDING_MATCH_KEY='dota3v3_pending_global_matches_v1';
+  function readPendingMatches(){try{const x=JSON.parse(localStorage.getItem(PENDING_MATCH_KEY)||'[]');return Array.isArray(x)?x:[]}catch{return[]}}
+  function writePendingMatches(rows){try{localStorage.setItem(PENDING_MATCH_KEY,JSON.stringify((rows||[]).slice(-20)))}catch{}}
+  function queuePendingMatch(payload){
+    if(!payload?.matchId)return;
+    const id=String(payload.matchId),rows=readPendingMatches().filter(x=>String(x?.matchId)!==id);
+    rows.push(payload);writePendingMatches(rows);
+  }
+  function clearPendingMatch(matchId){const id=String(matchId||'');writePendingMatches(readPendingMatches().filter(x=>String(x?.matchId)!==id))}
   async function mirrorMatchResult(payload){
     const bases=window.DotaServerCandidates?.()||[];
     const body=JSON.stringify(payload);
-    await Promise.allSettled(bases.map(async base=>{
+    const results=await Promise.allSettled(bases.map(async base=>{
       const c=new AbortController(),t=setTimeout(()=>c.abort(),5000);
       try{
         const r=await fetch(base+'/api/match',{method:'POST',headers:{'Content-Type':'application/json'},body,keepalive:true,cache:'no-store',signal:c.signal});
         if(!r.ok)throw new Error('HTTP '+r.status);
+        const out=await r.json().catch(()=>({ok:true}));
+        if(out?.ok===false)throw new Error(out?.error||'match rejected');
+        return true;
       }finally{clearTimeout(t)}
     }));
+    const ok=results.filter(x=>x.status==='fulfilled').length;
+    if(ok>=Math.min(2,bases.length))clearPendingMatch(payload.matchId);
+    return ok;
   }
+  async function flushPendingMatches(){
+    const rows=readPendingMatches();if(!rows.length)return;
+    for(const payload of rows){try{await mirrorMatchResult(payload)}catch{}}
+  }
+  setTimeout(flushPendingMatches,1800);
+  window.addEventListener('online',()=>setTimeout(flushPendingMatches,300));
+  window.addEventListener('focus',()=>setTimeout(flushPendingMatches,300));
 
   async function submitGlobalMatch(){
     if(OFFLINE||!Number.isInteger(player)||G?.winner==null||!G?.matchId)return false;
@@ -250,6 +272,7 @@
     if(submittingGlobalMatches.has(key))return submittingGlobalMatches.get(key);
     const job=(async()=>{
       const payload=globalMatchPayload(); if(!payload)return false;
+      queuePendingMatch(payload);
       let last=null;
 
       // Primary path: use the already-open match WebSocket. Wait for server ACK
