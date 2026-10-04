@@ -7,6 +7,7 @@ const PORT = Number(process.env.PORT || 10000);
 const rooms = new Map();
 const STATS_FILE = process.env.STATS_FILE || './stats.json';
 const STATS_BACKUP_URL = process.env.STATS_BACKUP_URL || 'https://raw.githubusercontent.com/mishkakriska-creator/dota-3v3-lobby/stats-backup/stats.json';
+const STATS_MIRROR_URL = process.env.STATS_MIRROR_URL || 'https://lobby-server-nfqg-production.up.railway.app/api/stats-export';
 
 const RANKS=[
  [0,'Без ранга',1],[50,'Рекрут 1',2],[150,'Рекрут 2',3],[300,'Рекрут 3',4],[450,'Рекрут 4',5],[600,'Рекрут 5',6],
@@ -24,6 +25,21 @@ function safeNick(v){return String(v||'Игрок').trim().slice(0,24)||'Игр�
 function normalizedNick(v){return String(v||'').trim().replace(/\s+/g,' ').toLowerCase().slice(0,48)}
 function playerKey(p){const n=normalizedNick(p?.nick);return n?('nick:'+n):String(p?.id||p?.profileId||'').trim().toLowerCase().slice(0,80)}
 function cleanHeroes(arr){return [...new Set((Array.isArray(arr)?arr:[]).map(x=>String(x||'').trim()).filter(Boolean))].slice(0,3)}
+function cleanHeroMastery(raw){
+  const out={};
+  if(!raw||typeof raw!=='object')return out;
+  for(const [id,v] of Object.entries(raw).slice(0,40)){
+    const key=String(id||'').trim().toLowerCase().replace(/[^a-z0-9_]/g,'').slice(0,40);
+    const xp=Math.max(0,Math.min(1000000,Math.floor(Number(typeof v==='object'?v?.xp:v)||0)));
+    if(key&&xp)out[key]=xp;
+  }
+  return out;
+}
+function mergeHeroMastery(a,b){
+  const aa=cleanHeroMastery(a),bb=cleanHeroMastery(b),out={...aa};
+  for(const [id,xp] of Object.entries(bb))out[id]=Math.max(Number(out[id])||0,Number(xp)||0);
+  return out;
+}
 
 let stats={players:{},heroes:{},matches:{},updatedAt:0};
 try{
@@ -49,21 +65,36 @@ function saveStats(){
     return true;
   }catch(e){console.error('stats save failed',e?.message||e);return false}
 }
+async function fetchStatsSource(url,timeoutMs=8000){
+  const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),timeoutMs);
+  try{
+    const sep=url.includes('?')?'&':'?';
+    const r=await fetch(url+sep+'_ts='+Date.now(),{cache:'no-store',signal:ctrl.signal});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const data=normalizedStats(await r.json());
+    return {url,data,updatedAt:data.updatedAt,matches:Object.keys(data.matches).length,players:Object.keys(data.players).length};
+  }finally{clearTimeout(timer)}
+}
 async function restoreStatsBackup(){
   try{
-    const r=await fetch(STATS_BACKUP_URL,{cache:'no-store'});
-    if(!r.ok)return;
-    const remote=normalizedStats(await r.json());
     const local=normalizedStats(stats);
-    const localCount=Object.keys(local.matches).length;
-    const remoteCount=Object.keys(remote.matches).length;
-    if(remote.updatedAt>local.updatedAt || (!localCount&&remoteCount)){
-      stats=remote;
+    const settled=await Promise.allSettled([
+      fetchStatsSource(STATS_BACKUP_URL,8000),
+      fetchStatsSource(STATS_MIRROR_URL,5000)
+    ]);
+    const candidates=settled.filter(x=>x.status==='fulfilled').map(x=>x.value);
+    candidates.push({url:'local',data:local,updatedAt:local.updatedAt,matches:Object.keys(local.matches).length,players:Object.keys(local.players).length});
+    candidates.sort((a,b)=>b.updatedAt-a.updatedAt||b.matches-a.matches||b.players-a.players);
+    const best=candidates[0];
+    if(best&&best.url!=='local'){
+      stats=best.data;
       try{fs.writeFileSync(STATS_FILE,JSON.stringify(stats,null,2))}catch{}
-      console.log(`Stats restored from backup: ${remoteCount} matches, ${Object.keys(remote.players).length} players`);
+      console.log('Stats restored from',best.url+':',best.matches,'matches,',best.players,'players');
+    }else{
+      console.log('Stats restore kept local copy:',Object.keys(local.matches).length,'matches,',Object.keys(local.players).length,'players');
     }
   }catch(e){
-    console.warn('stats backup restore skipped',e?.message||e);
+    console.warn('stats restore skipped',e?.message||e);
   }
 }
 
@@ -109,12 +140,16 @@ function consolidatePlayers(source=stats){
   const next={};let changed=false;
   for(const [key,items] of groups){
     const best=[...items].sort((a,b)=>
-      (Math.max(0,Math.floor(Number(b.p.rating)||0))-Math.max(0,Math.floor(Number(a.p.rating)||0))) ||
-      ((Number(b.p.updatedAt)||0)-(Number(a.p.updatedAt)||0))
+      ((Number(b.p.updatedAt)||0)-(Number(a.p.updatedAt)||0)) ||
+      (Math.max(0,Math.floor(Number(b.p.rating)||0))-Math.max(0,Math.floor(Number(a.p.rating)||0)))
     )[0]?.p||{};
     const rating=Math.max(0,Math.floor(Number(best.rating)||0));
-    next[key]={nick:safeNick(best.nick),rating,updatedAt:Math.max(...items.map(x=>Number(x.p.updatedAt)||0),0)};
-    if(items.length!==1||items[0].oldKey!==key||Number(items[0].p.rating)!==rating)changed=true;
+    const wins=Math.max(...items.map(x=>Math.max(0,Math.floor(Number(x.p.wins)||0))),0);
+    const losses=Math.max(...items.map(x=>Math.max(0,Math.floor(Number(x.p.losses)||0))),0);
+    let heroMastery={};
+    for(const x of items)heroMastery=mergeHeroMastery(heroMastery,x.p.heroMastery);
+    next[key]={nick:safeNick(best.nick),rating,wins,losses,heroMastery,updatedAt:Math.max(...items.map(x=>Number(x.p.updatedAt)||0),0)};
+    if(items.length!==1||items[0].oldKey!==key||JSON.stringify(items[0].p)!==JSON.stringify(next[key]))changed=true;
   }
   if(changed)source.players=next;
   return changed;
@@ -124,7 +159,27 @@ function playerByNick(nick,source=stats){
   const p=source.players?.['nick:'+nk]||Object.values(source.players||{}).find(x=>normalizedNick(x?.nick)===nk);
   if(!p)return null;
   const rating=Math.max(0,Math.floor(Number(p.rating)||0));
-  return {nick:safeNick(p.nick),rating,...rankFor(rating)};
+  return {nick:safeNick(p.nick),rating,wins:Math.max(0,Math.floor(Number(p.wins)||0)),losses:Math.max(0,Math.floor(Number(p.losses)||0)),heroMastery:cleanHeroMastery(p.heroMastery),...rankFor(rating)};
+}
+function mergeProfileProgress(body,source=stats){
+  const nick=safeNick(body?.nick);
+  const nk=normalizedNick(nick);if(!nk)return null;
+  const key='nick:'+nk,existing=source.players[key]||{};
+  const exists=!!source.players[key];
+  const existingRating=Math.max(0,Math.floor(Number(existing.rating)||0));
+  const incomingRating=Math.max(0,Math.floor(Number(body?.rating)||0));
+  const incomingWins=Math.max(0,Math.floor(Number(body?.wins)||0));
+  const incomingLosses=Math.max(0,Math.floor(Number(body?.losses)||0));
+  const existingWins=Math.max(0,Math.floor(Number(existing.wins)||0));
+  const existingLosses=Math.max(0,Math.floor(Number(existing.losses)||0));
+  const incomingAtLeastAsCurrent=incomingWins>=existingWins&&incomingLosses>=existingLosses;
+  const rating=exists?(incomingAtLeastAsCurrent?Math.max(existingRating,incomingRating):existingRating):incomingRating;
+  const wins=Math.max(existingWins,incomingWins);
+  const losses=Math.max(existingLosses,incomingLosses);
+  const heroMastery=mergeHeroMastery(existing.heroMastery,body?.heroMastery);
+  source.players[key]={...existing,nick,rating,wins,losses,heroMastery,updatedAt:Date.now()};
+  saveStats();
+  return playerByNick(nick,source);
 }
 function leaderboard(source=stats){
   return Object.values(source.players)
@@ -162,10 +217,12 @@ function applyMatch(body){
     const p=players[t]||{};
     const key=playerKey(p);
     if(!key)return {ok:false,error:'invalid_player'};
-    const existing=target.players[key];
-    const base=Math.max(0,Math.floor(Number(existing?.rating ?? p.rating)||0));
+    const existing=target.players[key]||{};
+    const base=Math.max(0,Math.floor(Number(existing.rating ?? p.rating)||0));
     const rating=Math.max(0,base+(t===winner?45:-20));
-    target.players[key]={nick:safeNick(p.nick),rating,updatedAt:Date.now()};
+    const wins=Math.max(0,Math.floor(Number(existing.wins)||0))+(t===winner?1:0);
+    const losses=Math.max(0,Math.floor(Number(existing.losses)||0))+(t===winner?0:1);
+    target.players[key]={...existing,nick:safeNick(p.nick),rating,wins,losses,heroMastery:cleanHeroMastery(existing.heroMastery),updatedAt:Date.now()};
     changedPlayers.push({key,nick:target.players[key].nick,rating,team:t});
     for(const heroId of cleanHeroes(teams[t])){
       const h=target.heroes[heroId]||{games:0,wins:0};
@@ -189,7 +246,7 @@ function applyMatch(body){
 const server=http.createServer(async(req,res)=>{
   const u=new URL(req.url,'http://localhost');
   if(req.method==='OPTIONS'){res.writeHead(204,cors);return res.end();}
-  if(u.pathname==='/health')return send(res,200,{ok:true,statsApiVersion:4});
+  if(u.pathname==='/health')return send(res,200,{ok:true,statsApiVersion:5,updatedAt:stats.updatedAt||0,matches:Object.keys(stats.matches).length,players:Object.keys(stats.players).length});
   if(u.pathname==='/api/lobbies'&&req.method==='GET')return send(res,200,{lobbies:[...rooms].map(([id,r])=>view(id,r))});
   if(u.pathname==='/api/lobbies'&&req.method==='POST'){
     let body={};try{let s='';for await(const c of req)s+=c;body=JSON.parse(s||'{}')}catch{}
@@ -197,6 +254,12 @@ const server=http.createServer(async(req,res)=>{
   }
   if(u.pathname==='/api/leaderboard'&&req.method==='GET')return send(res,200,{players:leaderboard(),updatedAt:stats.updatedAt||0,matches:Object.keys(stats.matches).length});
   if(u.pathname==='/api/player'&&req.method==='GET')return send(res,200,{player:playerByNick(u.searchParams.get('nick')||'')});
+  if(u.pathname==='/api/profile'&&req.method==='GET')return send(res,200,{profile:playerByNick(u.searchParams.get('nick')||'')});
+  if(u.pathname==='/api/profile'&&req.method==='POST'){
+    let body={};try{let raw='';for await(const c of req)raw+=c;body=JSON.parse(raw||'{}')}catch{}
+    const profile=mergeProfileProgress(body);
+    return send(res,profile?200:400,{profile,error:profile?'':'invalid_profile'});
+  }
   if(u.pathname==='/api/heroes'&&req.method==='GET')return send(res,200,{heroes:heroStats(),updatedAt:stats.updatedAt||0,matches:Object.keys(stats.matches).length});
   if(u.pathname==='/api/stats-export'&&req.method==='GET')return send(res,200,stats);
   if(u.pathname==='/api/match'&&req.method==='POST'){
@@ -360,7 +423,7 @@ setInterval(()=>{
 await restoreStatsBackup();
 if(consolidatePlayers(stats)){
   saveStats();
-  console.log('Consolidated duplicate global players by nickname, keeping highest MMR');
+  console.log('Consolidated duplicate global players by nickname');
 }
 
 // Remove stale CI smoke-test pollution from the live global statistics.
@@ -376,4 +439,6 @@ if(consolidatePlayers(stats)){
     console.log('Cleared CI-only global statistics');
   }
 }
+process.on('SIGTERM',()=>{try{saveStats()}finally{process.exit(0)}});
+process.on('SIGINT',()=>{try{saveStats()}finally{process.exit(0)}});
 server.listen(PORT,()=>console.log(`Dota 3v3 lobby listening on ${PORT}; global stats: ${Object.keys(stats.matches).length} matches, ${Object.keys(stats.players).length} players`));
