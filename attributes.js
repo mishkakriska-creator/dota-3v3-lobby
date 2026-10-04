@@ -159,6 +159,55 @@ if(ITEMS.yasha)ITEMS.yasha.desc='Даёт +6 к ловкости и +0.5 бро�
 if(ITEMS.kaya_sange)ITEMS.kaya_sange.desc='Даёт +2 к силе, сокращает длительность любых отрицательных эффектов на 1 ход и увеличивает урон от способностей на 2. Собирается из Kaya и Sange.';
 if(ITEMS.sange_yasha)ITEMS.sange_yasha.desc='Даёт +1 к силе и +1 брони, сокращает длительность любых отрицательных эффектов на 2 хода и даёт 30% шанс после обычной атаки повторить тычку без траты действия. Собирается из Sange и Yasha.';
 
+// Battle card attribute strip
+const ATTRIBUTE_CARD_ICONS={
+ strength:'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/icons/hero_strength.png',
+ agility:'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/icons/hero_agility.png',
+ intelligence:'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/icons/hero_intelligence.png'
+};
+function renderBattleCardAttributes(h,node){
+ if(!h||!node)return;
+ let row=node.querySelector('.battle-card-attributes');
+ if(!row){
+   row=document.createElement('div');
+   row.className='battle-card-attributes';
+   const btn=node.querySelector('.inspect-hero');
+   if(btn)btn.parentNode.insertBefore(row,btn);
+ }
+ const values={
+   strength:window.heroAttributeValue(h,'strength'),
+   agility:window.heroAttributeValue(h,'agility'),
+   intelligence:window.heroAttributeValue(h,'intelligence')
+ };
+ const primary=h.primaryAttribute||ATTR[h.id==='arcwarden_clone'?'arcwarden':h.id]?.primary||'';
+ row.innerHTML=['strength','agility','intelligence'].map(key=>`<span class="battle-card-attribute ${key===primary?'primary':''}" title="${key==='strength'?'Сила':key==='agility'?'Ловкость':'Интеллект'}"><img src="${ATTRIBUTE_CARD_ICONS[key]}" alt=""><b>${values[key]}</b></span>`).join('');
+}
+const previousAttributeRenderTeam=renderTeam;
+renderTeam=function(t,sel){
+ previousAttributeRenderTeam(t,sel);
+ const team=G?.teams?.[t]||[];
+ for(const h of team){
+   const node=document.getElementById(`hero-${h.team}-${h.id}`);
+   if(node)renderBattleCardAttributes(h,node);
+ }
+};
+
+const attributeCardStyle=document.createElement('style');
+attributeCardStyle.textContent=`
+.battle-card-attributes{display:flex;align-items:center;justify-content:center;gap:7px;margin:3px 0 4px;min-height:18px;line-height:1;pointer-events:none}
+.battle-card-attribute{display:inline-flex;align-items:center;justify-content:center;gap:3px;min-width:26px;color:#e8edf5;font-size:12px;font-weight:800;text-shadow:0 1px 2px #000}
+.battle-card-attribute img{width:15px;height:15px;object-fit:contain;display:block}
+.battle-card-attribute.primary{filter:brightness(1.18)}
+.battle-card-attribute.primary b{color:#fff}
+html.dota-landscape-mobile .battle-card-attributes{gap:4px;margin:1px 0 3px;min-height:14px}
+html.dota-landscape-mobile .battle-card-attribute{gap:2px;min-width:22px;font-size:10px}
+html.dota-landscape-mobile .battle-card-attribute img{width:12px;height:12px}
+html.dota-android .battle-card-attributes{gap:3px;margin:0 0 2px}
+html.dota-android .battle-card-attribute{min-width:20px;font-size:9px}
+html.dota-android .battle-card-attribute img{width:11px;height:11px}
+`;
+document.head.appendChild(attributeCardStyle);
+
 function makeDraftCard(id){
  const hero=DATA[id];if(!hero)return null;
  const d=document.createElement('button');d.className='draft-card';d.dataset.id=id;
