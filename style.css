@@ -2411,3 +2411,43 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   letter-spacing:2.5px!important;
   line-height:24px!important;
 }
+
+/* v1.86.232 — official Steam Dota attribute icons */
+#draft .draft-attribute-head{
+  height:32px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:6px!important;
+}
+#draft .draft-attribute-head::before{display:none!important;content:none!important}
+#draft .draft-attribute-head img{
+  display:block!important;
+  width:21px!important;
+  height:21px!important;
+  min-width:21px!important;
+  min-height:21px!important;
+  max-width:21px!important;
+  max-height:21px!important;
+  flex:0 0 21px!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  image-rendering:auto!important;
+  transform:none!important;
+  filter:none!important;
+  background:transparent!important;
+  border:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+  border-radius:0!important;
+  padding:0!important;
+  margin:0!important;
+  opacity:1!important;
+}
+#draft .draft-attribute-head span{
+  color:#aeb8ca!important;
+  font-size:15px!important;
+  font-weight:900!important;
+  letter-spacing:2.5px!important;
+  line-height:21px!important;
+}
