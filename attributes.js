@@ -160,80 +160,90 @@ if(ITEMS.kaya_sange)ITEMS.kaya_sange.desc='Даёт +2 к силе, сокращ
 if(ITEMS.sange_yasha)ITEMS.sange_yasha.desc='Даёт +1 к силе и +1 брони, сокращает длительность любых отрицательных эффектов на 2 хода и даёт 30% шанс после обычной атаки повторить тычку без траты действия. Собирается из Sange и Yasha.';
 
 // Battle card attribute strip
-const ATTRIBUTE_CARD_ICONS={
- strength:"data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23c84a4a'/%3E%3Cpath d='M9 9l7-3 7 3v7c0 5-3.2 8.6-7 10-3.8-1.4-7-5-7-10V9zm4 4v6h2v3h2v-3h2v-6h-2v3h-2v-3h-2z' fill='white'/%3E%3C/svg%3E",
- agility:"data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%234fa95d'/%3E%3Cpath d='M7 19c4-7 9-11 18-12-2 6-6 11-12 14l-3 4-1-4-2-2zm6-1c3-1 6-3 9-7-4 2-7 4-9 7z' fill='white'/%3E%3C/svg%3E",
- intelligence:"data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%234c74c9'/%3E%3Cpath d='M16 6l7 7-7 13-7-13 7-7zm0 5l-3 3 3 6 3-6-3-3z' fill='white'/%3E%3C/svg%3E"
-};
 function renderBattleCardAttributes(h,node){
  if(!h||!node)return;
- let row=node.querySelector('.battle-card-attributes');
- if(!row){
-   row=document.createElement('div');
-   row.className='battle-card-attributes';
-   const btn=node.querySelector('.inspect-hero');
-   if(btn)btn.parentNode.insertBefore(row,btn);
- }
+ const row=node.querySelector('.battle-card-attributes');
+ if(!row)return;
  const values={
-   strength:window.heroAttributeValue(h,'strength'),
-   agility:window.heroAttributeValue(h,'agility'),
-   intelligence:window.heroAttributeValue(h,'intelligence')
+  strength:window.heroAttributeValue(h,'strength'),
+  agility:window.heroAttributeValue(h,'agility'),
+  intelligence:window.heroAttributeValue(h,'intelligence')
  };
  const primary=h.primaryAttribute||ATTR[h.id==='arcwarden_clone'?'arcwarden':h.id]?.primary||'';
- row.innerHTML=['strength','agility','intelligence'].map(key=>`<span class="battle-card-attribute ${key===primary?'primary':''}" title="${key==='strength'?'Сила':key==='agility'?'Ловкость':'Интеллект'}"><img src="${ATTRIBUTE_CARD_ICONS[key]}" alt=""><b>${values[key]}</b></span>`).join('');
+ row.innerHTML=['strength','agility','intelligence'].map(key=>{
+  const label=key==='strength'?'Сила':key==='agility'?'Ловкость':'Интеллект';
+  return `<span class="battle-card-attribute ${key} ${key===primary?'primary':''}" title="${label}"><i class="battle-card-attribute-icon" aria-hidden="true"></i><b>${values[key]}</b></span>`;
+ }).join('');
 }
 const previousAttributeRenderTeam=renderTeam;
 renderTeam=function(t,sel){
  previousAttributeRenderTeam(t,sel);
- const team=G?.teams?.[t]||[];
- for(const h of team){
-   const node=document.getElementById(`hero-${h.team}-${h.id}`);
-   if(node)renderBattleCardAttributes(h,node);
+ for(const h of (G?.teams?.[t]||[])){
+  const node=document.getElementById(`hero-${h.team}-${h.id}`);
+  if(node)renderBattleCardAttributes(h,node);
  }
 };
 
 const attributeCardStyle=document.createElement('style');
 attributeCardStyle.textContent=`
-.battlefield .hero-body{position:relative!important}
-.battle-card-attributes{
-  position:absolute!important;
-  left:0!important;
-  right:0!important;
-  bottom:35px!important;
-  z-index:3!important;
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  gap:8px!important;
-  margin:0!important;
-  min-height:18px!important;
-  line-height:1!important;
-  pointer-events:none!important;
+.battlefield .hero .hero-name{order:1!important}
+.battlefield .hero .stats{order:2!important}
+.battlefield .hero .hpbar{order:3!important}
+.battlefield .hero .status{order:4!important}
+.battlefield .hero .item-inventory{order:5!important}
+.battlefield .hero .battle-card-attributes{
+ order:6!important;
+ position:static!important;
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ gap:9px!important;
+ width:100%!important;
+ min-height:18px!important;
+ margin:auto 0 4px!important;
+ padding:0!important;
+ line-height:1!important;
+ flex:0 0 auto!important;
+ pointer-events:none!important;
+}
+.battlefield .hero .inspect-hero{
+ order:7!important;
+ margin:0!important;
 }
 .battle-card-attribute{
-  display:inline-flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  gap:3px!important;
-  min-width:27px!important;
-  color:#eef2f8!important;
-  font-size:12px!important;
-  font-weight:900!important;
-  text-shadow:0 1px 2px #000!important;
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ gap:3px!important;
+ min-width:29px!important;
+ color:#eef2f8!important;
+ font-size:12px!important;
+ font-weight:900!important;
+ text-shadow:0 1px 2px #000!important;
 }
-.battle-card-attribute img{
-  width:15px!important;
-  height:15px!important;
-  min-width:15px!important;
-  object-fit:contain!important;
-  display:block!important;
+.battle-card-attribute-icon{
+ display:block!important;
+ width:15px!important;
+ height:15px!important;
+ min-width:15px!important;
+ background-size:contain!important;
+ background-position:center!important;
+ background-repeat:no-repeat!important;
 }
-html.dota-landscape-mobile .battle-card-attributes{bottom:32px!important;gap:5px!important;min-height:14px!important}
+.battle-card-attribute.strength .battle-card-attribute-icon{
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23c84a4a'/%3E%3Cpath d='M9 9l7-3 7 3v7c0 5-3.2 8.6-7 10-3.8-1.4-7-5-7-10V9zm4 4v6h2v3h2v-3h2v-6h-2v3h-2v-3h-2z' fill='white'/%3E%3C/svg%3E")!important;
+}
+.battle-card-attribute.agility .battle-card-attribute-icon{
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%234fa95d'/%3E%3Cpath d='M7 19c4-7 9-11 18-12-2 6-6 11-12 14l-3 4-1-4-2-2zm6-1c3-1 6-3 9-7-4 2-7 4-9 7z' fill='white'/%3E%3C/svg%3E")!important;
+}
+.battle-card-attribute.intelligence .battle-card-attribute-icon{
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%234c74c9'/%3E%3Cpath d='M16 6l7 7-7 13-7-13 7-7zm0 5l-3 3 3 6 3-6-3-3z' fill='white'/%3E%3C/svg%3E")!important;
+}
+html.dota-landscape-mobile .battlefield .hero .battle-card-attributes{gap:5px!important;min-height:14px!important;margin:auto 0 3px!important}
 html.dota-landscape-mobile .battle-card-attribute{gap:2px!important;min-width:22px!important;font-size:10px!important}
-html.dota-landscape-mobile .battle-card-attribute img{width:12px!important;height:12px!important;min-width:12px!important}
-html.dota-android .battle-card-attributes{bottom:30px!important;gap:4px!important}
+html.dota-landscape-mobile .battle-card-attribute-icon{width:12px!important;height:12px!important;min-width:12px!important}
 html.dota-android .battle-card-attribute{min-width:20px!important;font-size:9px!important}
-html.dota-android .battle-card-attribute img{width:11px!important;height:11px!important;min-width:11px!important}
+html.dota-android .battle-card-attribute-icon{width:11px!important;height:11px!important;min-width:11px!important}
 `;
 document.head.appendChild(attributeCardStyle);
 
