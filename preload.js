@@ -3,6 +3,7 @@
   const loader=document.getElementById('assetLoader'), bar=document.getElementById('assetLoaderBar'), text=document.getElementById('assetLoaderText');
   if(!loader)return;
   const critical=[
+    'assets/huskar/huskar_draft.png','assets/turn_huskar.png','assets/skills/huskar_burning_spear.png','assets/skills/huskar_berserkers_blood.png','assets/skills/huskar_life_break.png','assets/portraits/huskar.webm',
     'assets/earthshaker_v2/draft.png','assets/earthshaker_v2/turn.png','assets/earthshaker_v2/fissure.png','assets/earthshaker_v2/enchant_totem.png','assets/earthshaker_v2/aftershock.png','assets/earthshaker_v2/echo_slam.png','assets/earthshaker_v2/portrait.webm',
     'assets/ui/gold.png',
     'assets/mastery/bronze.png','assets/mastery/silver.png','assets/mastery/gold.png','assets/mastery/platinum.png','assets/mastery/master.png','assets/mastery/grandmaster.png',
