@@ -231,6 +231,18 @@
       ]
     };
   }
+  async function mirrorMatchResult(payload){
+    const bases=window.DotaServerCandidates?.()||[];
+    const body=JSON.stringify(payload);
+    await Promise.allSettled(bases.map(async base=>{
+      const c=new AbortController(),t=setTimeout(()=>c.abort(),5000);
+      try{
+        const r=await fetch(base+'/api/match',{method:'POST',headers:{'Content-Type':'application/json'},body,keepalive:true,cache:'no-store',signal:c.signal});
+        if(!r.ok)throw new Error('HTTP '+r.status);
+      }finally{clearTimeout(t)}
+    }));
+  }
+
   async function submitGlobalMatch(){
     if(OFFLINE||!Number.isInteger(player)||G?.winner==null||!G?.matchId)return false;
     const key=String(G.matchId);
@@ -260,6 +272,7 @@
           if(ack?.ok){
             submittedGlobalMatches.add(key);
             console.log('[GLOBAL STATS] match_result ACK',key,ack);
+            mirrorMatchResult(payload).catch(()=>{});
             window.DotaSyncGlobalProfile?.();
             return true;
           }
@@ -280,6 +293,7 @@
           if(!r.ok||out?.ok===false)throw new Error(out?.error||('HTTP '+r.status));
           submittedGlobalMatches.add(key);
           console.log('[GLOBAL STATS] match submitted by HTTP',key,out||{});
+          mirrorMatchResult(payload).catch(()=>{});
           window.DotaSyncGlobalProfile?.();
           return true;
         }catch(e){
