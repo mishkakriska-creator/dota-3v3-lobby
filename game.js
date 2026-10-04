@@ -344,7 +344,32 @@ function ensureMusic(){
   })().finally(()=>{bgmStartPromise=null});
   return bgmStartPromise;
 }
-function playAttackSound(h,noNet=false){if(!h)return;if(!noNet)window.emitNetVfx?.('audio-attack',h);if(h?.id==='io'){playFile(attackAudio,IO_ATTACK_AUDIO.pre);setTimeout(()=>playFile(sfxAudio,IO_ATTACK_AUDIO.launch),120);setTimeout(()=>playFile(miscAudio,IO_ATTACK_AUDIO.impact),280);return}playFile(attackAudio,ATTACK_AUDIO[h.id])}
+function playAttackOneShot(src,volume=.68,delay=0){
+  if(!src)return;
+  setTimeout(()=>{
+    try{
+      window.DotaUseAmbientAudioSession?.();
+      const a=new Audio();
+      a.preload='auto';a.volume=volume;a.src=src;
+      const cleanup=()=>{try{a.pause();a.src=''}catch(_){}};
+      a.addEventListener('ended',cleanup,{once:true});
+      a.addEventListener('error',cleanup,{once:true});
+      const p=a.play();if(p?.catch)p.catch(()=>cleanup());
+      setTimeout(cleanup,10000);
+    }catch(_){}
+  },Math.max(0,delay));
+}
+function playAttackSound(h,noNet=false){
+  if(!h)return;
+  if(!noNet)window.emitNetVfx?.('audio-attack',h);
+  if(h?.id==='io'){
+    playAttackOneShot(IO_ATTACK_AUDIO.pre,.68,0);
+    playAttackOneShot(IO_ATTACK_AUDIO.launch,.72,120);
+    playAttackOneShot(IO_ATTACK_AUDIO.impact,.72,280);
+    return;
+  }
+  playAttackOneShot(ATTACK_AUDIO[h.id],.68,0);
+}
 document.addEventListener('pointerdown',ensureMusic,{once:true});
 const MINE_AUDIO={place:'assets/audio/techies_mine_place.mp3',approach:'assets/audio/techies_mine_approach.mp3',explode:'assets/audio/techies_mine_explode.mp3'};
 function playMineSound(kind){playFile(mineAudio,MINE_AUDIO[kind])}
