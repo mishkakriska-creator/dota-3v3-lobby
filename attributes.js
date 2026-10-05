@@ -172,7 +172,7 @@ function renderBattleCardAttributes(h,node){
  const primary=h.primaryAttribute||ATTR[h.id==='arcwarden_clone'?'arcwarden':h.id]?.primary||'';
  row.innerHTML=['strength','agility','intelligence'].map(key=>{
   const label=key==='strength'?'Сила':key==='agility'?'Ловкость':'Интеллект';
-  const icon=`assets/attributes/${key}.png?v=9`;
+  const icon=`assets/attributes/${key}.png?v=10`;
   return `<span class="battle-card-attribute ${key} ${key===primary?'primary':''}" title="${label}"><i class="battle-card-attribute-icon" aria-hidden="true" style="background-image:url('${icon}')"></i><b>${values[key]}</b></span>`;
  }).join('');
 }
