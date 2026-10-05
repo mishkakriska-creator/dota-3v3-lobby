@@ -192,58 +192,61 @@
   function heroNode(h){return h?document.getElementById('hero-'+h.team+'-'+h.id):null}
   function animateLifeBreak(caster,target,noNet=false){
     const source=heroNode(caster),targetNode=heroNode(target);if(!source||!targetNode)return 0;
-    const sr=source.getBoundingClientRect(),tr=targetNode.getBoundingClientRect();
-    const dx=(tr.left+tr.width/2)-(sr.left+sr.width/2),dy=(tr.top+tr.height/2)-(sr.top+sr.height/2);
+    const portrait=source.querySelector('.hero-portrait');if(!portrait)return 0;
+    const pr=portrait.getBoundingClientRect(),tr=targetNode.getBoundingClientRect();
+    const dx=(tr.left+tr.width/2)-(pr.left+pr.width/2),dy=(tr.top+tr.height/2)-(pr.top+pr.height/2);
     const dir=dx>=0?1:-1;
-    const impactMs=1120,totalMs=1760;
+    const impactMs=980,totalMs=1480;
 
-    // Full visual copy of the actual Huskar card. The original slot is hidden only during the leap.
-    const flyer=source.cloneNode(true);
-    flyer.removeAttribute('id');
-    flyer.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id'));
-    flyer.classList.add('huskar-life-break-flyer');
+    // Only the portrait flies. The card UI (HP, stats, attributes, button) stays completely still.
+    const flyer=document.createElement('div');
+    flyer.className='huskar-life-break-portrait-flyer';
     flyer.style.position='fixed';
-    flyer.style.left=sr.left+'px';
-    flyer.style.top=sr.top+'px';
-    flyer.style.width=sr.width+'px';
-    flyer.style.height=sr.height+'px';
+    flyer.style.left=pr.left+'px';
+    flyer.style.top=pr.top+'px';
+    flyer.style.width=pr.width+'px';
+    flyer.style.height=pr.height+'px';
     flyer.style.margin='0';
     flyer.style.zIndex='2147483646';
     flyer.style.pointerEvents='none';
+    flyer.style.overflow='hidden';
+    flyer.style.borderRadius=getComputedStyle(portrait).borderRadius||'0';
     flyer.style.transformOrigin='50% 55%';
     flyer.style.willChange='transform,filter';
-    document.body.appendChild(flyer);
-    source.style.visibility='hidden';
-    targetNode.classList.add('huskar-life-break-target');
-
-    // Restart cloned portrait video if present.
+    flyer.innerHTML='<video autoplay muted loop playsinline preload="auto"></video>';
     const v=flyer.querySelector('video');
-    if(v){try{v.muted=true;v.loop=true;v.playsInline=true;v.currentTime=0;v.play().catch(()=>{})}catch(_){}}
+    const src=portrait.querySelector('video')?.currentSrc||portrait.querySelector('video')?.src||PORTRAIT;
+    v.src=src;v.poster=caster.img||DRAFT;v.muted=true;v.loop=true;v.playsInline=true;v.autoplay=true;
+    document.body.appendChild(flyer);
+
+    // Keep the actual card fixed; only hide its portrait while the flying copy is visible.
+    const oldVisibility=portrait.style.visibility;
+    portrait.style.visibility='hidden';
+    targetNode.classList.add('huskar-life-break-target');
+    try{v.currentTime=portrait.querySelector('video')?.currentTime||0;v.play().catch(()=>{})}catch(_){}
 
     let anim=null;
     try{
       anim=flyer.animate([
         {offset:0,transform:'translate3d(0,0,0) scale(1) rotate(0deg)',filter:'brightness(1)'},
-        {offset:.10,transform:'translate3d('+(-dir*22)+'px,8px,0) scale(.97) rotate('+(-dir*4)+'deg)',filter:'brightness(1.02)'},
-        {offset:.25,transform:'translate3d('+(-dir*9)+'px,-26px,0) scale(1.01) rotate('+(dir*5)+'deg)',filter:'brightness(1.08)'},
-        {offset:.50,transform:'translate3d('+(dx*.46)+'px,'+(dy*.46-64)+'px,0) scale(1.05) rotate('+(dir*8)+'deg)',filter:'brightness(1.14)'},
-        {offset:.61,transform:'translate3d('+(dx*.78)+'px,'+(dy*.78-30)+'px,0) scale(1.08) rotate('+(dir*6)+'deg)',filter:'brightness(1.2)'},
-        {offset:.635,transform:'translate3d('+dx+'px,'+dy+'px,0) scale(1.12) rotate('+(dir*2)+'deg)',filter:'brightness(1.55)'},
-        {offset:.69,transform:'translate3d('+(dx*.88)+'px,'+(dy*.88+8)+'px,0) scale(1.03) rotate('+(-dir*2)+'deg)',filter:'brightness(1.08)'},
-        {offset:.84,transform:'translate3d('+(dx*.22)+'px,'+(dy*.22-12)+'px,0) scale(1.01) rotate(0deg)',filter:'brightness(1.03)'},
+        {offset:.12,transform:'translate3d('+(-dir*14)+'px,5px,0) scale(.99) rotate('+(-dir*2)+'deg)',filter:'brightness(1.02)'},
+        {offset:.34,transform:'translate3d('+(dx*.34)+'px,'+(dy*.34-42)+'px,0) scale(1.015) rotate('+(dir*3)+'deg)',filter:'brightness(1.08)'},
+        {offset:.66,transform:'translate3d('+(dx*.78)+'px,'+(dy*.78-22)+'px,0) scale(1.035) rotate('+(dir*3)+'deg)',filter:'brightness(1.14)'},
+        {offset:.72,transform:'translate3d('+dx+'px,'+dy+'px,0) scale(1.06) rotate(0deg)',filter:'brightness(1.5)'},
+        {offset:.82,transform:'translate3d('+(dx*.78)+'px,'+(dy*.78+4)+'px,0) scale(1.02) rotate('+(-dir*1)+'deg)',filter:'brightness(1.08)'},
         {offset:1,transform:'translate3d(0,0,0) scale(1) rotate(0deg)',filter:'brightness(1)'}
-      ],{duration:totalMs,easing:'cubic-bezier(.16,.72,.18,1)',fill:'forwards'});
+      ],{duration:totalMs,easing:'cubic-bezier(.18,.72,.18,1)',fill:'forwards'});
     }catch(_){}
 
-    setTimeout(()=>targetNode.classList.add('huskar-life-break-impact'),impactMs-35);
-    setTimeout(()=>targetNode.classList.remove('huskar-life-break-impact'),impactMs+220);
+    setTimeout(()=>targetNode.classList.add('huskar-life-break-impact'),impactMs-30);
+    setTimeout(()=>targetNode.classList.remove('huskar-life-break-impact'),impactMs+180);
     setTimeout(()=>{
       try{anim?.cancel()}catch(_){}
       try{v?.pause()}catch(_){}
       flyer.remove();
-      source.style.visibility='';
+      portrait.style.visibility=oldVisibility;
       targetNode.classList.remove('huskar-life-break-target');
-    },totalMs+70);
+    },totalMs+60);
 
     if(!noNet)window.emitNetVfx?.('huskar-life-break-dash',caster,{targetTeam:target.team,targetId:target.id});
     return impactMs;
@@ -411,8 +414,8 @@
     #game .hero[data-hero="huskar"] .hero-portrait video{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important}
     #actions button.skill.selected{box-shadow:0 0 0 2px #ff7a1a inset,0 0 14px rgba(255,100,20,.55);border-color:#ff9b45!important}
     #game .hero.huskar-life-break-target{z-index:80!important}
-    .huskar-life-break-flyer{box-sizing:border-box!important}
-    .huskar-life-break-flyer video,.huskar-life-break-flyer img{pointer-events:none!important}
+    .huskar-life-break-portrait-flyer{box-sizing:border-box!important;background:#080b10!important;box-shadow:0 0 24px rgba(255,92,24,.28)!important}
+    .huskar-life-break-portrait-flyer video{width:100%!important;height:100%!important;display:block!important;object-fit:cover!important;object-position:center!important;pointer-events:none!important}
     #game .hero.huskar-life-break-target.huskar-life-break-impact{animation:huskarTargetImpact .26s ease-out!important;filter:brightness(1.9) saturate(1.55) drop-shadow(0 0 20px rgba(255,55,8,.98))!important}100%{transform:scale(4.2);opacity:0}}
     @keyframes huskarTargetImpact{0%{transform:translateX(0) scale(1)}30%{transform:translateX(9px) scale(.94)}62%{transform:translateX(-6px) scale(1.04)}100%{transform:translateX(0) scale(1)}}
   `;
