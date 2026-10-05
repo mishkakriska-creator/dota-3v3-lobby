@@ -222,7 +222,7 @@ attributeCardStyle.textContent=`
  font-weight:900!important;
  text-shadow:0 1px 2px #000!important;
 }
-.battlefield .hero .battle-card-attribute img.battle-card-attribute-icon{
+.hero .battle-card-attribute img.battle-card-attribute-icon{
  display:block!important;
  width:15px!important;
  height:15px!important;
@@ -246,13 +246,37 @@ attributeCardStyle.textContent=`
  margin:0!important;
  opacity:1!important;
 }
+
+.huskar-life-break-flyer .battle-card-attribute img.battle-card-attribute-icon,
+.hero.enigma-black-hole-victim .battle-card-attribute img.battle-card-attribute-icon,
+.hero.enigma-black-hole-mobile-victim .battle-card-attribute img.battle-card-attribute-icon{
+ display:block!important;
+ width:15px!important;
+ height:15px!important;
+ min-width:15px!important;
+ min-height:15px!important;
+ max-width:15px!important;
+ max-height:15px!important;
+ flex:0 0 15px!important;
+ object-fit:contain!important;
+ object-position:center!important;
+ transform:none!important;
+ filter:none!important;
+ background:none!important;
+ border:0!important;
+ border-radius:0!important;
+ box-shadow:none!important;
+ padding:0!important;
+ margin:0!important;
+ opacity:1!important;
+}
 html.dota-landscape-mobile .battlefield .hero .battle-card-attributes{gap:5px!important;min-height:14px!important;margin:auto 0 3px!important}
 html.dota-landscape-mobile .battle-card-attribute{gap:2px!important;min-width:22px!important;font-size:10px!important}
-html.dota-landscape-mobile .battlefield .hero .battle-card-attribute img.battle-card-attribute-icon{
+html.dota-landscape-mobile .hero .battle-card-attribute img.battle-card-attribute-icon{
  width:12px!important;height:12px!important;min-width:12px!important;min-height:12px!important;max-width:12px!important;max-height:12px!important;flex-basis:12px!important
 }
 html.dota-android .battle-card-attribute{min-width:20px!important;font-size:9px!important}
-html.dota-android .battlefield .hero .battle-card-attribute img.battle-card-attribute-icon{
+html.dota-android .hero .battle-card-attribute img.battle-card-attribute-icon{
  width:11px!important;height:11px!important;min-width:11px!important;min-height:11px!important;max-width:11px!important;max-height:11px!important;flex-basis:11px!important
 }
 `;
