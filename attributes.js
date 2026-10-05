@@ -172,8 +172,8 @@ function renderBattleCardAttributes(h,node){
  const primary=h.primaryAttribute||ATTR[h.id==='arcwarden_clone'?'arcwarden':h.id]?.primary||'';
  row.innerHTML=['strength','agility','intelligence'].map(key=>{
   const label=key==='strength'?'Сила':key==='agility'?'Ловкость':'Интеллект';
-  const icon=`assets/attributes/${key}.png?v=10`;
-  return `<span class="battle-card-attribute ${key} ${key===primary?'primary':''}" title="${label}"><i class="battle-card-attribute-icon" aria-hidden="true" style="background-image:url('${icon}')"></i><b>${values[key]}</b></span>`;
+  const icon=GROUPS.find(g=>g.id===key)?.icon||'';
+  return `<span class="battle-card-attribute ${key} ${key===primary?'primary':''}" title="${label}"><img class="battle-card-attribute-icon" src="${icon}" alt=""><b>${values[key]}</b></span>`;
  }).join('');
 }
 const previousAttributeRenderTeam=renderTeam;
@@ -222,24 +222,39 @@ attributeCardStyle.textContent=`
  font-weight:900!important;
  text-shadow:0 1px 2px #000!important;
 }
-.battle-card-attribute-icon{
+.battlefield .hero .battle-card-attribute img.battle-card-attribute-icon{
  display:block!important;
  width:15px!important;
  height:15px!important;
  min-width:15px!important;
+ min-height:15px!important;
+ max-width:15px!important;
+ max-height:15px!important;
+ flex:0 0 15px!important;
+ object-fit:contain!important;
+ object-position:center!important;
+ image-rendering:auto!important;
+ transform:none!important;
+ filter:none!important;
+ background:none!important;
  background-color:transparent!important;
- background-size:contain!important;
- background-position:center!important;
- background-repeat:no-repeat!important;
  border:0!important;
- border-radius:0!important;
+ outline:0!important;
  box-shadow:none!important;
+ border-radius:0!important;
+ padding:0!important;
+ margin:0!important;
+ opacity:1!important;
 }
 html.dota-landscape-mobile .battlefield .hero .battle-card-attributes{gap:5px!important;min-height:14px!important;margin:auto 0 3px!important}
 html.dota-landscape-mobile .battle-card-attribute{gap:2px!important;min-width:22px!important;font-size:10px!important}
-html.dota-landscape-mobile .battle-card-attribute-icon{width:12px!important;height:12px!important;min-width:12px!important}
+html.dota-landscape-mobile .battlefield .hero .battle-card-attribute img.battle-card-attribute-icon{
+ width:12px!important;height:12px!important;min-width:12px!important;min-height:12px!important;max-width:12px!important;max-height:12px!important;flex-basis:12px!important
+}
 html.dota-android .battle-card-attribute{min-width:20px!important;font-size:9px!important}
-html.dota-android .battle-card-attribute-icon{width:11px!important;height:11px!important;min-width:11px!important}
+html.dota-android .battlefield .hero .battle-card-attribute img.battle-card-attribute-icon{
+ width:11px!important;height:11px!important;min-width:11px!important;min-height:11px!important;max-width:11px!important;max-height:11px!important;flex-basis:11px!important
+}
 `;
 document.head.appendChild(attributeCardStyle);
 
