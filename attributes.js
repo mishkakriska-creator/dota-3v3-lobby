@@ -21,11 +21,12 @@ const ATTR={
  enigma:{primary:'intelligence',strength:7,agility:1,intelligence:1},
  chen:{primary:'intelligence',strength:8,agility:2,intelligence:3},
  earthshaker:{primary:'strength',strength:8,agility:1,intelligence:3},
- huskar:{primary:'strength',strength:8,agility:3,intelligence:1}
+ huskar:{primary:'strength',strength:8,agility:3,intelligence:1},
+ meepo:{primary:'agility',strength:7,agility:6,intelligence:1}
 };
 const GROUPS=[
  {id:'strength',name:'СИЛА',icon:'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/icons/hero_strength.png',heroes:['lifestealer','pudge','axe','mars','earthshaker','huskar','abaddon']},
- {id:'agility',name:'ЛОВКОСТЬ',icon:'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/icons/hero_agility.png',heroes:['morphling','shadowfiend','arcwarden','broodmother','phantomlancer']},
+ {id:'agility',name:'ЛОВКОСТЬ',icon:'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/icons/hero_agility.png',heroes:['morphling','shadowfiend','arcwarden','broodmother','phantomlancer','meepo']},
  {id:'intelligence',name:'ИНТЕЛЛЕКТ',icon:'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/icons/hero_intelligence.png',heroes:['techies','bane','io','tinker','silencer','invoker','necrophos','ancient_apparition','enigma','chen']}
 ];
 window.HERO_ATTRIBUTES=ATTR;
