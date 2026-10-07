@@ -33,67 +33,76 @@ function meepoUnitNode(h,u){
  if(base?.dataset?.meepoBaseUnit===u.uid)return base.querySelector('.hero-portrait')||base;
  return null;
 }
-function poofGhost(node,label){
+function poofRect(node){
  if(!node)return null;
- const r=node.getBoundingClientRect(),g=document.createElement('div');
- g.className='meepo-poof-ghost';
- g.style.left=r.left+'px';g.style.top=r.top+'px';g.style.width=r.width+'px';g.style.height=r.height+'px';
- g.innerHTML='<div class="meepo-poof-ghost-core"><img src="'+M.D+'" alt=""><b>'+label+'</b></div>';
- document.body.appendChild(g);
- return {el:g,rect:r};
+ const r=node.getBoundingClientRect();
+ if(!r||!r.width||!r.height)return null;
+ return {left:r.left,top:r.top,width:r.width,height:r.height,cx:r.left+r.width/2,cy:r.top+r.height/2};
 }
-function animatePoofSwap(h,source,target,onSwap,onDone){
- const a=poofGhost(meepoUnitNode(h,source),'M'+(source.i+1));
- const b=poofGhost(meepoUnitNode(h,target),'M'+(target.i+1));
- if(!a||!b){a?.el.remove();b?.el.remove();onSwap();onDone();return}
- const dx=b.rect.left-a.rect.left,dy=b.rect.top-a.rect.top;
- const dx2=a.rect.left-b.rect.left,dy2=a.rect.top-b.rect.top;
- const dur=620,swapAt=360;
- let aa=null,bb=null;
- try{
-  aa=a.el.animate([
-   {offset:0,transform:'translate3d(0,0,0) scale(1)',filter:'brightness(1) drop-shadow(0 0 0 rgba(83,214,255,0))',opacity:1},
-   {offset:.35,transform:'translate3d('+(dx*.35)+'px,'+(dy*.35-24)+'px,0) scale(.88)',filter:'brightness(1.55) drop-shadow(0 0 12px rgba(83,214,255,.9))',opacity:.95},
-   {offset:.58,transform:'translate3d('+(dx*.58)+'px,'+(dy*.58-12)+'px,0) scale(.68)',filter:'brightness(2) drop-shadow(0 0 20px rgba(83,214,255,1))',opacity:.72},
-   {offset:1,transform:'translate3d('+dx+'px,'+dy+'px,0) scale(1)',filter:'brightness(1.15) drop-shadow(0 0 5px rgba(83,214,255,.6))',opacity:1}
-  ],{duration:dur,easing:'cubic-bezier(.3,.8,.2,1)',fill:'forwards'});
-  bb=b.el.animate([
-   {offset:0,transform:'translate3d(0,0,0) scale(1)',filter:'brightness(1) drop-shadow(0 0 0 rgba(166,108,255,0))',opacity:1},
-   {offset:.35,transform:'translate3d('+(dx2*.35)+'px,'+(dy2*.35+24)+'px,0) scale(.88)',filter:'brightness(1.55) drop-shadow(0 0 12px rgba(166,108,255,.9))',opacity:.95},
-   {offset:.58,transform:'translate3d('+(dx2*.58)+'px,'+(dy2*.58+12)+'px,0) scale(.68)',filter:'brightness(2) drop-shadow(0 0 20px rgba(166,108,255,1))',opacity:.72},
-   {offset:1,transform:'translate3d('+dx2+'px,'+dy2+'px,0) scale(1)',filter:'brightness(1.15) drop-shadow(0 0 5px rgba(166,108,255,.6))',opacity:1}
-  ],{duration:dur,easing:'cubic-bezier(.3,.8,.2,1)',fill:'forwards'});
- }catch(_){}
- setTimeout(onSwap,swapAt);
- setTimeout(()=>{try{aa?.cancel();bb?.cancel()}catch(_){}a.el.remove();b.el.remove();onDone()},dur+40);
+function poofFxAt(rect,phase='charge'){
+ if(!rect)return null;
+ const fx=document.createElement('div');
+ fx.className='meepo-poof-fx '+phase;
+ fx.style.left=rect.cx+'px';
+ fx.style.top=rect.cy+'px';
+ fx.innerHTML='<i class="meepo-poof-core"></i><i class="meepo-poof-ring r1"></i><i class="meepo-poof-ring r2"></i><i class="meepo-poof-smoke"></i>'+Array.from({length:10},(_,i)=>'<b class="meepo-poof-spark s'+i+'"></b>').join('');
+ document.body.appendChild(fx);
+ requestAnimationFrame(()=>fx.classList.add('go'));
+ setTimeout(()=>fx.remove(),phase==='burst'?760:520);
+ return fx;
+}
+function animatePoofTeleport(h,source,target,onImpact,onDone){
+ const srcRect=poofRect(meepoUnitNode(h,source));
+ const dstRect=poofRect(meepoUnitNode(h,target));
+ if(!srcRect||!dstRect){onImpact(srcRect,dstRect);onDone();return}
+ poofFxAt(srcRect,'charge');
+ poofFxAt(dstRect,'charge');
+ setTimeout(()=>{
+  poofFxAt(srcRect,'burst');
+  poofFxAt(dstRect,'burst');
+  onImpact(srcRect,dstRect);
+ },360);
+ setTimeout(onDone,760);
 }
 function finishPoof(h,source,target,mode){
  M.normalize?.(h);
  if(!h||!source||!target||source===target||source.dead||target.dead||M.poofAnimating)return;
+ if(!source.host&&target.host&&M.lines(h).length<=1)return;
  M.poofAnimating=true;
  M.poofSelect=null;
  render();
- animatePoofSwap(h,source,target,()=>{
-  // The actual swap, damage and sound happen together at the animation impact.
-  const before=[source.host?{...source.host}:null,target.host?{...target.host}:null];
-  const z=source.host;source.host=target.host;target.host=z;
-  M.normalize?.(h);
-  if(h.meepoLine===source.uid&&target&&!target.host)h.meepoLine=target.uid;
-  else if(h.meepoLine===target.uid&&source&&!source.host)h.meepoLine=source.uid;
-  if(!M.lines(h).length){source.host=null;h.meepoLine=source.uid}
-  window.playMeepoPoof?.();
-  for(const ref of before){
-   if(!ref)continue;
-   const t=(G.teams?.[ref.team]||[]).find(x=>x.id===ref.id&&!x.dead);
-   if(t)spellDamage(t,1,'🌀 Poof: ',h,{impactDelay:0});
+
+ const depart=source.host?{...source.host}:null;
+ const arrive=target.host?{...target.host}:null;
+
+ animatePoofTeleport(h,source,target,()=>{
+  source.host=target.host?{...target.host}:null;
+
+  if(h.meepoLine===source.uid&&source.host){
+   const fallback=M.units(h).find(x=>x.uid!==source.uid&&!x.host&&!x.dead);
+   if(fallback)h.meepoLine=fallback.uid;
   }
+  if(!source.host&&!h.meepoLine)h.meepoLine=source.uid;
+
+  M.normalize?.(h);
+
+  window.playMeepoPoof?.();
+
+  for(const ref of [depart,arrive]){
+   if(!ref)continue;
+   const victim=(G.teams?.[ref.team]||[]).find(x=>x.id===ref.id&&!x.dead);
+   if(victim)spellDamage(victim,1,'🌀 Poof: ',h,{impactDelay:0});
+  }
+
   source.poofCd=1;
-  addSkillLog(h,'poof','Meepo '+(source.i+1)+' меняется местами с Meepo '+(target.i+1)+'.');
-  M.sync(h);render();
+  addSkillLog(h,'poof','Meepo '+(source.i+1)+' телепортируется к Meepo '+(target.i+1)+'.');
+  M.sync(h);
+  render();
  },()=>{
   M.poofAnimating=false;
   if(mode==='assist')M.consumeAssist(h,source);else spendUnit(h,source);
-  M.sync(h);render();
+  M.sync(h);
+  render();
  });
 }
 M.poofSelectActive=()=>{
@@ -107,7 +116,10 @@ M.poofSelectActive=()=>{
 };
 M.canPoofTarget=(h,u)=>{
  if(!M.poofSelectActive()||!h||!u||u.dead)return false;
- const st=M.poofSelect;return h.team===st.team&&u.uid!==st.sourceUid;
+ const st=M.poofSelect,source=M.by(h,st.sourceUid);
+ if(h.team!==st.team||u.uid===st.sourceUid||!source)return false;
+ if(!source.host&&u.host&&M.lines(h).length<=1)return false;
+ return true;
 };
 M.startPoof=(h,u,mode='turn')=>{
  if(M.poofAnimating)return;
