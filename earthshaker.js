@@ -178,7 +178,7 @@
     let n=0;
     for(const h of G?.teams?.[1-team]||[]){
       if(!h||h.dead||h.infested)continue;
-      if(h.id==='chen_creeps')n+=Math.max(1,Array.isArray(h.chenCreeps)?h.chenCreeps.length:1);else n+=1;
+      if(h.id==='chen_creeps')n+=Math.max(1,Array.isArray(h.chenCreeps)?h.chenCreeps.length:1);else if(h.id==='meepo'&&Array.isArray(h.meepoUnits))n+=Math.max(1,h.meepoUnits.filter(u=>!u.dead&&(Number(u.hp)||0)>0).length);else n+=1;
       if(h.id==='broodmother')n+=Array.isArray(h.broodlingTimers)?h.broodlingTimers.length:0;
       if(h.forgeSpirit&&!h.forgeSpirit.dead&&h.forgeSpirit.turns>0)n+=1;
     }
