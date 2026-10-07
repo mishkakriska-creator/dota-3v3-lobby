@@ -14,6 +14,8 @@ function unitClasses(h,u){
  if(M.canPoofTarget?.(h,u))cls.push('meepo-poof-target');
  if(M.assistAvailable?.(h)&&M.assistSelected?.(h)?.uid===u.uid)cls.push('meepo-assist-selected');
  if(h.meepoLine===u.uid)cls.push('meepo-line-primary');
+ if(h.meepoSel===u.uid&&active?.()===h)cls.push('meepo-selected');
+ if(M.poofSelectActive?.()&&M.poofSelect?.team===h.team&&M.poofSelect?.sourceUid===u.uid)cls.push('meepo-poof-source');
  return cls.join(' ');
 }
 function unitClick(h,u,e){
@@ -24,13 +26,15 @@ function unitClick(h,u,e){
  if(G?.team===h.team&&active?.()===h&&!targetMode&&!M.attackSelect&&!M.poofSelect)M.switch(h,u);
 }
 function lineUnitHTML(h,u){
- return '<button type="button" class="'+unitClasses(h,u)+' meepo-line-unit" data-meepo-team="'+h.team+'" data-meepo-unit="'+u.uid+'"><img src="'+M.D+'" alt=""><span class="meepo-unit-copy"><b>M'+(u.i+1)+'</b><small>❤️ '+compactStatNum(u.hp)+'/'+compactStatNum(u.maxHp)+' · ⚔️ '+compactStatNum(effectiveAtk(h))+'</small></span></button>';
+ const selected=h.meepoSel===u.uid&&active?.()===h?'<em class="meepo-selected-badge">ВЫБРАН</em>':'';
+ return '<button type="button" class="'+unitClasses(h,u)+' meepo-line-unit" data-meepo-team="'+h.team+'" data-meepo-unit="'+u.uid+'">'+selected+'<img src="'+M.D+'" alt=""><span class="meepo-unit-copy"><b>Meepo '+(u.i+1)+'</b><small>❤️ '+compactStatNum(u.hp)+'/'+compactStatNum(u.maxHp)+' · ⚔️ '+compactStatNum(effectiveAtk(h))+'</small></span></button>';
 }
 function hostUnitHTML(h,u){
+ const selected=h.meepoSel===u.uid&&active?.()===h?'<em class="meepo-selected-badge">ВЫБРАН</em>':'';
  const media=window.MeepoMedia?.video
   ? '<video src="'+window.MeepoMedia.video+'" poster="'+M.D+'" autoplay muted loop playsinline preload="auto"></video>'
   : '<img src="'+M.D+'" alt="">';
- return '<button type="button" class="'+unitClasses(h,u)+' meepo-host-unit" data-meepo-team="'+h.team+'" data-meepo-unit="'+u.uid+'">'+media+'<span><b>M'+(u.i+1)+'</b> ❤️'+compactStatNum(u.hp)+' · ⚔️'+compactStatNum(effectiveAtk(h))+'</span></button>';
+ return '<button type="button" class="'+unitClasses(h,u)+' meepo-host-unit" data-meepo-team="'+h.team+'" data-meepo-unit="'+u.uid+'">'+selected+media+'<span><b>Meepo '+(u.i+1)+'</b> ❤️'+compactStatNum(u.hp)+' · ⚔️'+compactStatNum(effectiveAtk(h))+'</span></button>';
 }
 function patchLine(h){
  const card=document.getElementById('hero-'+h.team+'-'+M.ID);if(!card)return;
@@ -75,7 +79,7 @@ render=function(){
  document.querySelectorAll('.meepo-normal-attack-target').forEach(x=>x.classList.remove('meepo-normal-attack-target'));
  if(M.attackSelect&&!M.attackSelectActive?.())M.attackSelect=null;
  if(M.poofSelect&&!M.poofSelectActive?.())M.poofSelect=null;
- for(const t of[0,1]){const h=M.root(t);if(h){M.spawn(h);M.sync(h)}}
+ for(const t of[0,1]){const h=M.root(t);if(h){M.spawn(h);M.normalize?.(h);M.sync(h)}}
  const r=oldR();
  for(const t of[0,1]){const h=M.root(t);if(h){patchLine(h);patchHosted(h)}}
  if(M.attackSelectActive?.()){
@@ -122,7 +126,10 @@ st.textContent=`
 .meepo-line-unit{pointer-events:auto;flex:1;min-width:0;max-width:74px;display:grid;grid-template-columns:30px 1fr;align-items:center;gap:4px;padding:3px;background:linear-gradient(180deg,rgba(14,31,39,.95),rgba(5,15,20,.96));border:1px solid rgba(83,214,200,.8);border-radius:7px;color:#fff;box-shadow:0 3px 10px rgba(0,0,0,.45)}
 .meepo-line-unit img{width:30px!important;height:34px!important;min-width:30px!important;object-fit:cover!important;object-position:center!important;border-radius:4px!important}
 .meepo-unit-copy{min-width:0;text-align:left;line-height:1.05}.meepo-unit-copy b{display:block;font:900 9px system-ui}.meepo-unit-copy small{display:block;font:800 7px system-ui;white-space:nowrap;margin-top:3px}
-.meepo-line-primary{border-color:#ffd34d!important}
+.meepo-line-primary{border-color:#7da9c7!important}
+.meepo-selected{position:relative!important;border:2px solid #ffd34d!important;box-shadow:0 0 0 1px rgba(255,211,77,.25),0 0 18px rgba(255,211,77,.9)!important;transform:translateY(-1px)!important}
+.meepo-selected-badge{position:absolute;top:-7px;left:50%;transform:translateX(-50%);z-index:4;background:#ffd34d;color:#1a1400;border-radius:4px;padding:1px 4px;font:900 6px/1.4 system-ui;font-style:normal;letter-spacing:.25px;white-space:nowrap;box-shadow:0 1px 5px #000}
+.meepo-poof-source{outline:2px solid #a66cff!important;box-shadow:0 0 15px rgba(166,108,255,.95)!important}
 .hero>.meepo-hosts{position:absolute!important;left:4px!important;right:4px!important;top:4px!important;bottom:auto!important;display:flex!important;align-items:flex-start!important;justify-content:center!important;gap:4px!important;z-index:40!important;pointer-events:none!important}
 .meepo-host-unit{pointer-events:auto!important;width:46%!important;max-width:62px!important;padding:2px!important;background:rgba(5,18,23,.96)!important;color:#fff!important;border:1px solid #55d6c8!important;border-radius:6px!important;box-shadow:0 3px 12px rgba(0,0,0,.55)!important}
 .meepo-host-unit img,.meepo-host-unit video{width:100%!important;height:39px!important;object-fit:cover!important;object-position:center!important;display:block!important;border-radius:4px!important}
