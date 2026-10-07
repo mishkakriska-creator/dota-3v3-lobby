@@ -1,8 +1,6 @@
 name: Deploy Dota 3v3 Web Prototype
 
 on:
-  push:
-    branches: [web-prototype]
   workflow_dispatch:
 
 permissions:
