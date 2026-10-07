@@ -621,7 +621,7 @@ function openHeroPick(id){
  $('#heroPickModal').classList.remove('hidden');
 }
 function closeHeroPick(){draftPreview=null;$('#heroPickModal').classList.add('hidden')}
-const DRAFT_ORDER=['techies','morphling','bane','io','tinker','silencer','shadowfiend','lifestealer','abaddon','invoker','arcwarden','axe','broodmother','mars'];
+const DRAFT_ORDER=['techies','morphling','bane','io','tinker','silencer','shadowfiend','lifestealer','abaddon','invoker','arcwarden','axe','broodmother','mars','meepo'];
 function draft(){
  const box=$('#draftCards');box.innerHTML='';
  DRAFT_ORDER.filter(id=>DATA[id]).forEach(id=>{let h=DATA[id],d=document.createElement('button');d.className='draft-card';d.dataset.id=id;let mp=Number.isInteger(window.DOTA_NET_PLAYER)?window.DOTA_NET_PLAYER:0;d.innerHTML=`<img src="${draftPortraitSrc(id)}" alt="${h.name}"><div class="draft-card-name">${h.name}</div><div class="draft-mastery-host">${window.DotaProfile?.masteryBadgeHTML?.(mp,id,true)||''}</div>`;d.onclick=()=>openHeroPick(id);box.appendChild(d)});
