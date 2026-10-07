@@ -26,13 +26,17 @@ function chooseHost(h,u,consume){
 M.chooseHost=(h,u)=>chooseHost(h,u,()=>spendUnit(h,u));
 
 function finishPoof(h,source,target,mode){
- if(!h||!source||!target||source===target)return;
+ M.normalize?.(h);
+ if(!h||!source||!target||source===target||source.dead||target.dead)return;
  for(const x of [source,target]){
   const t=M.host(x);
   if(t)spellDamage(t,1,'🌀 Poof: ',h,{impactDelay:80});
  }
  const z=source.host;source.host=target.host;target.host=z;
- if(h.meepoLine===source.uid)h.meepoLine=target.uid;else if(h.meepoLine===target.uid)h.meepoLine=source.uid;
+ M.normalize?.(h);
+ if(h.meepoLine===source.uid&&target&&!target.host)h.meepoLine=target.uid;
+ else if(h.meepoLine===target.uid&&source&&!source.host)h.meepoLine=source.uid;
+ if(!M.lines(h).length){source.host=null;h.meepoLine=source.uid}
  source.poofCd=1;
  addSkillLog(h,'poof','Meepo '+(source.i+1)+' меняется местами с Meepo '+(target.i+1)+'.');
  M.poofSelect=null;
@@ -41,7 +45,8 @@ function finishPoof(h,source,target,mode){
 }
 M.poofSelectActive=()=>{
  const st=M.poofSelect;if(!st||!G)return false;
- const h=M.root(st.team),source=h&&M.by(h,st.sourceUid);
+ const h=M.root(st.team);if(h)M.normalize?.(h);
+ const source=h&&M.by(h,st.sourceUid);
  if(!h||!source||source.dead||source.poofCd>0)return false;
  if(st.mode==='assist')return M.assistAvailable(h)&&M.assistSelected(h)?.uid===source.uid;
  return active?.()===h&&G.team===h.team&&source.actions>0;
@@ -51,13 +56,15 @@ M.canPoofTarget=(h,u)=>{
  const st=M.poofSelect;return h.team===st.team&&u.uid!==st.sourceUid;
 };
 M.startPoof=(h,u,mode='turn')=>{
- if(!h||!u||u.dead||u.poofCd>0)return;
+ M.normalize?.(h);
+ if(!h||!u||u.dead||u.poofCd>0||!M.units(h).includes(u))return;
  if(M.poofSelectActive()&&M.poofSelect?.sourceUid===u.uid){M.poofSelect=null;render();return}
  M.attackSelect=null;
  M.poofSelect={team:h.team,sourceUid:u.uid,mode,serial:G.turnSerial};
  window.playMeepoPoof?.();render();
 };
 M.pickPoofTarget=(h,u)=>{
+ M.normalize?.(h);
  if(!M.canPoofTarget(h,u))return;
  const st=M.poofSelect,source=M.by(h,st.sourceUid);
  if(source)finishPoof(h,source,u,st.mode);
