@@ -25,9 +25,9 @@ function unitClick(h,u,e){
  if(M.assistAvailable?.(h)&&u.host){M.selectAssist(h,u);return}
  if(G?.team===h.team&&active?.()===h&&!targetMode&&!M.attackSelect&&!M.poofSelect)M.switch(h,u);
 }
-function lineUnitHTML(h,u){
- const selected=h.meepoSel===u.uid&&active?.()===h?'<i class="meepo-selected-check">✓</i>':'';
- return '<button type="button" class="'+unitClasses(h,u)+' meepo-line-unit" data-meepo-team="'+h.team+'" data-meepo-unit="'+u.uid+'"><span class="meepo-line-avatar"><img src="'+M.D+'" alt=""><b class="meepo-line-index">'+(u.i+1)+'</b>'+selected+'</span><small class="meepo-line-hp">♥ '+compactStatNum(u.hp)+'</small></button>';
+function cloneUnitHTML(h,u){
+ const selected=h.meepoSel===u.uid&&active?.()===h?'<i class="meepo-clone-check">✓</i>':'';
+ return '<button type="button" class="'+unitClasses(h,u)+' meepo-clone-unit" data-meepo-team="'+h.team+'" data-meepo-unit="'+u.uid+'"><span class="meepo-clone-avatar"><img src="'+M.D+'" alt=""><b class="meepo-clone-index">'+(u.i+1)+'</b>'+selected+'</span><small class="meepo-clone-hp">♥ '+compactStatNum(u.hp)+'</small></button>';
 }
 function hostUnitHTML(h,u){
  const selected=h.meepoSel===u.uid&&active?.()===h?'<em class="meepo-selected-badge">ВЫБРАН</em>':'';
@@ -38,16 +38,29 @@ function hostUnitHTML(h,u){
 }
 function patchLine(h){
  const card=document.getElementById('hero-'+h.team+'-'+M.ID);if(!card)return;
- const portrait=card.querySelector('.hero-portrait'),ls=M.lines(h);
- let pods=portrait?.querySelector('.meepo-line-pods');
- if(!pods&&portrait){pods=document.createElement('div');pods.className='meepo-line-pods';portrait.appendChild(pods)}
- if(!pods)return;
- const targeting=M.attackSelectActive?.()||M.poofSelectActive?.();
- const shouldShow=ls.length>1||(targeting&&ls.some(u=>M.canAttackUnit?.(h,u)||M.canPoofTarget?.(h,u)));
- pods.innerHTML=shouldShow?ls.map(u=>lineUnitHTML(h,u)).join(''):'';
- pods.style.display=shouldShow?'flex':'none';
- pods.querySelectorAll('[data-meepo-unit]').forEach(b=>{
-  const u=M.by(h,b.dataset.meepoUnit);if(u)b.onclick=e=>unitClick(h,u,e);
+ card.querySelectorAll('.meepo-line-pods,.meepo-clone-stack,.meepo-main-selected-badge').forEach(x=>x.remove());
+ card.classList.remove('meepo-main-selected','meepo-base-unit-attackable','meepo-base-poof-target','meepo-base-poof-source');
+ delete card.dataset.meepoBaseUnit;
+ const lineUnits=M.lines(h),base=M.line(h)||lineUnits[0]||null;
+ if(!base)return;
+ card.dataset.meepoBaseUnit=base.uid;
+ if(M.canAttackUnit?.(h,base))card.classList.add('meepo-base-unit-attackable');
+ if(M.canPoofTarget?.(h,base))card.classList.add('meepo-base-poof-target');
+ if(M.poofSelectActive?.()&&M.poofSelect?.team===h.team&&M.poofSelect?.sourceUid===base.uid)card.classList.add('meepo-base-poof-source');
+ if(h.meepoSel===base.uid&&active?.()===h){
+  card.classList.add('meepo-main-selected');
+  const badge=document.createElement('div');
+  badge.className='meepo-main-selected-badge';
+  badge.textContent='M'+(base.i+1)+' ✓';
+  card.appendChild(badge);
+ }
+ const clones=lineUnits.filter(x=>x.uid!==base.uid);
+ if(!clones.length)return;
+ const stack=document.createElement('div');stack.className='meepo-clone-stack';
+ stack.innerHTML=clones.map(x=>cloneUnitHTML(h,x)).join('');
+ card.appendChild(stack);
+ stack.querySelectorAll('[data-meepo-unit]').forEach(b=>{
+  const unit=M.by(h,b.dataset.meepoUnit);if(unit)b.onclick=e=>unitClick(h,unit,e);
  });
 }
 function patchHosted(h){
@@ -75,7 +88,7 @@ function patchAssistPanel(h){
 }
 const oldR=render;
 render=function(){
- document.querySelectorAll('.meepo-hosts,.meepo-assist-panel').forEach(x=>x.remove());
+ document.querySelectorAll('.meepo-hosts,.meepo-assist-panel,.meepo-clone-stack,.meepo-main-selected-badge,.meepo-line-pods').forEach(x=>x.remove());
  document.querySelectorAll('.meepo-normal-attack-target').forEach(x=>x.classList.remove('meepo-normal-attack-target'));
  if(M.attackSelect&&!M.attackSelectActive?.())M.attackSelect=null;
  if(M.poofSelect&&!M.poofSelectActive?.())M.poofSelect=null;
@@ -153,6 +166,7 @@ html.dota-landscape-mobile .meepo-line-index,html.dota-landscape-mobile .meepo-s
 html.dota-landscape-mobile .meepo-line-hp{font-size:7px!important;line-height:8px!important}
 .meepo-assist-panel{font-size:10px}
 `;
+st.textContent+="\n/* Meepo line layout v7: the full card is the line Meepo; only extra clones float above it. */\n.meepo-line-pods{display:none!important}\n.hero.meepo-main-selected{box-shadow:0 0 0 2px #ffd34d,0 0 20px rgba(255,211,77,.62)!important}\n.hero.meepo-base-unit-attackable{cursor:crosshair!important;box-shadow:0 0 0 2px #ffcf45,0 0 18px rgba(255,207,69,.55)!important}\n.hero.meepo-base-poof-target{cursor:pointer!important;box-shadow:0 0 0 2px #62d8ff,0 0 18px rgba(98,216,255,.65)!important}\n.hero.meepo-base-poof-source{box-shadow:0 0 0 2px #a66cff,0 0 18px rgba(166,108,255,.75)!important}\n.meepo-main-selected-badge{position:absolute!important;top:5px!important;left:50%!important;transform:translateX(-50%)!important;z-index:47!important;background:#ffd34d!important;color:#1b1400!important;border:1px solid #fff0a4!important;border-radius:5px!important;padding:2px 6px!important;font:1000 7px/1.25 system-ui!important;letter-spacing:.3px!important;box-shadow:0 2px 7px rgba(0,0,0,.7)!important;pointer-events:none!important}\n.hero>.meepo-clone-stack{position:absolute!important;top:31px!important;left:5px!important;right:5px!important;z-index:46!important;display:flex!important;justify-content:center!important;align-items:flex-start!important;gap:5px!important;pointer-events:none!important}\n.meepo-clone-unit{pointer-events:auto!important;position:relative!important;width:43px!important;height:49px!important;flex:0 0 43px!important;display:flex!important;flex-direction:column!important;align-items:center!important;gap:2px!important;padding:2px!important;background:rgba(5,15,20,.94)!important;border:1px solid rgba(83,214,200,.82)!important;border-radius:7px!important;color:#fff!important;box-shadow:0 3px 10px rgba(0,0,0,.58)!important;overflow:visible!important}\n.meepo-clone-avatar{position:relative!important;display:block!important;width:37px!important;height:34px!important}\n.meepo-clone-avatar img{display:block!important;width:37px!important;height:34px!important;min-width:37px!important;max-width:37px!important;object-fit:cover!important;object-position:center!important;border-radius:5px!important}\n.meepo-clone-index{position:absolute!important;left:-3px!important;top:-3px!important;width:14px!important;height:14px!important;border-radius:50%!important;display:grid!important;place-items:center!important;background:#10262c!important;border:1px solid #64d8cc!important;color:#fff!important;font:900 8px/14px system-ui!important;box-shadow:0 1px 4px #000!important}\n.meepo-clone-hp{display:block!important;width:100%!important;text-align:center!important;font:900 8px/10px system-ui!important;color:#f1f6fb!important;white-space:nowrap!important}\n.meepo-clone-unit.meepo-selected{border:2px solid #ffd34d!important;box-shadow:0 0 0 1px rgba(255,211,77,.2),0 0 15px rgba(255,211,77,.85)!important;transform:translateY(-2px)!important}\n.meepo-clone-unit.meepo-selected .meepo-clone-index{background:#ffd34d!important;border-color:#fff0a4!important;color:#181100!important}\n.meepo-clone-check{position:absolute!important;right:-4px!important;top:-4px!important;width:14px!important;height:14px!important;border-radius:50%!important;display:grid!important;place-items:center!important;background:#ffd34d!important;color:#181100!important;border:1px solid #fff0a4!important;font:1000 9px/14px system-ui!important;font-style:normal!important;box-shadow:0 1px 5px #000!important}\n.meepo-clone-unit.meepo-unit-attackable{outline:2px solid #ffcf45!important}\n.meepo-clone-unit.meepo-poof-target{outline:2px solid #62d8ff!important}\n.meepo-clone-unit.meepo-poof-source{outline:2px solid #a66cff!important}\nhtml.dota-landscape-mobile .hero>.meepo-clone-stack{top:27px!important;gap:3px!important}\nhtml.dota-landscape-mobile .meepo-clone-unit{width:35px!important;height:42px!important;flex-basis:35px!important;padding:1px!important}\nhtml.dota-landscape-mobile .meepo-clone-avatar,html.dota-landscape-mobile .meepo-clone-avatar img{width:31px!important;height:29px!important;min-width:31px!important;max-width:31px!important}\nhtml.dota-landscape-mobile .meepo-clone-hp{font-size:7px!important;line-height:8px!important}\n";
 document.head.appendChild(st);
 try{draft()}catch(_){}
 })();
