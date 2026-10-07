@@ -71,29 +71,32 @@ M.pickPoofTarget=(h,u)=>{
 };
 
 function meepoAttackOwn(h,u,t){
- pureDamage(t,.5,'🪓 Ransack: ',h,{impactDelay:30});M.heal(h,.5);
- if(t.dead){u.attackUsed=true;spendUnit(h,u);return}
  const p=Object.assign({},h,{name:'Meepo '+(u.i+1)});playAttackSound(p);
  if(attackMisses(p,t)){addLog('💨 '+p.name+' промахивается по '+t.name+'.');u.attackUsed=true;spendUnit(h,u);return}
  const hit=attackDamageInfo(p,t,physicalBaseDamage(p,t,effectiveAtk(h)),{allowCrit:true});
- damage(t,hit.damage,attackSourceLabel(p,hit),h,{impactDelay:attackImpactMs(h)});afterSuccessfulBasicHit(h,t,hit.damage);
+ const total=quarterValue((Number(hit.damage)||0)+.5,{minPositive:false});
+ const info=Object.assign({},hit,{tags:[...(hit.tags||[]),'Ransack +0.5 чист.']});
+ damage(t,total,attackSourceLabel(p,info),h,{impactDelay:attackImpactMs(h)});
+ M.heal(h,.5);
+ afterSuccessfulBasicHit(h,t,total);
  u.attackUsed=true;G.attackUsed=true;spendUnit(h,u);
 }
 function meepoAttackAssist(h,u,t){
  if(!M.assistAvailable(h)||M.assistSelected(h)!==u||!t)return;
- pureDamage(t,.5,'🪓 Ransack: ',h,{impactDelay:30});M.heal(h,.5);
- if(!t.dead){
-  const p=Object.assign({},h,{name:'Meepo '+(u.i+1),team:h.team});playAttackSound(p);
-  if(attackMisses(p,t))addLog('💨 '+p.name+' промахивается по '+t.name+'.');
-  else{
-   const hit=attackDamageInfo(p,t,physicalBaseDamage(p,t,effectiveAtk(h)),{allowCrit:true});
-   damage(t,hit.damage,attackSourceLabel(p,hit),h,{impactDelay:attackImpactMs(h)});afterSuccessfulBasicHit(h,t,hit.damage);
-  }
+ const p=Object.assign({},h,{name:'Meepo '+(u.i+1),team:h.team});playAttackSound(p);
+ if(attackMisses(p,t))addLog('💨 '+p.name+' промахивается по '+t.name+'.');
+ else{
+  const hit=attackDamageInfo(p,t,physicalBaseDamage(p,t,effectiveAtk(h)),{allowCrit:true});
+  const total=quarterValue((Number(hit.damage)||0)+.5,{minPositive:false});
+  const info=Object.assign({},hit,{tags:[...(hit.tags||[]),'Ransack +0.5 чист.']});
+  damage(t,total,attackSourceLabel(p,info),h,{impactDelay:attackImpactMs(h)});
+  M.heal(h,.5);
+  afterSuccessfulBasicHit(h,t,total);
  }
  M.consumeAssist(h,u);
 }
 
-M.switch=(h,u)=>{h.meepoSel=u.uid;if(!u.host)h.meepoLine=u.uid;G.actions=u.actions;G.attackUsed=u.attackUsed;M.sync(h);render()};
+M.switch=(h,u)=>{if(!h||!u||u.dead)return;h.meepoSel=u.uid;G.actions=u.actions;G.attackUsed=u.attackUsed;M.sync(h);render()};
 
 M.assistAvailable=h=>{
  if(!h||!G||G.winner!==null)return false;
@@ -198,6 +201,14 @@ document.addEventListener('click',e=>{
  const target=e.target?.closest?.('[data-meepo-unit]');
  if(target){
   const h=M.root(Number(target.dataset.meepoTeam)),u=h&&M.by(h,target.dataset.meepoUnit);
+  if(h&&u){
+   if(M.canAttackUnit?.(h,u)){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation?.();M.attackUnit(h,u);return}
+   if(M.canPoofTarget?.(h,u)){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation?.();M.pickPoofTarget(h,u);return}
+  }
+ }
+ const baseCard=e.target?.closest?.('.hero[data-meepo-base-unit]');
+ if(baseCard){
+  const h=M.root(Number(baseCard.dataset.team)),u=h&&M.by(h,baseCard.dataset.meepoBaseUnit);
   if(h&&u){
    if(M.canAttackUnit?.(h,u)){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation?.();M.attackUnit(h,u);return}
    if(M.canPoofTarget?.(h,u)){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation?.();M.pickPoofTarget(h,u);return}
