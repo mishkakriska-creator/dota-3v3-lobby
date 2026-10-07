@@ -29,8 +29,8 @@ function meepoUnitNode(h,u){
  if(!h||!u)return null;
  const direct=document.querySelector('[data-meepo-team="'+h.team+'"][data-meepo-unit="'+u.uid+'"]');
  if(direct)return direct;
- const base=document.querySelector('.hero[data-team="'+h.team+'"][data-meepo-base-unit="'+u.uid+'"]');
- if(base)return base;
+ const base=document.getElementById('hero-'+h.team+'-'+M.ID);
+ if(base?.dataset?.meepoBaseUnit===u.uid)return base.querySelector('.hero-portrait')||base;
  return null;
 }
 function poofGhost(node,label){
