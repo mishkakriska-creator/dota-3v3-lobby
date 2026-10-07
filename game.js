@@ -615,7 +615,7 @@ function breakTether(io,silent=false){if(!io?.tetherTargetId)return;let ally=tet
 function abilitySheetHTML(id,useSplash=false){
  let h=DATA[id],heroArt=(h?.img||HERO_ICONS[id]);
  let heroMedia=id==='meepo'
-  ? `<video class="ability-hero-icon meepo-ability-video" src="${window.MeepoMedia?.video||h?.portrait||heroArt}" poster="${draftPortraitSrc(id)}" autoplay muted loop playsinline preload="auto"></video>`
+  ? `<img class="ability-hero-icon meepo-sheet-icon" src="${draftPortraitSrc(id)}" alt="MEEPO">`
   : `<img class="ability-hero-icon" src="${heroArt}" alt="">`;
  return `<div class="ability-head">${heroMedia}<div><div class="ability-kicker">ГЕРОЙ</div><div class="ability-hero-name">${h.name}</div><div class="ability-base-stats">❤️ ${h.hp} HP · ⚔️ ${h.atk} урона</div></div></div><div class="ability-list">${h.skills.map((sk,i)=>`<section class="ability-row"><img class="ability-icon" src="${skillIcon(id,sk.id)}" alt=""><div class="ability-copy"><div class="ability-name">${sk.name}</div><div class="ability-desc">${sk.desc}</div></div></section>`).join('')}</div>`;
 }
